@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend", "Backend\Backend.csproj", "{D8B10ACC-1B72-455B-AFD7-08BE8EFB159A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot", "Bot\Bot.csproj", "{D71B88AD-129B-434F-B783-42FB297042F1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D8B10ACC-1B72-455B-AFD7-08BE8EFB159A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8B10ACC-1B72-455B-AFD7-08BE8EFB159A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8B10ACC-1B72-455B-AFD7-08BE8EFB159A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8B10ACC-1B72-455B-AFD7-08BE8EFB159A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D71B88AD-129B-434F-B783-42FB297042F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D71B88AD-129B-434F-B783-42FB297042F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D71B88AD-129B-434F-B783-42FB297042F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D71B88AD-129B-434F-B783-42FB297042F1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
