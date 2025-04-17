@@ -1,4 +1,4 @@
-﻿namespace Backend.Entity;
+﻿namespace Core.Entity;
 
 public class TextContent : ContentItem
 {
