@@ -5,7 +5,8 @@ import ContentManager from "../components/ContentManager";
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState(usersData);
-  const blocks = ["block1", "block2", "block3", "block4"];
+  const [openBlocks, setOpenBlocks] = useState([]); // массив открытых блоков
+  const blocks = ["1", "2", "3", "4"];
 
   const handleBlock = (id) => {
     setUsers(users.map(u => u.id === id ? { ...u, blocked: !u.blocked } : u));
@@ -13,6 +14,14 @@ const AdminDashboard = () => {
 
   const handleDelete = (id) => {
     setUsers(users.filter(u => u.id !== id));
+  };
+
+  const toggleBlock = (blockId) => {
+    setOpenBlocks((prev) =>
+      prev.includes(blockId)
+        ? prev.filter(id => id !== blockId)
+        : [...prev, blockId]
+    );
   };
 
   return (
@@ -32,8 +41,18 @@ const AdminDashboard = () => {
             key={blockId}
             className="border p-4 rounded shadow w-[300px] min-w-[250px] bg-white"
           >
-            <h3 className="text-lg font-semibold mb-2">Блок {blockId.slice(-1)}</h3>
-            <ContentManager blockId={blockId} />
+            <button
+              onClick={() => toggleBlock(blockId)}
+              className="text-lg font-semibold mb-2 hover:underline text-left w-full"
+            >
+              Материалы блока {blockId}
+            </button>
+
+            {openBlocks.includes(blockId) && (
+              <div className="mt-2">
+                <ContentManager blockId={blockId} />
+              </div>
+            )}
           </div>
         ))}
       </div>
