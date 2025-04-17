@@ -20,11 +20,11 @@ var builder = Host.CreateApplicationBuilder(args);
 // Получаем токен из .env
 var botToken = Environment.GetEnvironmentVariable("TOKEN")
                ?? throw new ArgumentNullException("Не указан телеграм бот токен");
+var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") 
+                       ?? throw new ArgumentNullException("Не указан путь подключения к базе данных");
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
-
 
 builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
 
