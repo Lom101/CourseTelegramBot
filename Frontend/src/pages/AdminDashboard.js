@@ -1,15 +1,14 @@
 import React, { useState } from "react";
 import usersData from "../data/users";
 import UserList from "../components/UserList";
-import ContentManager from "../components/ContentManager"; // ← добавили
+import ContentManager from "../components/ContentManager";
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState(usersData);
+  const blocks = ["block1", "block2", "block3", "block4"];
 
   const handleBlock = (id) => {
-    setUsers(users.map(u =>
-      u.id === id ? { ...u, blocked: !u.blocked } : u
-    ));
+    setUsers(users.map(u => u.id === id ? { ...u, blocked: !u.blocked } : u));
   };
 
   const handleDelete = (id) => {
@@ -18,21 +17,26 @@ const AdminDashboard = () => {
 
   return (
     <div className="p-4">
-      <h1 className="text-3xl font-bold mb-4">Админ-панель</h1>
+      <h1 className="text-3xl font-bold mb-6">Админ-панель</h1>
 
       {/* Список участников */}
       <UserList users={users} onBlock={handleBlock} onDelete={handleDelete} />
 
       <hr className="my-6" />
 
-      {/* Материалы по блокам */}
+      {/* Материалы блоков */}
       <h2 className="text-2xl font-semibold mb-4">Материалы</h2>
-      {["1", "2", "3", "4"].map((blockId) => (
-        <div key={blockId} className="mb-8">
-          <h3 className="text-xl font-semibold mb-2">Блок {blockId}</h3>
-          <ContentManager blockId={`block${blockId}`} />
-        </div>
-      ))}
+      <div className="flex flex-wrap gap-4">
+        {blocks.map((blockId) => (
+          <div
+            key={blockId}
+            className="border p-4 rounded shadow w-[300px] min-w-[250px] bg-white"
+          >
+            <h3 className="text-lg font-semibold mb-2">Блок {blockId.slice(-1)}</h3>
+            <ContentManager blockId={blockId} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

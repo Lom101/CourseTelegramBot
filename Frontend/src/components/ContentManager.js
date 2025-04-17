@@ -1,6 +1,13 @@
 import React from 'react';
 import ContentItem from './ContentItem';
 
+const formatFileName = (filename) => {
+  const nameWithoutExt = filename.replace(/\.[^/.]+$/, '');
+  const withSpaces = nameWithoutExt.replace(/_/g, ' ');
+  const withColons = withSpaces.replace(/(Лонгрид\s*\d+)\./i, '$1:');
+  return withColons.replace(/\s{2,}/g, ' ').trim();
+};
+
 const FILES = {
   block1: {
     audios: ['Аудио.m4a'],
@@ -26,32 +33,30 @@ const FILES = {
   }
 };
 
-const ContentManager = () => {
-  const renderItems = (blockId, type, folderName) => {
-    const blockData = FILES[blockId];
+const ContentManager = ({ blockId }) => {
+  const blockData = FILES[blockId];
+  if (!blockData) return null;
+
+  const renderItems = (type, folderName) => {
     if (!blockData[folderName]) return null;
 
     return blockData[folderName].map((filename, index) => (
       <ContentItem
         key={`${blockId}-${type}-${index}`}
         type={type}
-        title={filename}
+        title={formatFileName(filename)}
         path={`/blocks/${blockId}/${folderName}/${filename}`}
       />
     ));
   };
 
   return (
-    <div>
-      {Object.keys(FILES).map((blockId) => (
-        <div key={blockId} style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '2rem', borderRadius: '10px' }}>
-          <h2>Материалы {blockId}</h2>
-          {renderItems(blockId, 'audio', 'audios')}
-          {renderItems(blockId, 'book', 'books')}
-          {renderItems(blockId, 'picture', 'pictures')}
-          {renderItems(blockId, 'text', 'texts')}
-        </div>
-      ))}
+    <div style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '2rem', borderRadius: '10px' }}>
+      <h2>Материалы {blockId}</h2>
+      {renderItems('audio', 'audios')}
+      {renderItems('book', 'books')}
+      {renderItems('picture', 'pictures')}
+      {renderItems('text', 'texts')}
     </div>
   );
 };
