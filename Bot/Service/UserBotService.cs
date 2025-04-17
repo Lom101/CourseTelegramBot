@@ -87,8 +87,8 @@ public class UserBotService : IUserBotService
             cancellationToken: cancellationToken
         );
 
-        // Здесь можно сохранить в базу данных, например:
-        // await _userRepository.SavePhoneAsync(userId, phoneNumber);
+            // Здесь можно сохранить в базу данных, например:
+            // await _userRepository.SavePhoneAsync(userId, phoneNumber);
     }
 
 
