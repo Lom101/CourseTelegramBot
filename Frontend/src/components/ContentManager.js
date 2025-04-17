@@ -1,55 +1,57 @@
-//работа с контентом (текст/видео/ссылки)
+import React from 'react';
+import ContentItem from './ContentItem';
 
-import React, { useState } from 'react';
+const FILES = {
+  block1: {
+    audios: ['Аудио.m4a'],
+    books: ['Сверх продуктивность, Михаил Алистер.pdf', 'Тайм-менеджмент, Брайан Трейси.pdf'],
+    pictures: ['метод АБВГД.jpg', 'метод Матрица Эйзенхауэра.jpg'],
+    texts: ['1 Лонгрид. тайм-менеджмент тим лида.docx', '2 Лонгрид. Матрица Эйзенхауэра.docx', '3 Лонгрид. ABCDE (АБВГД).docx']
+  },
+  block2: {
+    books: ['Пять_пороков_команды_Патрик Ленсиони.pdf', 'Теория U_Отто Шармер.pdf'],
+    pictures: ['картинка к лонгриду 2 (1).png', 'картинка к лонгриду 2.png'],
+    texts: ['1 Лонгрид. Кто такой лидер.docx', '2 Лонгрид. Стили лидерства.docx']
+  },
+  block3: {
+    audios: ['Делегирование.m4a'],
+    books: ['Делегирование и управление_Трейси Б..pdf', 'Делегирование. Фридман.pdf'],
+    pictures: ['Модель HD-RW-RM.jpg', 'Модель SMART.jpg', 'Модель TOTE.jpg'],
+    texts: ['Лонгрид 1. Постановка задач (модели).docx', 'Лонгрид 2. Делегирование.docx']
+  },
+  block4: {
+    audios: ['Культура совместной работы. правила тимлида.m4a'],
+    books: ['Пять_пороков_команды_Притчи_о_лидерстве.pdf'],
+    texts: ['Лонгрид 1. Культура совместной работы.docx', 'Лонгрид 2. Роли в команде.docx']
+  }
+};
 
 const ContentManager = () => {
-  const [content, setContent] = useState([]);
-  const [form, setForm] = useState({ type: 'text', title: '', value: '' });
+  const renderItems = (blockId, type, folderName) => {
+    const blockData = FILES[blockId];
+    if (!blockData[folderName]) return null;
 
-  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
-
-  const handleAdd = () => {
-    setContent([...content, { ...form, id: Date.now() }]);
-    setForm({ type: 'text', title: '', value: '' });
+    return blockData[folderName].map((filename, index) => (
+      <ContentItem
+        key={`${blockId}-${type}-${index}`}
+        type={type}
+        title={filename}
+        path={`/blocks/${blockId}/${folderName}/${filename}`}
+      />
+    ));
   };
-
-  const handleDelete = id => setContent(content.filter(c => c.id !== id));
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-2">Управление материалами</h2>
-      <div className="space-y-2">
-        <select name="type" value={form.type} onChange={handleChange} className="border p-1">
-          <option value="text">Текст</option>
-          <option value="video">Видео</option>
-          <option value="link">Ссылка</option>
-        </select>
-        <input
-          name="title"
-          placeholder="Заголовок"
-          value={form.title}
-          onChange={handleChange}
-          className="border p-1 w-full"
-        />
-        <input
-          name="value"
-          placeholder="Контент / ссылка"
-          value={form.value}
-          onChange={handleChange}
-          className="border p-1 w-full"
-        />
-        <button onClick={handleAdd} className="bg-blue-500 text-white px-3 py-1 rounded">Добавить</button>
-      </div>
-      <ul className="mt-4">
-        {content.map(item => (
-          <li key={item.id} className="border-b py-2 flex justify-between">
-            <div>
-              <strong>{item.title}</strong> ({item.type}) — {item.value}
-            </div>
-            <button onClick={() => handleDelete(item.id)} className="text-red-500">Удалить</button>
-          </li>
-        ))}
-      </ul>
+      {Object.keys(FILES).map((blockId) => (
+        <div key={blockId} style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '2rem', borderRadius: '10px' }}>
+          <h2>Материалы {blockId}</h2>
+          {renderItems(blockId, 'audio', 'audios')}
+          {renderItems(blockId, 'book', 'books')}
+          {renderItems(blockId, 'picture', 'pictures')}
+          {renderItems(blockId, 'text', 'texts')}
+        </div>
+      ))}
     </div>
   );
 };
