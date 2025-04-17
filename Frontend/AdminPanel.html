@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+    }
+
+    .sidebar {
+      background-color: #2c3e50;
+      color: white;
+      width: 250px;
+      height: 100vh;
+      padding: 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+
+    .sidebar h1 {
+      margin: 0;
+      font-size: 18px;
+      color: #ecf0f1;
+    }
+
+    .sidebar ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .sidebar li {
+      margin-bottom: 10px;
+    }
+
+    .sidebar a {
+      text-decoration: none;
+      color: white;
+      display: block;
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    .sidebar a:hover {
+      background-color: #3498db;
+    }
+
+    .content {
+      flex: 1;
+      padding: 20px;
+      margin-left: 270px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .actions button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .actions button.green {
+      background-color: #2ecc71;
+      color: white;
+    }
+
+    .actions button.blue {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .table-container {
+      margin-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .crud-status {
+      background-color: #3498db;
+      color: white;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .parent-status {
+      background-color: #f1c40f;
+      color: white;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .edit-btn {
+      background-color: #f1c40f;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .delete-btn {
+      background-color: #e74c3c;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <h1>My Project</h1>
+    <ul>
+      <li><a href="#" class="green">PREVIEW PANEL</a></li>
+      <li><a href="#" class="blue">DOWNLOAD CODE</a></li>
+      <li><a href="#">My Project</a></li>
+      <li><a href="#" class="selected">Menus / CRUDs</a></li>
+      <li><a href="#">Modules</a></li>
+      <li><a href="#">Settings</a></li>
+      <li><a href="#">Generated Code</a></li>
+      <li><a href="#">View Code</a></li>
+      <li><a href="#">Download Full Code</a></li>
+      <li><a href="#">Download Only New Files</a></li>
+      <li><a href="#">Push to GitHub</a></li>
+    </ul>
+  </div>
+
+  <div class="content">
+    <div class="header">
+      <h1>Menus</h1>
+      <div class="actions">
+        <button class="green">Create CRUD menu item</button>
+        <button class="blue">Create non-CRUD menu item</button>
+        <button class="red">Create Parent</button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Menu Item</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <i class="fas fa-bars"></i>
+              <i class="fas fa-users"></i>
+              User Management
+            </td>
+            <td><span class="parent-status">parent</span></td>
+            <td>
+              <button class="edit-btn">Edit</button>
+              <button class="delete-btn">Delete</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <i class="fas fa-bars"></i>
+              <i class="fas fa-lock"></i>
+              Permissions
+            </td>
+            <td><span class="crud-status">crud</span></td>
+            <td>
+              <button class="edit-btn">Edit</button>
+              <button class="delete-btn">Delete</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <i class="fas fa-bars"></i>
+              <i class="fas fa-folder"></i>
+              Roles
+            </td>
+            <td><span class="crud-status">crud</span></td>
+            <td>
+              <button class="edit-btn">Edit</button>
+              <button class="delete-btn">Delete</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <i class="fas fa-bars"></i>
+              <i class="fas fa-user"></i>
+              Users
+            </td>
+            <td><span class="crud-status">crud</span></td>
+            <td>
+              <button class="edit-btn">Edit</button>
+              <button class="delete-btn">Delete</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <i class="fas fa-bars"></i>
+              <i class="fas fa-cog"></i>
+              Transactions
+            </td>
+            <td><span class="crud-status">crud</span></td>
+            <td>
+              <button class="edit-btn">Edit</button>
+              <button class="delete-btn">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="actions">
+      <button class="green">Save</button>
+    </div>
+  </div>
+
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>
