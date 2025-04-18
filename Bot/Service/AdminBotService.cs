@@ -12,7 +12,7 @@ public class AdminBotService : IAdminBotService
     
     public AdminBotService(
         ITelegramBotClient botClient, 
-        ILogger<AdminBotService> logger)
+        ILogger<AdminBotService> logger)    
     {
         _botClient = botClient;  
         _logger = logger;

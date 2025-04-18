@@ -23,50 +23,37 @@ public class UserBotService : IUserBotService
         ILogger<UserBotService> logger,
         IUserSessionService sessionService)
     {
-        _botClient = botClient; 
+        _botClient = botClient;
         _userRepository = userRepository;
         _logger = logger;
         _sessionService = sessionService;
     }
 
-    #region Обработка сообщений
-
+    // TODO: добавить обработку none состояния - а именно добавление 
+    
     public async Task HandleMessageAsync(Message message, CancellationToken cancellationToken)
     {
+        var chatId = message.Chat.Id;
+
         if (message.Contact != null)
         {
             await HandlePhoneNumberAsync(message, cancellationToken);
             return;
         }
 
-        if (message.Text is null) return;
+        if (message.Text is null)
+            return;
 
-        var chatId = message.Chat.Id;
         var messageText = message.Text;
 
         _logger.LogInformation($"Получено сообщение от {chatId}: {messageText}");
 
         var session = _sessionService.GetOrCreate(chatId);
 
-        // FSM (Finite State Machine)
-        switch (session.State)
-        {
-            case UserState.AwaitingFullName:
-                await ProcessFullNameAsync(chatId, messageText, cancellationToken);
-                return;
-        }
-
-        // Команды
-        switch (messageText)
-        {
-            case "/start":
-                await ProcessStartCommandAsync(chatId, cancellationToken);
-                break;
-
-            default:
-                await SendUnknownCommandResponse(chatId, cancellationToken);
-                break;
-        }
+        if (await HandleUserStateAsync(chatId, session, messageText, cancellationToken))
+            return;
+        
+        await HandleCommandAsync(chatId, session, messageText, cancellationToken);
     }
 
     public Task HandleCallbackQueryAsync(CallbackQuery callbackQuery, CancellationToken cancellationToken)
@@ -74,72 +61,102 @@ public class UserBotService : IUserBotService
         throw new NotImplementedException();
     }
 
-    #endregion
-
-    #region FSM: Обработка состояний
-
-    private async Task ProcessFullNameAsync(long chatId, string fullName, CancellationToken cancellationToken)
+    private async Task<bool> HandleUserStateAsync(long chatId, UserSession session, string messageText, CancellationToken cancellationToken)
     {
-        var session = _sessionService.GetOrCreate(chatId);
-        session.FullName = fullName;
-        _sessionService.SetState(chatId, UserState.AwaitingPhone);
-
-        await RequestPhoneNumber(chatId, cancellationToken);
+        if (messageText.StartsWith("/"))
+        {
+            _sessionService.Clear(chatId); // Сброс FSM
+            return false;
+        }
+        
+        switch (session.State)
+        {
+            case UserState.AwaitingFullName:
+                // Проверка валидация ФИО
+                if (!IsValidFullName(messageText))
+                {
+                    await _botClient.SendTextMessageAsync(
+                        chatId, 
+                        "❗Введите корректные данные ФИО", 
+                        cancellationToken: cancellationToken);
+                    return true;
+                }
+                
+                session.FullName = messageText;
+                session.State = UserState.AwaitingPhone;
+                await RequestPhoneNumberAsync(chatId, cancellationToken);
+                return true;
+            
+            case UserState.AwaitingPhone:
+                // Если пользователь пытается ввести телефон вручную
+                await _botClient.SendTextMessageAsync(
+                    chatId, 
+                    "📱 Пожалуйста, отправьте номер телефона через кнопку ниже 👇",
+                    cancellationToken: cancellationToken);
+                return true;
+        }
+        
+        return false;
     }
 
-    #endregion
-
-    #region Обработка команд
-
-    private async Task ProcessStartCommandAsync(long chatId, CancellationToken cancellationToken)
+    private async Task ProcessStartCommandAsync(long chatId, UserSession session, CancellationToken cancellationToken)
     {
+        await _botClient.SendTextMessageAsync(chatId, "Привет, я бот от компании Bars групп, который будет обучать тебя на курсе 'Тим Лид' 👋", cancellationToken: cancellationToken);
+        
         if (await _userRepository.IsAuthorizedAsync(chatId))
         {
-            await _botClient.SendTextMessageAsync(chatId, "🎉 Вы уже авторизованы! Можно продолжать обучение.", cancellationToken: cancellationToken);
+            await _botClient.SendTextMessageAsync(
+                chatId,
+                "🎉 Вы уже авторизованы! Можно продолжать обучение.",
+                cancellationToken: cancellationToken);
             return;
         }
-
-        await SendGreeting(chatId, cancellationToken);
-
-        var session = _sessionService.GetOrCreate(chatId);
+        
+        // выставляем новое состояние - ждем ФИО
         session.State = UserState.AwaitingFullName;
-
-        await AskFullNameAsync(chatId, cancellationToken);
-    }
-
-    private async Task SendUnknownCommandResponse(long chatId, CancellationToken cancellationToken)
-    {
-        await _botClient.SendTextMessageAsync(
-            chatId,
-            "🤔 Не понимаю. Используйте команду /start для начала.",
-            cancellationToken: cancellationToken);
-    }
-
-    #endregion
-
-    #region Telegram UI
-
-    private async Task SendGreeting(long chatId, CancellationToken cancellationToken)
-    {
-        await _botClient.SendTextMessageAsync(chatId, "Йоу, салам 👋", cancellationToken: cancellationToken);
-    }
-
-    private async Task AskFullNameAsync(long chatId, CancellationToken cancellationToken)
-    {
-        await _botClient.SendTextMessageAsync(
-            chatId,
+        
+        await _botClient.SendTextMessageAsync(chatId,
             "✍️ Введите свои ФИО (например: Иванов Иван Иванович):",
             cancellationToken: cancellationToken);
     }
 
-    private async Task RequestPhoneNumber(long chatId, CancellationToken cancellationToken)
+    private async Task HandlePhoneNumberAsync(Message message, CancellationToken cancellationToken)
+    {
+        var chatId = message.Chat.Id;
+        var phoneNumber = message.Contact.PhoneNumber;
+
+        var user = await _userRepository.GetByPhoneNumberAsync(phoneNumber);
+
+        if (user is null)
+        {
+            await _botClient.SendTextMessageAsync(
+                chatId,
+                "🚫 Доступ запрещён. Ваш номер не найден в базе зарегистрированных пользователей.",
+                replyMarkup: new ReplyKeyboardRemove(),
+                cancellationToken: cancellationToken);
+
+            _sessionService.Clear(chatId);
+            return;
+        }
+
+        user.ChatId = chatId;
+        user.LastActivity = DateTime.UtcNow;
+        await _userRepository.UpdateAsync(user);
+
+        _sessionService.Clear(chatId);
+
+        await _botClient.SendTextMessageAsync(
+            chatId,
+            $"✅ Добро пожаловать, {user.FullName}!\nВы успешно авторизованы.",
+            replyMarkup: new ReplyKeyboardRemove(),
+            cancellationToken: cancellationToken);
+    }
+
+    private async Task RequestPhoneNumberAsync(long chatId, CancellationToken cancellationToken)
     {
         var keyboard = new ReplyKeyboardMarkup(new[]
         {
-            new[]
-            {
-                KeyboardButton.WithRequestContact("📱 Отправить номер телефона")
-            }
+            new[] { KeyboardButton.WithRequestContact("📱 Отправить номер телефона") }
         })
         {
             ResizeKeyboard = true,
@@ -147,32 +164,35 @@ public class UserBotService : IUserBotService
         };
 
         await _botClient.SendTextMessageAsync(
-            chatId: chatId,
-            text: "Отлично! Теперь отправьте номер телефона, используя кнопку ниже:",
+            chatId,
+            "Отлично! Теперь отправьте номер телефона, используя кнопку ниже:",
             replyMarkup: keyboard,
             cancellationToken: cancellationToken);
     }
-
-    #endregion
-
-    #region Обработка контакта и завершение авторизации
-
-    private async Task HandlePhoneNumberAsync(Message message, CancellationToken cancellationToken)
+    
+    private async Task HandleCommandAsync(long chatId, UserSession session, string messageText, CancellationToken cancellationToken)
     {
-        var chatId = message.Chat.Id;
-        var session = _sessionService.GetOrCreate(chatId);
+        switch (messageText)
+        {
+            case "/start":
+                await ProcessStartCommandAsync(chatId, session, cancellationToken);
+                break;
 
-        session.PhoneNumber = message.Contact.PhoneNumber;
-        session.State = UserState.Authorized;
+            default:
+                await _botClient.SendTextMessageAsync(
+                    chatId,
+                    "🤔 Не понимаю. Используйте команду /start для начала.",
+                    cancellationToken: cancellationToken);
+                break;
+        }
+    }
 
-        await _userRepository.SaveAsync(chatId, session.FullName, session.PhoneNumber);
-        _sessionService.Clear(chatId);
+    
+    #region helpers
 
-        await _botClient.SendTextMessageAsync(
-            chatId: chatId,
-            text: $"✅ Спасибо, {session.FullName}! Вы авторизованы.\nВаш номер: {session.PhoneNumber}",
-            replyMarkup: new ReplyKeyboardRemove(),
-            cancellationToken: cancellationToken);
+    private bool IsValidFullName(string fullName)
+    {
+        return fullName.Trim().Split(' ').Length >= 2 && fullName.Length > 5;
     }
 
     #endregion

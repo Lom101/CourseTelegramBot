@@ -53,4 +53,9 @@ public class UserRepository : IUserRepository
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<bool> IsAuthorizedAsync(long chatId)
+    {
+        return await _context.Users.AnyAsync(u => u.ChatId == chatId);
+    }
 }
