@@ -1,5 +1,7 @@
 ﻿using Bot.Helpers.ExceptionHandler;
 using Bot.Helpers.ExceptionHandler.Intefaces;
+using Bot.Helpers.Session;
+using Bot.Helpers.Session.Interface;
 using Bot.Service;
 using Bot.Service.Interfaces;
 using Core.Interfaces;
@@ -39,6 +41,8 @@ builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ITopicRepository, TopicRepository>();
 builder.Services.AddScoped<IUserActivityRepository, UserActivityRepository>();
 builder.Services.AddScoped<IUserProgressRepository, UserProgressRepository>();
+
+builder.Services.AddSingleton<IUserSessionService, UserSessionService>();
 
 var host = builder.Build();
 
