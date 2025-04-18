@@ -1,16 +1,3 @@
-// import React from 'react';
-// import AdminDashboard from './pages/AdminDashboard';
-
-// function App() {
-//   return (
-//     <div>
-//       <AdminDashboard />
-//     </div>
-//   );
-// }
-
-// export default App;
-
 import React, {useEffect, useState} from 'react';
 import './styles/App.css';
 import './styles/index.css';
