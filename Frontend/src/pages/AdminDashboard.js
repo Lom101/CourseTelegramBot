@@ -5,7 +5,7 @@ import ContentManager from "../components/ContentManager";
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState(usersData);
-  const [openBlocks, setOpenBlocks] = useState([]); // массив открытых блоков
+  const [openBlocks, setOpenBlocks] = useState([]);
   const blocks = ["1", "2", "3", "4"];
 
   const handleBlock = (id) => {
@@ -33,23 +33,22 @@ const AdminDashboard = () => {
 
       <hr className="my-6" />
 
-      {/* Материалы блоков */}
       <h2 className="text-2xl font-semibold mb-4">Материалы</h2>
       <div className="flex flex-wrap gap-4">
         {blocks.map((blockId) => (
           <div
             key={blockId}
-            className="border p-4 rounded shadow w-[300px] min-w-[250px] bg-white"
+            className="border p-4 rounded-xl shadow w-[300px] min-w-[250px] bg-white"
           >
-            <button
+            <h3
               onClick={() => toggleBlock(blockId)}
-              className="text-lg font-semibold mb-2 hover:underline text-left w-full"
+              className="text-lg font-semibold mb-2 cursor-pointer hover:underline"
             >
-              Материалы блока {blockId}
-            </button>
+              Блок {blockId}
+            </h3>
 
             {openBlocks.includes(blockId) && (
-              <div className="mt-2">
+              <div className="mt-2 border border-gray-300 rounded-lg p-3 bg-white/70 backdrop-blur-sm">
                 <ContentManager blockId={blockId} />
               </div>
             )}

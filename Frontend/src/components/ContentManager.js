@@ -76,11 +76,21 @@ const ContentManager = ({ blockId }) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 border p-4 rounded bg-gray-50 shadow">
       {renderItems('audio', 'audios')}
       {renderItems('book', 'books')}
       {renderItems('picture', 'pictures')}
       {renderItems('text', 'texts')}
+
+      {/* ОДНА кнопка "Добавить" внизу блока */}
+      <div className="pt-4 border-t mt-4 text-center">
+        <button
+          onClick={() => window.confirm(`Добавить материал в блок ${blockId}?`)}
+          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+        >
+          Добавить
+        </button>
+      </div>
     </div>
   );
 };
