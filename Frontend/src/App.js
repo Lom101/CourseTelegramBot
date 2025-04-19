@@ -1,25 +1,27 @@
 import React from 'react';
-import AdminDashboard from './pages/AdminDashboard';
-
-<div className="mt-6 p-6 bg-white shadow rounded-xl">
-  <h2 className="text-xl font-bold mb-4">Материалы</h2>
-  <ul className="space-y-2">
-    {[1, 2, 3, 4].map((blockId) => (
-      <li
-        key={blockId}
-        className="text-blue-600 hover:underline cursor-pointer"
-      >
-        Материалы блока {blockId}
-      </li>
-    ))}
-  </ul>
-</div>
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import MaterialsPage from './pages/MaterialsPage';
+import UsersPage from './pages/UsersPage';
+import BlockPage from './pages/BlockPage';
+import Navbar from './components/Navbar';
 
 function App() {
   return (
-    <div>
-      <AdminDashboard />
-    </div>
+    <Router>
+      <div className="min-h-screen bg-page-gray">
+      <Navbar />
+
+        <main className="p-6">
+          <Routes>
+            <Route path="/" element={<Navigate to="/users" />} />
+            <Route path="/users" element={<UsersPage />} />
+            <Route path="/materials" element={<MaterialsPage />} />
+            <Route path="/materials/block/:id" element={<BlockPage />} />
+            <Route path="*" element={<Navigate to="/users" />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   );
 }
 
