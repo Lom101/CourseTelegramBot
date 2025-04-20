@@ -1,3 +1,4 @@
+using Backend.Middleware;
 using Core.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Repository;
@@ -17,13 +18,14 @@ builder.Services.AddScoped<ITopicRepository, TopicRepository>();
 builder.Services.AddScoped<IUserActivityRepository, UserActivityRepository>();
 builder.Services.AddScoped<IUserProgressRepository, UserProgressRepository>();
 
+
+
 // Добавление Swagger
 builder.Services.AddEndpointsApiExplorer(); // Эксплорер для API
 builder.Services.AddSwaggerGen(); // Генерация Swagger документации
 
 var app = builder.Build();
-
-
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
