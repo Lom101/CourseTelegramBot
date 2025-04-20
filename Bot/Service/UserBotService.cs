@@ -29,30 +29,23 @@ public class UserBotService : IUserBotService
         _sessionService = sessionService;
     }
 
-    // TODO: добавить обработку none состояния - а именно добавление 
     
     public async Task HandleMessageAsync(Message message, CancellationToken cancellationToken)
     {
-        var chatId = message.Chat.Id;
-
-        if (message.Contact != null)
-        {
-            await HandlePhoneNumberAsync(message, cancellationToken);
-            return;
-        }
-
-        if (message.Text is null)
-            return;
-
-        var messageText = message.Text;
-
-        _logger.LogInformation($"Получено сообщение от {chatId}: {messageText}");
-
-        var session = _sessionService.GetOrCreate(chatId);
-
-        if (await HandleUserStateAsync(chatId, session, messageText, cancellationToken))
+        if (message.Text is null && message.Contact is null) // если юзер не отправил ни сообщение ни контакт, то ингорим
             return;
         
+        var chatId = message.Chat.Id;
+        var messageText = message.Text;
+        var session = _sessionService.GetOrCreate(chatId);
+        
+        _logger.LogInformation($"Получено сообщение от {chatId}: {messageText}");
+        
+        var shouldStop = await HandleUserStateAsync(chatId, session, message, cancellationToken);
+        if (shouldStop)
+            return;
+        
+        session = _sessionService.GetOrCreate(chatId);
         await HandleCommandAsync(chatId, session, messageText, cancellationToken);
     }
 
@@ -61,11 +54,13 @@ public class UserBotService : IUserBotService
         throw new NotImplementedException();
     }
 
-    private async Task<bool> HandleUserStateAsync(long chatId, UserSession session, string messageText, CancellationToken cancellationToken)
+    private async Task<bool> HandleUserStateAsync(long chatId, UserSession session, Message message, CancellationToken cancellationToken)
     {
-        if (messageText.StartsWith("/"))
+        var messageText = message.Text;
+            
+        if (!string.IsNullOrEmpty(message.Text) && message.Text.StartsWith("/"))
         {
-            _sessionService.Clear(chatId); // Сброс FSM
+            _sessionService.Clear(chatId); // Сброс состояния
             return false;
         }
         
@@ -73,7 +68,7 @@ public class UserBotService : IUserBotService
         {
             case UserState.AwaitingFullName:
                 // Проверка валидация ФИО
-                if (!IsValidFullName(messageText))
+                if (string.IsNullOrEmpty(messageText) || !IsValidFullName(messageText))
                 {
                     await _botClient.SendTextMessageAsync(
                         chatId, 
@@ -88,14 +83,22 @@ public class UserBotService : IUserBotService
                 return true;
             
             case UserState.AwaitingPhone:
-                // Если пользователь пытается ввести телефон вручную
-                await _botClient.SendTextMessageAsync(
-                    chatId, 
-                    "📱 Пожалуйста, отправьте номер телефона через кнопку ниже 👇",
-                    cancellationToken: cancellationToken);
-                return true;
+                // проверяем, отправил ли пользователь свой контакт
+                if (message.Contact != null && message.Contact.UserId == message.From.Id)
+                {
+                    await HandlePhoneNumberAsync(message, cancellationToken);
+                    return true;
+                }   
+                else
+                {
+                    // Если пользователь пытается ввести телефон вручную или отправил не свой контакт
+                    await _botClient.SendTextMessageAsync(
+                        chatId, 
+                        "📱 Отправьте номер телефона через кнопку ниже 👇",
+                        cancellationToken: cancellationToken);
+                    return true;
+                }
         }
-        
         return false;
     }
 
@@ -175,6 +178,8 @@ public class UserBotService : IUserBotService
         switch (messageText)
         {
             case "/start":
+                _sessionService.Clear(chatId); // сбрасываем старое состояние
+                session = _sessionService.GetOrCreate(chatId); // получаем новую пустую сессию
                 await ProcessStartCommandAsync(chatId, session, cancellationToken);
                 break;
 
