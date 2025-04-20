@@ -1,23 +1,30 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
-WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
-
+﻿# Используем официальный образ для .NET Core SDK для сборки приложения
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
-COPY ["Backend/Backend.csproj", "Backend/"]
-RUN dotnet restore "Backend/Backend.csproj"
-COPY . .
-WORKDIR "/src/Backend"
-RUN dotnet build "Backend.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "Backend.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
-
-FROM base AS final
+# Устанавливаем рабочую директорию в контейнере
 WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Backend.dll"]
+
+# Копируем файл проекта и восстанавливаем зависимости
+COPY WebAPI/WebAPI.csproj ./WebAPI/
+RUN dotnet restore ./WebAPI/WebAPI.csproj
+
+# Копируем все оставшиеся файлы приложения
+COPY . ./
+
+# Публикуем приложение в режиме релиза
+RUN dotnet publish WebAPI/WebAPI.csproj -c Release -o /app/publish
+
+# Используем официальный образ .NET Core runtime для финального образа
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+
+# Устанавливаем рабочую директорию в контейнере
+WORKDIR /app
+
+# Копируем опубликованные файлы из предыдущего образа
+COPY --from=build /app/publish .
+
+# Открываем порт, на котором будет работать приложение
+EXPOSE 80
+
+# Устанавливаем точку входа для контейнера
+ENTRYPOINT ["dotnet", "WebAPI.dll"]

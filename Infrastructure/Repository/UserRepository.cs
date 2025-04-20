@@ -19,7 +19,7 @@ public class UserRepository : IUserRepository
         return await _context.Users.FindAsync(id);
     }
 
-    public async Task<User?> GetByChatIdAsync(long chatId)
+    public async Task<User?> GetByChatIdAsync(long? chatId)
     {
         return await _context.Users
             .FirstOrDefaultAsync(u => u.ChatId == chatId);

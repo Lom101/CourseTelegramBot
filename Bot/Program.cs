@@ -14,15 +14,18 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-Env.Load();
+if (File.Exists(".env.local"))
+    DotNetEnv.Env.Load(".env.local");
+else if (File.Exists(".env"))
+    DotNetEnv.Env.Load();
 Env.TraversePath().Load();
 
 var builder = Host.CreateApplicationBuilder(args);
 
 // Получаем токен из .env
-var botToken = Environment.GetEnvironmentVariable("TOKEN")
+var botToken = Environment.GetEnvironmentVariable("BotConfiguration__Token")
                ?? throw new ArgumentNullException("Не указан телеграм бот токен");
-var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") 
+var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection") 
                        ?? throw new ArgumentNullException("Не указан путь подключения к базе данных");
 
 builder.Services.AddDbContext<AppDbContext>(options =>

@@ -1,14 +1,29 @@
 using Backend.Middleware;
 using Core.Interfaces;
+using DotNetEnv;
 using Infrastructure.Data;
 using Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
 
+if (File.Exists(".env.local"))
+    DotNetEnv.Env.Load(".env.local");
+else if (File.Exists(".env"))
+    DotNetEnv.Env.Load();
+Env.TraversePath().Load();
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables();
 
 builder.Services.AddControllers();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection") 
+                       ?? throw new ArgumentNullException("Не указан путь подключения к базе данных");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
@@ -17,8 +32,6 @@ builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ITopicRepository, TopicRepository>();
 builder.Services.AddScoped<IUserActivityRepository, UserActivityRepository>();
 builder.Services.AddScoped<IUserProgressRepository, UserProgressRepository>();
-
-
 
 // Добавление Swagger
 builder.Services.AddEndpointsApiExplorer(); // Эксплорер для API

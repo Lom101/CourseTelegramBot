@@ -3,12 +3,13 @@
 public class User
 {
     public int Id { get; set; }
-    public long ChatId { get; set; }
-    public string PhoneNumber { get; set; }
-    public string Email { get; set; }
+    public long? ChatId { get; set; } // видимо нужно сделать nullable -> так как админ не знает какой chatid у юзера
+    public string PhoneNumber { get; set; } // админ должен обязательно ввести при регистрации юзера в админ панели
+    public string Email { get; set; } 
     public string FullName { get; set; }
     public DateTime RegistrationDate { get; set; }
     public DateTime? LastActivity { get; set; }
     public bool IsBlocked { get; set; }
     public bool IsAdmin { get; set; }
+    //public bool IsAuthorized { get; set; }
 }

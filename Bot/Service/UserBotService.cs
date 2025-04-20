@@ -37,6 +37,14 @@ public class UserBotService : IUserBotService
         
         var chatId = message.Chat.Id;
         var messageText = message.Text;
+        
+        // Проверяем, авторизован ли пользователь
+        if (await _userRepository.IsAuthorizedAsync(chatId))
+        {
+            await ShowWelcomeMenuAsync(chatId, cancellationToken); // Приветственное меню
+            return;
+        }
+        
         var session = _sessionService.GetOrCreate(chatId);
         
         _logger.LogInformation($"Получено сообщение от {chatId}: {messageText}");
@@ -48,11 +56,51 @@ public class UserBotService : IUserBotService
         session = _sessionService.GetOrCreate(chatId);
         await HandleCommandAsync(chatId, session, messageText, cancellationToken);
     }
-
-    public Task HandleCallbackQueryAsync(CallbackQuery callbackQuery, CancellationToken cancellationToken)
+    
+    private async Task ShowWelcomeMenuAsync(long chatId, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var keyboard = new InlineKeyboardMarkup(new[]
+        {
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("📚 Темы", "topics"),
+                InlineKeyboardButton.WithCallbackData("❓ Вопросы", "faq")
+            },
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("🛠 Поддержка", "support")
+            }
+        });
+
+        await _botClient.SendTextMessageAsync(
+            chatId,
+            "🎉 Добро пожаловать 👇\nВыберите интересующий раздел:",
+            replyMarkup: keyboard,
+            cancellationToken: cancellationToken);
     }
+    
+    public async Task HandleCallbackQueryAsync(CallbackQuery callbackQuery, CancellationToken cancellationToken)
+    {
+        var chatId = callbackQuery.Message.Chat.Id;
+        var data = callbackQuery.Data;
+
+        switch (data)
+        {
+            case "topics":
+                await _botClient.SendTextMessageAsync(chatId, "📚 Список тем:\n1. ...\n2. ...", cancellationToken: cancellationToken);
+                break;
+            case "faq":
+                await _botClient.SendTextMessageAsync(chatId, "❓ Часто задаваемые вопросы:\n1. ...", cancellationToken: cancellationToken);
+                break;
+            case "support":
+                await _botClient.SendTextMessageAsync(chatId, "🛠 Связь с техподдержкой:\nНапишите ваш вопрос сюда: ...", cancellationToken: cancellationToken);
+                break;
+        }
+
+        // Удаляем кнопку после нажатия (если нужно)
+        await _botClient.AnswerCallbackQueryAsync(callbackQuery.Id, cancellationToken: cancellationToken);
+    }
+
 
     private async Task<bool> HandleUserStateAsync(long chatId, UserSession session, Message message, CancellationToken cancellationToken)
     {
@@ -192,6 +240,7 @@ public class UserBotService : IUserBotService
         }
     }
 
+    
     
     #region helpers
 

@@ -7,84 +7,115 @@ public static class AppDbSeeder
 {
     public static async Task SeedAsync(AppDbContext context)
     {
+        //await context.Database.EnsureDeletedAsync();
+        //await context.Database.EnsureCreatedAsync();
         await context.Database.MigrateAsync();
 
         if (!context.Courses.Any())
         {
             var course = new Course
             {
-                Title = "Основы C#",
-                Description = "Пошаговый курс по основам языка C# с теорией и практикой.",
+                Title = "Тим Лид",
+                Description = "Образовательный курс для будущих тимлидов, включающий теорию, практику, видеоуроки и тесты.",
                 Topics = new List<Topic>
                 {
                     new Topic
                     {
-                        Title = "Введение в C#",
+                        Title = "Введение в лидерство",
                         Order = 1,
                         ContentItems = new List<ContentItem>
                         {
                             new TextContent
                             {
-                                Title = "Что такое C#?",
-                                Description = "История и назначение языка.",
-                                Text = "C# — это современный, объектно-ориентированный язык программирования, разработанный Microsoft в рамках платформы .NET."
+                                Title = "Роль тимлида",
+                                Description = "Основные обязанности тимлида в IT-команде.",
+                                Text = "Тимлид отвечает за техническое руководство командой, коммуникации с заказчиком и развитие членов команды."
                             },
                             new VideoContent
                             {
-                                Title = "Видеообзор языка",
-                                Description = "Видеоурок по основам C#.",
-                                VideoUrl = "https://example.com/videos/intro-csharp.mp4",
-                                ThumbnailUrl = "https://example.com/thumbs/intro-csharp.jpg",
-                                Duration = TimeSpan.FromMinutes(5)
+                                Title = "Кто такой тимлид?",
+                                Description = "Интервью с опытным руководителем.",
+                                VideoUrl = "https://example.com/videos/teamlead-role.mp4",
+                                ThumbnailUrl = "https://example.com/thumbs/teamlead-role.jpg",
+                                Duration = TimeSpan.FromMinutes(7)
                             }
                         }
                     },
                     new Topic
                     {
-                        Title = "Переменные и типы данных",
+                        Title = "Эффективная коммуникация",
                         Order = 2,
                         ContentItems = new List<ContentItem>
                         {
                             new TextContent
                             {
-                                Title = "Типы данных",
-                                Description = "Основные типы данных в C#.",
-                                Text = "В C# есть несколько встроенных типов данных: int, double, string, bool и др."
+                                Title = "Обратная связь",
+                                Description = "Как давать конструктивную обратную связь.",
+                                Text = "Обратная связь должна быть своевременной, конкретной и конструктивной, с акцентом на развитие."
                             },
-                            new ImageContent
+                            new LinkContent
                             {
-                                Title = "Схема типов",
-                                Description = "Инфографика по типам данных.",
-                                ImageUrl = "https://example.com/images/data-types.png",
-                                AltText = "Типы данных в C#"
+                                Title = "Статья на Хабре",
+                                Description = "Практика общения внутри команды.",
+                                Url = "https://habr.com/ru/company/example/blog/feedback-practice/"
                             }
                         }
                     },
                     new Topic
                     {
-                        Title = "Условные операторы",
+                        Title = "Управление задачами",
                         Order = 3,
                         ContentItems = new List<ContentItem>
                         {
                             new TextContent
                             {
-                                Title = "if-else",
-                                Description = "Примеры использования условных операторов.",
-                                Text = "Оператор `if` проверяет условие и выполняет блок кода, если условие истинно."
+                                Title = "Приоритезация",
+                                Description = "Методы расстановки приоритетов.",
+                                Text = "Популярные методы приоритезации: Eisenhower Matrix, MoSCoW, RICE и др."
                             },
-                            new LinkContent
+                            new ImageContent
                             {
-                                Title = "Документация Microsoft",
-                                Description = "Ссылка на официальную документацию.",
-                                Url = "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/selection-statements"
+                                Title = "Матрица Эйзенхауэра",
+                                Description = "Инструмент для принятия решений.",
+                                ImageUrl = "https://example.com/images/eisenhower-matrix.png",
+                                AltText = "Матрица Эйзенхауэра"
                             }
                         }
                     }
                 }
             };
-
             context.Courses.Add(course);
-            await context.SaveChangesAsync();
         }
+        
+        if (!context.Users.Any())
+        {
+            var users = new List<User>
+            {
+                new User
+                {
+                    PhoneNumber = "+79534841869",
+                    Email = "bulat@mail.com",
+                    FullName = "Шакиров Булат Азатович",
+                    RegistrationDate = DateTime.UtcNow,
+                    LastActivity = DateTime.UtcNow,
+                    IsBlocked = false,
+                    IsAdmin = false
+                },
+                new User
+                {
+                    PhoneNumber = "+79997654321",
+                    Email = "petrova@example.com",
+                    FullName = "Петрова Анна Сергеевна",
+                    RegistrationDate = DateTime.UtcNow,
+                    LastActivity = DateTime.UtcNow,
+                    IsBlocked = false,
+                    IsAdmin = true // администратор
+                }
+            };
+
+            context.Users.AddRange(users);
+        }
+        
+        await context.SaveChangesAsync();
     }
 }
