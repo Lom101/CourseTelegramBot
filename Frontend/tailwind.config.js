@@ -11,6 +11,7 @@ module.exports = {
         accentGreen: '#C6E2C9',
         darkText: '#2E2E2E',
         'page-gray': '#B8C0D9',
+        'menu-yellow': '#FFFACD',
       },
     },
   },

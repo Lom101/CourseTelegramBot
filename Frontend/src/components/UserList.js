@@ -64,13 +64,13 @@ const UserList = ({ users, onBlock, onDelete }) => {
           />
           {showRanges && (
             <ul className="absolute left-0 w-full mt-1 bg-white border border-gray-300 rounded-xl shadow-md z-10">
-              {['0-20', '21-40', '41-60', '61-80', '81-100'].map(range => (
+              {['', '0-20', '21-40', '41-60', '61-80', '81-100'].map(range => (
                 <li
-                  key={range}
+                  key={range || 'none'}
                   onMouseDown={() => handleRangeClick(range)}
                   className="px-4 py-2 hover:bg-yellow-100 cursor-pointer text-sm"
                 >
-                  {range}%
+                  {range ? `${range}%` : 'Не выбрано'}
                 </li>
               ))}
             </ul>
