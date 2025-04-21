@@ -38,3 +38,67 @@
 .content-link:hover {
   text-decoration: underline;
 }
+/* styles/App.css */
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f0f8ff; /* Голубой фон */
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f0f8ff;
+}
+
+.login-card {
+  width: 300px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+}
+
+.title {
+  text-align: center;
+  color: #00008b; /* Темно-синий текст */
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 5px;
+  color: #00008b; /* Темно-синий текст */
+}
+
+.input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #00008b; /* Темно-синий бордюр */
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.button {
+  width: 100%;
+  padding: 10px;
+  background-color: #00008b; /* Темно-синий фон кнопки */
+  color: #ffffff; /* Белый текст на кнопке */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.button:hover {
+  background-color: #0000cc; /* Светлее при наведении */
+}
