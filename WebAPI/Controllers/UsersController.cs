@@ -28,4 +28,6 @@ public class UsersController(IUserRepository userRepository) : ControllerBase
         await userRepository.AddAsync(user);
         return CreatedAtAction(nameof(GetByChatId), new { chatId = user.ChatId }, user);
     }
+    
+    // TODO: можно добавить получение по id просто, параллельно с получением по chatId
 }

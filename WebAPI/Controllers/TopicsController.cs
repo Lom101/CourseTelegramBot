@@ -8,6 +8,9 @@ namespace Backend.Controllers;
 [Route("api/[controller]")]
 public class TopicsController(ITopicRepository topicRepository) : ControllerBase
 {
+    // TODO: нужно добавить метод добавления topiс к курсу
+    // TODO: нужно добавить метод добавления content`а к выбранному топику(можно вынести в ContentContoller, но можно и здесь все описать)
+    
     [HttpGet("by-course/{courseId:int}")]
     public async Task<ActionResult<IEnumerable<Topic>>> GetByCourseId(int courseId)
     {

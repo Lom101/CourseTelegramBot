@@ -15,7 +15,8 @@ public class UserActivityController(IUserActivityRepository activityRepository) 
         var activities = await activityRepository.GetByUserIdAsync(userId);
         return Ok(activities);
     }
-
+    
+    // TODO: убрать как будто
     [HttpPost]
     public async Task<ActionResult<UserActivity>> LogActivity([FromBody] UserActivity activity)
     {

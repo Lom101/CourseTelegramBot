@@ -15,6 +15,7 @@ public class UserProgressController(IUserProgressRepository progressRepository) 
         return Ok(progress);
     }
 
+    // TODO: мне кажется это нужно убрать? в чем смысл?
     [HttpPost]
     public async Task<ActionResult<UserProgress>> Update([FromBody] UserProgress progress)
     {
