@@ -13,8 +13,7 @@ function App() {
 
         <main className="p-6">
           <Routes>
-            <Route path ="/login" element={<LoginPage to="/login"/>} />
-            <Route path="/" element={<Navigate to="/users" />} />
+            <Route path ="/" element={<LoginPage to="/login"/>} />
             <Route path="/users" element={<UsersPage />} />
             <Route path="/materials" element={<MaterialsPage />} />
             <Route path="/materials/block/:id" element={<BlockPage />} />
