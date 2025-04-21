@@ -18,6 +18,7 @@ public class AppDbContext : DbContext
     public DbSet<LinkContent> LinkContents { get; set; }
     public DbSet<UserProgress> UserProgresses { get; set; }
     public DbSet<UserActivity> UserActivities { get; set; }
+    public DbSet<TestQuestion> TestQuestions { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

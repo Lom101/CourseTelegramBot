@@ -2,6 +2,7 @@
 using Bot.Helpers.Session;
 using Bot.Helpers.Session.Interface;
 using Bot.Service.Interfaces;
+using Core.Entity;
 using Core.Interfaces;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
@@ -14,21 +15,30 @@ public class UserBotService : IUserBotService
 {
     private readonly ITelegramBotClient _botClient;
     private readonly IUserRepository _userRepository;
+    private readonly ICourseRepository _courseRepository;
+    private readonly ITopicRepository _topicRepository;
     private readonly ILogger<UserBotService> _logger;
     private readonly IUserSessionService _sessionService;
+    
+    // нажми кнопку снизу, если готов пройти тест 
+    // это нужно выдавать в keyboard button - после темы
+    // после каждой темы - должен быть тест на один вопрос
 
     public UserBotService(
         ITelegramBotClient botClient,
         IUserRepository userRepository,
+        ICourseRepository courseRepository,
+        ITopicRepository topicRepository,
         ILogger<UserBotService> logger,
         IUserSessionService sessionService)
     {
         _botClient = botClient;
         _userRepository = userRepository;
+        _courseRepository = courseRepository;
+        _topicRepository = topicRepository;
         _logger = logger;
         _sessionService = sessionService;
     }
-
     
     public async Task HandleMessageAsync(Message message, CancellationToken cancellationToken)
     {
@@ -38,23 +48,25 @@ public class UserBotService : IUserBotService
         var chatId = message.Chat.Id;
         var messageText = message.Text;
         
-        // Проверяем, авторизован ли пользователь
-        if (await _userRepository.IsAuthorizedAsync(chatId))
-        {
-            await ShowWelcomeMenuAsync(chatId, cancellationToken); // Приветственное меню
-            return;
-        }
-        
-        var session = _sessionService.GetOrCreate(chatId);
         
         _logger.LogInformation($"Получено сообщение от {chatId}: {messageText}");
         
-        var shouldStop = await HandleUserStateAsync(chatId, session, message, cancellationToken);
+        // 1. Обрабатываем команду (в том числе /start) — всегда!
+        var shouldStop = await HandleUserStateAsync(chatId, message, cancellationToken);
         if (shouldStop)
             return;
         
-        session = _sessionService.GetOrCreate(chatId);
-        await HandleCommandAsync(chatId, session, messageText, cancellationToken);
+        // 2. Обрабатываем команды
+       shouldStop = await HandleCommandAsync(chatId, messageText, cancellationToken);
+       if (shouldStop)
+           return;
+        
+        // 3. Если команда не остановила, смотрим авторизацию и показываем главное меню
+        if (await _userRepository.IsAuthorizedAsync(chatId))
+        {
+            await ShowWelcomeMenuAsync(chatId, cancellationToken);
+            return;
+        }
     }
     
     private async Task ShowWelcomeMenuAsync(long chatId, CancellationToken cancellationToken)
@@ -74,7 +86,7 @@ public class UserBotService : IUserBotService
 
         await _botClient.SendTextMessageAsync(
             chatId,
-            "🎉 Добро пожаловать 👇\nВыберите интересующий раздел:",
+            "Выберите интересующий раздел:",
             replyMarkup: keyboard,
             cancellationToken: cancellationToken);
     }
@@ -87,22 +99,137 @@ public class UserBotService : IUserBotService
         switch (data)
         {
             case "topics":
-                await _botClient.SendTextMessageAsync(chatId, "📚 Список тем:\n1. ...\n2. ...", cancellationToken: cancellationToken);
+                // Загружаем список тем из репозитория
+                var course = await _courseRepository.GetByIdWithTopicsAsync(1); // у нас всего один курс ;)
+                if (course == null)
+                {
+                    await _botClient.SendTextMessageAsync(chatId, "❌ Курс не найден. Попробуйте позже.", cancellationToken: cancellationToken);
+                    break;
+                }
+
+                var topicButtons = course.Topics
+                    .Select((topic, index) => new[]
+                    {
+                        InlineKeyboardButton.WithCallbackData($"{index + 1}. {topic.Title}", $"topic_{topic.Id}")
+                    })
+                    .ToArray();
+
+                var keyboard = new InlineKeyboardMarkup(topicButtons);
+
+
+                // Отправляем пользователю список тем
+                await _botClient.SendTextMessageAsync(
+                    chatId,
+                    "📚 Список тем:\n" + string.Join("\n", course.Topics.Select(t => t.Title)),
+                    replyMarkup: keyboard,
+                    cancellationToken: cancellationToken);
                 break;
-            case "faq":
-                await _botClient.SendTextMessageAsync(chatId, "❓ Часто задаваемые вопросы:\n1. ...", cancellationToken: cancellationToken);
-                break;
+
             case "support":
-                await _botClient.SendTextMessageAsync(chatId, "🛠 Связь с техподдержкой:\nНапишите ваш вопрос сюда: ...", cancellationToken: cancellationToken);
+                // Информация по техподдержке
+                await _botClient.SendTextMessageAsync(
+                    chatId,
+                    "🛠 Связь с техподдержкой:\nНапишите ваш вопрос сюда - @BarsBotHelper, и мы постараемся помочь.",
+                    cancellationToken: cancellationToken);
+                break;
+
+            default:
+                if (data.StartsWith("topic_"))
+                {
+                    // Показ подробностей по выбранной теме
+                    var topicId = int.Parse(data.Split('_')[1]);
+                    await ShowTopicDetailsAsync(chatId, topicId, cancellationToken);
+                }
+                break;
+            
+            case "faq":
+                var faqText = "❓ *Часто задаваемые вопросы:*\n\n" +
+                              "1️⃣ *Как проходит обучение?*\n" +
+                              "Обучение проходит онлайн, с доступом к материалам через этого бота.\n\n" +
+                              "2️⃣ *Что делать, если возникли проблемы?*\n" +
+                              "Обратитесь в техподдержку через раздел 🛠 Поддержка.\n\n" +
+                              "3️⃣ *Можно ли проходить курс в удобное время?*\n" +
+                              "Да! Вы можете проходить темы тогда, когда вам удобно.";
+
+                await _botClient.SendTextMessageAsync(
+                    chatId,
+                    faqText,
+                    parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
+                    cancellationToken: cancellationToken);
                 break;
         }
-
+        
         // Удаляем кнопку после нажатия (если нужно)
         await _botClient.AnswerCallbackQueryAsync(callbackQuery.Id, cancellationToken: cancellationToken);
     }
+    
+    private async Task ShowTopicDetailsAsync(long chatId, int topicId, CancellationToken cancellationToken)
+    {
+        // Загружаем тему по её ID из репозитория
+        var topic = await _topicRepository.GetByIdAsync(topicId);
+    
+        if (topic == null)
+        {
+            // Если тема не найдена, отправляем сообщение об ошибке
+            await _botClient.SendTextMessageAsync(
+                chatId,
+                "❌ Тема не найдена. Попробуйте снова.",
+                cancellationToken: cancellationToken);
+            return;
+        }
 
+        // Заголовок темы
+        await _botClient.SendTextMessageAsync(
+            chatId,
+            $"📚 *{topic.Title}*",
+            parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
+            cancellationToken: cancellationToken);
 
-    private async Task<bool> HandleUserStateAsync(long chatId, UserSession session, Message message, CancellationToken cancellationToken)
+        foreach (var contentItem in topic.ContentItems)
+        {
+            switch (contentItem)
+            {
+                case TextContent text:
+                    await _botClient.SendTextMessageAsync(
+                        chatId,
+                        $"📝 *{text.Title}*\n_{text.Description}_\n\n{text.Text}",
+                        parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
+                        cancellationToken: cancellationToken);
+                    break;
+
+                // case VideoContent video:
+                //     await _botClient.SendVideoAsync(
+                //         chatId,
+                //         video.VideoUrl,
+                //         caption: $"🎥 *{video.Title}*\n_{video.Description}_\nДлительность: {video.Duration:mm\\:ss}",
+                //         parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
+                //         thumbnail: string.IsNullOrWhiteSpace(video.ThumbnailUrl)
+                //             ? null
+                //             : InputFile.FromUri(video.ThumbnailUrl),
+                //         cancellationToken: cancellationToken);
+                //     break;
+                //
+                // case ImageContent image:
+                //     await _botClient.SendPhotoAsync(
+                //         chatId,
+                //         image.ImageUrl,
+                //         caption: $"🖼 *{image.Title}*\n_{image.Description}_",
+                //         parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
+                //         cancellationToken: cancellationToken);
+                //     break;
+                //
+                // case LinkContent link:
+                //     await _botClient.SendTextMessageAsync(
+                //         chatId,
+                //         $"🔗 *{link.Title}*\n_{link.Description}_\n[Перейти по ссылке]({link.Url})",
+                //         parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
+                //         cancellationToken: cancellationToken);
+                //     break;
+            }
+        }
+    }
+    
+    private async Task<bool> HandleUserStateAsync(long chatId, Message message, CancellationToken cancellationToken)
     {
         var messageText = message.Text;
             
@@ -111,6 +238,22 @@ public class UserBotService : IUserBotService
             _sessionService.Clear(chatId); // Сброс состояния
             return false;
         }
+        
+        if (messageText == "❌ Отменить регистрацию")
+        {
+            _sessionService.Clear(chatId);
+
+            await _botClient.SendTextMessageAsync(
+                chatId,
+                "🚫 Регистрация отменена.",
+                replyMarkup: new ReplyKeyboardRemove(),
+                cancellationToken: cancellationToken);
+            return true;
+            // отправить главное меню
+            await ShowWelcomeMenuAsync(chatId, cancellationToken);
+        }
+        
+        var session = _sessionService.GetOrCreate(chatId);
         
         switch (session.State)
         {
@@ -154,20 +297,19 @@ public class UserBotService : IUserBotService
     {
         await _botClient.SendTextMessageAsync(chatId, "Привет, я бот от компании Bars групп, который будет обучать тебя на курсе 'Тим Лид' 👋", cancellationToken: cancellationToken);
         
-        if (await _userRepository.IsAuthorizedAsync(chatId))
-        {
-            await _botClient.SendTextMessageAsync(
-                chatId,
-                "🎉 Вы уже авторизованы! Можно продолжать обучение.",
-                cancellationToken: cancellationToken);
-            return;
-        }
-        
         // выставляем новое состояние - ждем ФИО
         session.State = UserState.AwaitingFullName;
         
         await _botClient.SendTextMessageAsync(chatId,
             "✍️ Введите свои ФИО (например: Иванов Иван Иванович):",
+            replyMarkup: new ReplyKeyboardMarkup(new[]
+            {
+                new[] { new KeyboardButton("❌ Отменить регистрацию") }
+            })
+            {
+                ResizeKeyboard = true,
+                OneTimeKeyboard = true
+            },
             cancellationToken: cancellationToken);
     }
 
@@ -207,7 +349,14 @@ public class UserBotService : IUserBotService
     {
         var keyboard = new ReplyKeyboardMarkup(new[]
         {
-            new[] { KeyboardButton.WithRequestContact("📱 Отправить номер телефона") }
+            new[]
+            {
+                KeyboardButton.WithRequestContact("📱 Отправить номер телефона")
+            },
+            new[]
+            {
+                new KeyboardButton("❌ Отменить регистрацию")
+            }
         })
         {
             ResizeKeyboard = true,
@@ -221,26 +370,27 @@ public class UserBotService : IUserBotService
             cancellationToken: cancellationToken);
     }
     
-    private async Task HandleCommandAsync(long chatId, UserSession session, string messageText, CancellationToken cancellationToken)
+    private async Task<bool> HandleCommandAsync(long chatId, string messageText, CancellationToken cancellationToken)
     {
+        if (!messageText.StartsWith("/"))
+            return false; // не команда
+        
         switch (messageText)
         {
             case "/start":
                 _sessionService.Clear(chatId); // сбрасываем старое состояние
-                session = _sessionService.GetOrCreate(chatId); // получаем новую пустую сессию
+                var session = _sessionService.GetOrCreate(chatId); // получаем новую пустую сессию
                 await ProcessStartCommandAsync(chatId, session, cancellationToken);
-                break;
-
+                return true;
+            
             default:
                 await _botClient.SendTextMessageAsync(
                     chatId,
-                    "🤔 Не понимаю. Используйте команду /start для начала.",
+                    "🤔 Не понимаю эту команду. Попробуйте /start.",
                     cancellationToken: cancellationToken);
-                break;
+                return true;
         }
     }
-
-    
     
     #region helpers
 

@@ -18,7 +18,6 @@ if (File.Exists(".env.local"))
     DotNetEnv.Env.Load(".env.local");
 else if (File.Exists(".env"))
     DotNetEnv.Env.Load();
-Env.TraversePath().Load();
 
 var builder = Host.CreateApplicationBuilder(args);
 

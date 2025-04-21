@@ -21,7 +21,7 @@ public class BotHostedService : IHostedService
     private readonly IBackgroundExceptionHandler _exceptionHandler;
     private readonly ILogger<BotHostedService> _logger;
     private CancellationTokenSource _cts;
-    private static readonly long admin_chat_id = long.Parse(Environment.GetEnvironmentVariable("ADMIN_CHAT_ID") ?? throw new InvalidOperationException("admin_chat_id не указан в .env файле"));
+    private static readonly long admin_chat_id = long.Parse(Environment.GetEnvironmentVariable("BotConfiguration__AdminChatId") ?? throw new InvalidOperationException("admin_chat_id не указан в .env файле"));
         
     /// <summary>
     /// Конструктор BotHostedService.
@@ -51,7 +51,7 @@ public class BotHostedService : IHostedService
 
         var receiverOptions = new ReceiverOptions
         {
-            AllowedUpdates = Array.Empty<UpdateType>()
+            AllowedUpdates = Array.Empty<UpdateType>()  
         };
 
         _botClient.StartReceiving(

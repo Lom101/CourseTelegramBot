@@ -16,7 +16,9 @@ public class TopicRepository : ITopicRepository
     
     public async Task<Topic?> GetByIdAsync(int id)
     {
-        return await _context.Topics.FindAsync(id);
+        return await _context.Topics
+            .Include(t => t.ContentItems)
+            .FirstOrDefaultAsync(t => t.Id == id);
     }
 
     public async Task<List<Topic>> GetByCourseIdAsync(int courseId)
