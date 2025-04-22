@@ -1,3 +1,15 @@
+Страницы:
+1./admin/users – список участников
+2./admin/content – управление контентом
+3./admin/user/:id – карточка пользователя (подробности, блокировка и т.д.)
+
+Функциональность:
+1.Список участников + фильтры. Отображение в виде таблицы (используем компонент Table из MUI или Ant Design)
+2.Возможность фильтровать по: ФИО, Email, Прогресс (например, % завершения курса)
+
+Поиск по строке (input)
+Сортировка по колонкам
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
