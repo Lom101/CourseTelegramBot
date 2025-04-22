@@ -4,7 +4,7 @@ import MaterialsPage from './pages/MaterialsPage';
 import UsersPage from './pages/UsersPage';
 import BlockPage from './pages/BlockPage';
 import Navbar from './components/Navbar';
-
+import LoginPage from './pages/LoginPage';
 function App() {
   return (
     <Router>
@@ -13,6 +13,7 @@ function App() {
 
         <main className="p-6">
           <Routes>
+            <Route path ="/" element={<LoginPage to="/login"/>} />
             <Route path="/" element={<Navigate to="/users" />} />
             <Route path="/users" element={<UsersPage />} />
             <Route path="/materials" element={<MaterialsPage />} />
