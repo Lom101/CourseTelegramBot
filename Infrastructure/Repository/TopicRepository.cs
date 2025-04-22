@@ -8,8 +8,7 @@ namespace Infrastructure.Repository;
 public class TopicRepository : ITopicRepository
 {
     private readonly AppDbContext _context;
-    private ITopicRepository _topicRepositoryImplementation;
-
+    
     public TopicRepository(AppDbContext context)
     {
         _context = context;
