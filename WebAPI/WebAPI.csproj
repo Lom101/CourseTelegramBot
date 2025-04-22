@@ -7,6 +7,8 @@
         <InvariantGlobalization>true</InvariantGlobalization>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <RootNamespace>Backend</RootNamespace>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn> <!-- чтобы не ругался на отсутствующие XML-комментарии -->
     </PropertyGroup>
 
     <ItemGroup>

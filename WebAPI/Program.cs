@@ -1,3 +1,4 @@
+using System.Reflection;
 using Backend.Middleware;
 using Core.Interfaces;
 using DotNetEnv;
@@ -34,7 +35,12 @@ builder.Services.AddScoped<IUserProgressRepository, UserProgressRepository>();
 
 // Добавление Swagger
 builder.Services.AddEndpointsApiExplorer(); // Эксплорер для API
-builder.Services.AddSwaggerGen(); // Генерация Swagger документации
+builder.Services.AddSwaggerGen(options => // Генерация Swagger документации
+{
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    options.IncludeXmlComments(xmlPath);
+});
 
 var app = builder.Build();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
