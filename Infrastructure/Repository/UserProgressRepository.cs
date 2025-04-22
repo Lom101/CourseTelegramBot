@@ -19,12 +19,6 @@ public class UserProgressRepository : IUserProgressRepository
         return await _context.UserProgresses.FindAsync(id);
     }
 
-    public async Task<UserProgress?> GetByUserAndContentAsync(int userId, int contentId)
-    {
-        return await _context.UserProgresses
-            .FirstOrDefaultAsync(up => up.UserId == userId && up.ContentId == contentId);
-    }
-
     public async Task<List<UserProgress>> GetByUserIdAsync(int userId)
     {
         return await _context.UserProgresses
@@ -35,12 +29,6 @@ public class UserProgressRepository : IUserProgressRepository
     public async Task AddAsync(UserProgress progress)
     {
         await _context.UserProgresses.AddAsync(progress);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task UpdateAsync(UserProgress progress)
-    {
-        _context.UserProgresses.Update(progress);
         await _context.SaveChangesAsync();
     }
 }
