@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Folder Include="Dto\Auth\Response\" />
       <Folder Include="Dto\User\" />
     </ItemGroup>
 

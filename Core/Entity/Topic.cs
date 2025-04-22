@@ -5,7 +5,7 @@ public class Topic
     public int Id { get; set; }
     
     public string Title { get; set; }
-    public int Order { get; set; }
+    public int Order { get; set; } // Поле для указания порядка контента
     
     public int CourseId { get; set; }
     public Course Course { get; set; }

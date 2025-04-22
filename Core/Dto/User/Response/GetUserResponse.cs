@@ -1,6 +1,6 @@
 ﻿namespace Core.Dto.Response;
 
-public class UserResponse
+public class GetUserResponse
 {
     public int Id { get; set; }
     public long ChatId { get; set; }

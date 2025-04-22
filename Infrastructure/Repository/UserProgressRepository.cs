@@ -19,13 +19,13 @@ public class UserProgressRepository : IUserProgressRepository
         return await _context.UserProgresses.FindAsync(id);
     }
 
-    public async Task<UserProgress?> GetByUserAndContentAsync(long userId, int contentId)
+    public async Task<UserProgress?> GetByUserAndContentAsync(int userId, int contentId)
     {
         return await _context.UserProgresses
             .FirstOrDefaultAsync(up => up.UserId == userId && up.ContentId == contentId);
     }
 
-    public async Task<List<UserProgress>> GetByUserIdAsync(long userId)
+    public async Task<List<UserProgress>> GetByUserIdAsync(int userId)
     {
         return await _context.UserProgresses
             .Where(up => up.UserId == userId)

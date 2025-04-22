@@ -9,4 +9,7 @@ public class ContentItem
     
     public int TopicId { get; set; }
     public Topic Topic { get; set; }
+    
+    // Поле для указания порядка контента
+    public int Order { get; set; } 
 }

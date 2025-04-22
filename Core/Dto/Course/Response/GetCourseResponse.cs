@@ -1,6 +1,6 @@
 ﻿namespace Core.Dto.Course.Response;
 
-public class CourseResponse
+public class GetCourseResponse
 {
     public int Id { get; set; }
     public string Title { get; set; }

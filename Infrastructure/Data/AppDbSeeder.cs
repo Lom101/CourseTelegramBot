@@ -1,4 +1,5 @@
 ﻿using Core.Entity;
+using Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data;
@@ -7,7 +8,7 @@ public static class AppDbSeeder
 {
     public static async Task SeedAsync(AppDbContext context)
     {
-        //await context.Database.EnsureDeletedAsync();
+        await context.Database.EnsureDeletedAsync();
         //await context.Database.EnsureCreatedAsync();
         await context.Database.MigrateAsync();
 
@@ -104,12 +105,13 @@ public static class AppDbSeeder
                 new User
                 {
                     PhoneNumber = "+79997654321",
-                    Email = "petrova@example.com",
-                    FullName = "Петрова Анна Сергеевна",
+                    Email = "admin@mail.ru",
+                    FullName = "Админов Админ Админович",
                     RegistrationDate = DateTime.UtcNow,
                     LastActivity = DateTime.UtcNow,
                     IsBlocked = false,
-                    IsAdmin = true // администратор
+                    IsAdmin = true, // администратор
+                    PasswordHash = PasswordHasher.HashPassword("admin123")
                 }
             };
 
