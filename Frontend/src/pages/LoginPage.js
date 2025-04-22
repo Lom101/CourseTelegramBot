@@ -1,16 +1,24 @@
-import React, { useState } from 'react';
-import '../index.css'; // Импортируем стили
+import React, { useState, useContext } from 'react';
+import '../index.css';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../components/AuthContext';
 
 const LoginPage = () => {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+  const { login: doLogin } = useContext(AuthContext);
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Здесь можно добавить логику для отправки данных на сервер
-    console.log('Логин:', login);
-    console.log('Пароль:', password);
-    alert('Форма отправлена!');
+
+    // Здесь можно добавить реальную проверку, например на сервере
+    if (login === 'admin' && password === '1234') {
+      doLogin();
+      navigate('/users');
+    } else {
+      alert('Неверный логин или пароль');
+    }
   };
 
   return (
