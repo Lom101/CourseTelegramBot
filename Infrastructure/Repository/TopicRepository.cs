@@ -8,6 +8,7 @@ namespace Infrastructure.Repository;
 public class TopicRepository : ITopicRepository
 {
     private readonly AppDbContext _context;
+    private ITopicRepository _topicRepositoryImplementation;
 
     public TopicRepository(AppDbContext context)
     {
@@ -52,4 +53,7 @@ public class TopicRepository : ITopicRepository
         _context.Topics.Remove(topic);
         await _context.SaveChangesAsync();
     }
+    
+    
+    
 }

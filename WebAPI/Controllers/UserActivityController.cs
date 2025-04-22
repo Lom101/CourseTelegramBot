@@ -16,14 +16,4 @@ public class UserActivityController(IUserActivityRepository activityRepository) 
         return Ok(activities);
     }
     
-    // TODO: убрать как будто
-    [HttpPost]
-    public async Task<ActionResult<UserActivity>> LogActivity([FromBody] UserActivity activity)
-    {
-        if (!ModelState.IsValid)
-            throw new ArgumentException("Invalid activity data");
-
-        await activityRepository.AddAsync(activity);
-        return CreatedAtAction(nameof(GetByUserId), new { userId = activity.UserId }, activity);
-    }
 }

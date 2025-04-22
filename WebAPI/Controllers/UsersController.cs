@@ -14,6 +14,8 @@ public class UsersController(IUserRepository userRepository) : ControllerBase
         var user = await userRepository.GetByChatIdAsync(chatId);
         return user ?? throw new KeyNotFoundException($"User with chat id {chatId} not found");
     }
+    
+    
 
     [HttpPost("register")]
     public async Task<ActionResult<User>> Register([FromBody] User user)
@@ -30,4 +32,12 @@ public class UsersController(IUserRepository userRepository) : ControllerBase
     }
     
     // TODO: можно добавить получение по id просто, параллельно с получением по chatId
+    
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<User>> GetById(int id)
+    {
+        var user = await userRepository.GetByIdAsync(id);
+        return user ?? throw new KeyNotFoundException($"User with id {id} not found");
+    }
+
 }

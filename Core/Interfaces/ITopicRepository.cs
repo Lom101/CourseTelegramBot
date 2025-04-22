@@ -10,4 +10,6 @@ public interface ITopicRepository
     Task AddAsync(Topic topic);
     Task UpdateAsync(Topic topic);
     Task DeleteAsync(Topic topic);
+    
+    
 }
