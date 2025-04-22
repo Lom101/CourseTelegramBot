@@ -42,7 +42,21 @@ builder.Services.AddSwaggerGen(options => // Генерация Swagger доку
     options.IncludeXmlComments(xmlPath);
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins", builder => 
+    {
+        builder.AllowAnyOrigin() // Разрешаем любой источник
+            .AllowAnyMethod() // Разрешаем любые HTTP методы (GET, POST, PUT и т.д.)
+            .AllowAnyHeader(); // Разрешаем любые заголовки
+    });
+});
+
 var app = builder.Build();
+
+// Применяем CORS
+app.UseCors("AllowAllOrigins");
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 using (var scope = app.Services.CreateScope())
 {
@@ -56,6 +70,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger(); // Включаем Swagger
     app.UseSwaggerUI(); // UI для Swagger (автоматическая генерация документации)
 }
+
 
 app.MapControllers();
 app.Run();
