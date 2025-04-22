@@ -1,17 +1,44 @@
-import React, { useState } from "react";
-import usersData from "../data/users";
+import React, { useState, useEffect } from "react";
 import UserList from "../components/UserList";
 
 const UsersPage = () => {
-  const [users, setUsers] = useState(usersData);
+  const [users, setUsers] = useState([]);
 
-  const handleBlock = (id) => {
-    setUsers(users.map(u => u.id === id ? { ...u, blocked: !u.blocked } : u));
+  // Загрузка списка пользователей с API
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/Users`);
+      const data = await response.json();
+      setUsers(data);
+    } catch (error) {
+      console.error("Ошибка при загрузке пользователей:", error);
+    }
   };
 
-  const handleDelete = (id) => {
-    setUsers(users.filter(u => u.id !== id));
+  // Блокировка пользователя
+  const handleBlock = async (id) => {
+    try {
+      await fetch(`${process.env.REACT_APP_API_URL}/api/Users/${id}/block`, { method: "POST" });
+      fetchUsers(); // обновляем список после действия
+    } catch (error) {
+      console.error("Ошибка при блокировке пользователя:", error);
+    }
   };
+
+  // Удаление пользователя
+  const handleDelete = async (id) => {
+    try {
+      await fetch(`${process.env.REACT_APP_API_URL}/api/Users/${id}`, { method: "DELETE" });
+      fetchUsers(); // обновляем список после удаления
+    } catch (error) {
+      console.error("Ошибка при удалении пользователя:", error);
+    }
+  };
+
+  // Загружаем пользователей при монтировании компонента
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#b9bedf] px-10 py-8">

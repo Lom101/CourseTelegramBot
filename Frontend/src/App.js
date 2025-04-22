@@ -5,7 +5,7 @@ import UsersPage from './pages/UsersPage';
 import BlockPage from './pages/BlockPage';
 import Navbar from './components/Navbar';
 import LoginPage from './pages/LoginPage';
-import { AuthContext } from './components/AuthContext';;
+import { AuthContext } from './components/AuthContext';
 
 function App() {
   const { isAuthenticated } = useContext(AuthContext);
