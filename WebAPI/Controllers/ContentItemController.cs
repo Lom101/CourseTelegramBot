@@ -8,6 +8,8 @@ using Backend.Dto;
 using Backend.Dto.Audio;
 using Backend.Dto.Audio.Response;
 using Backend.Dto.Book;
+using Backend.Mapper;
+using Backend.Mapper.Service;
 using Backend.Service;
 using Backend.Service.Interfaces;
 using Core.Entity.AnyContent;
@@ -30,14 +32,13 @@ namespace Backend.Controllers
         IWordFileService wordFileService)
         : ControllerBase
     {
-        // TODO: сделать загрузку текста файлом word 
-        
         private async Task<int> CalculateOrderAsync(int topicId)
         {
             var contentItems = await contentItemRepository.GetByTopicIdAsync(topicId);
             return contentItems.Any() ? contentItems.Max(c => c.Order) + 1 : 1;
         }
         
+        // Метод для получения контента по ID с маппингом
         [HttpGet("{id}")]
         public async Task<IActionResult> GetContentById(int id)
         {
@@ -47,46 +48,9 @@ namespace Backend.Controllers
                 return NotFound($"Content item with id {id} not found");
             }
 
-            // Проверка типа контента и возврат соответствующего DTO
-            switch (contentItem)
-            {
-                case BookContent bookContent:
-                    return Ok(new GetBookContentResponse
-                    {
-                        Id = bookContent.Id,
-                        Description = bookContent.Description,
-                        FileUrl = bookContent.FileUrl,
-                        FileName = bookContent.FileName,
-                        Title = bookContent.Title,
-                        TopicTitle = bookContent.Topic?.Title
-                    });
-        
-                case AudioContent audioContent:
-                    return Ok(new GetAudioContentResponse
-                    {
-                        Id = audioContent.Id,
-                        Description = audioContent.Description,
-                        AudioUrl = audioContent.AudioUrl,
-                        Title = audioContent.Title,
-                        TopicTitle = audioContent.Topic?.Title
-                    });
-
-                case WordFileContent wordFileContent:
-                    return Ok(new GetWordFileContentResponse()
-                    {
-                        Id = wordFileContent.Id,
-                        Description = wordFileContent.Description,
-                        FileUrl = wordFileContent.FileUrl,
-                        FileName = wordFileContent.FileName,
-                        Title = wordFileContent.Title,
-                        //TopicTitle = wordFileContent.Topic?.Title
-                    });
-
-                default:
-                    return BadRequest("Unknown content type");
-            }
+            var dto = ContentItemMappingService.MapToDto(contentItem);
+            return Ok(dto); 
         }
-
 
         /// <summary>
         /// Получить список всех контент-элементов, принадлежащих указанному топику.
@@ -105,7 +69,10 @@ namespace Backend.Controllers
             
             var contentItems = await contentItemRepository.GetByTopicIdAsync(topicId);
             var sortedContentItems = contentItems.OrderBy(c => c.Order).ToList(); // Сортируем по порядку
-            return sortedContentItems.Any() ? Ok(sortedContentItems) : NotFound($"No content found for topic with id {topicId}");
+            
+            var dtoList = sortedContentItems.Select(ContentItemMappingService.MapToDto).ToList(); // маппим
+            
+            return sortedContentItems.Any() ? Ok(dtoList) : NotFound($"No content found for topic with id {topicId}");
         }
 
         [HttpPost("word")]
@@ -119,20 +86,14 @@ namespace Backend.Controllers
                 return NotFound($"Топик с ID {request.TopicId} не найден");
 
             var fileUrl = await wordFileService.SaveWordFileAsync(request.File);
-            var fileName = Path.GetFileName(fileUrl);
             var order = await CalculateOrderAsync(request.TopicId);
 
-            var content = new WordFileContent
-            {
-                TopicId = request.TopicId,
-                Order = order,
-                Title = request.Title,
-                FileName = fileName,
-                FileUrl = fileUrl
-            };
+            var content = ContentItemMapper.ToEntity(request, fileUrl, order);
 
             await contentItemRepository.AddAsync(content);
-            return CreatedAtAction(nameof(GetContentById), new { id = content.Id }, content);
+            
+            var dto = ContentItemMappingService.MapToDto(content);
+            return CreatedAtAction(nameof(GetContentById), new { id = content.Id }, dto);
         }
 
         /// <summary>
@@ -151,17 +112,14 @@ namespace Backend.Controllers
                 return NotFound($"Topic with id {request.TopicId} not found");
             
             var imageUrl = await imageFileService.SaveImageAsync(request.Image);
+            var order = await CalculateOrderAsync(request.TopicId);
 
-            var content = new ImageContent
-            {
-                TopicId = request.TopicId,
-                Order = await CalculateOrderAsync(request.TopicId),
-                ImageUrl = imageUrl
-            };
-
+            var content = ContentItemMapper.ToEntity(request, imageUrl, order);
+            
             await contentItemRepository.AddAsync(content);
 
-            return CreatedAtAction(nameof(GetContentById), new { id = content.Id }, content);
+            var dto = ContentItemMappingService.MapToDto(content);
+            return CreatedAtAction(nameof(GetContentById), new { id = content.Id }, dto);
         }
         
         /// <summary>
@@ -180,16 +138,14 @@ namespace Backend.Controllers
                 return NotFound($"Topic with id {request.TopicId} not found");
 
             var fileUrl = await bookFileService.SaveBookAsync(request.File);
+            var order = await CalculateOrderAsync(request.TopicId);
 
-            var content = new BookContent
-            {
-                TopicId = request.TopicId,
-                Order = await CalculateOrderAsync(request.TopicId),
-                FileUrl = fileUrl,
-            };
-
+            var content = ContentItemMapper.ToEntity(request, fileUrl, order);
+            
             await contentItemRepository.AddAsync(content);
-            return CreatedAtAction(nameof(GetContentById), new { id = content.Id }, content);
+            
+            var dto = ContentItemMappingService.MapToDto(content);
+            return CreatedAtAction(nameof(GetContentById), new { id = content.Id }, dto);
         }
         
         /// <summary>
@@ -208,18 +164,14 @@ namespace Backend.Controllers
                 return NotFound($"Topic with id {request.TopicId} not found");
 
             var audioUrl = await audioFileService.SaveAudioAsync(request.AudioFile); 
+            var order = await CalculateOrderAsync(request.TopicId);
 
-            var content = new AudioContent
-            {
-                TopicId = request.TopicId,
-                Order = await CalculateOrderAsync(request.TopicId),
-                AudioUrl = audioUrl,
-                Title = request.Title
-            };
-
+            var content = ContentItemMapper.ToEntity(request, audioUrl, order);
+            
             await contentItemRepository.AddAsync(content);
 
-            return CreatedAtAction(nameof(GetContentById), new { id = content.Id }, content);
+            var dto = ContentItemMappingService.MapToDto(content);
+            return CreatedAtAction(nameof(GetContentById), new { id = content.Id }, dto);
         }
 
         
@@ -247,13 +199,13 @@ namespace Backend.Controllers
             // Проверяем, что новый порядок валиден
             if (newOrder < 1 || newOrder > allContent.Count())
                 return BadRequest("Invalid order number");
-        
-
+            
             // Обновляем порядок
             contentItem.Order = newOrder;
             await contentItemRepository.UpdateAsync(contentItem);
 
-            return Ok(contentItem);
+            var dto = ContentItemMappingService.MapToDto(contentItem);
+            return Ok(dto);
         }
 
         /// <summary>

@@ -5,6 +5,5 @@
     public string FileName { get; set; }
     public string FileUrl { get; set; }
     public string Description { get; set; }
-    public int TopicId { get; set; }
     public int Order { get; set; }
 }
