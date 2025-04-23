@@ -6,4 +6,5 @@ public class GetImageContentResponse
     public string FileUrl { get; set; }
     public string AltText { get; set; }
     public string Title { get; set; }
+    public int Order { get; set; }
 }
