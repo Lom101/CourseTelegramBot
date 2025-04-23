@@ -10,6 +10,7 @@ public class TopicMapper
     {
         return new GetTopicResponse
         {
+            Id = topic.Id,
             Title = topic.Title
         };
     }
@@ -23,8 +24,9 @@ public class TopicMapper
         };
     }
     
-    public static void ToEntity(Topic topic, UpdateTopicRequest request)
+    public static Topic ToEntity(Topic topic, UpdateTopicRequest request)
     {
-        topic.Title = request.Title;
+        if (request.Title != null) topic.Title = request.Title;
+        return topic;
     }
 }

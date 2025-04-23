@@ -3,6 +3,8 @@ using Backend.Dto.Audio.Response;
 using Backend.Dto.Book;
 using Backend.Dto.Image;
 using Backend.Dto.Image.Response;
+using Backend.Dto.WordFile.Request;
+using Backend.Dto.WordFile.Response;
 using Core.Entity.AnyContent;
 
 namespace Backend.Mapper

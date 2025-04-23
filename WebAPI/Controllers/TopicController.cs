@@ -67,8 +67,8 @@ public class TopicController(ITopicRepository topicRepository) : ControllerBase
         if (existingTopic == null)
             return NotFound($"Topic with id {id} not found");
         
-        TopicMapper.ToEntity(existingTopic, request);
-        await topicRepository.UpdateAsync(existingTopic);
+        var topic = TopicMapper.ToEntity(existingTopic, request);
+        await topicRepository.UpdateAsync(topic);
 
         var dto = TopicMapper.ToDto(existingTopic);
         return Ok(dto);

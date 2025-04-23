@@ -1,4 +1,6 @@
-﻿public class CreateWordFileContentRequest
+﻿namespace Backend.Dto.WordFile.Request;
+
+public class CreateWordFileContentRequest
 {
     public int TopicId { get; set; }
     public string Title { get; set; }

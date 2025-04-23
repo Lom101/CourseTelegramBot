@@ -1,4 +1,6 @@
-﻿public class GetWordFileContentResponse
+﻿namespace Backend.Dto.WordFile.Response;
+
+public class GetWordFileContentResponse
 {
     public int Id { get; set; }
     public string Title { get; set; }
