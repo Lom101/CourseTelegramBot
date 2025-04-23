@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250423163130_123")]
+    partial class _123
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,11 +38,6 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("character varying(21)");
-
                     b.Property<int>("Order")
                         .HasColumnType("integer");
 
@@ -51,10 +49,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("TopicId");
 
                     b.ToTable("ContentItems");
-
-                    b.HasDiscriminator().HasValue("ContentItem");
-
-                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Core.Entity.Course", b =>
@@ -251,102 +245,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserProgresses");
-                });
-
-            modelBuilder.Entity("Core.Entity.AnyContent.AudioContent", b =>
-                {
-                    b.HasBaseType("Core.Entity.AnyContent.ContentItem");
-
-                    b.Property<string>("AudioUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.ToTable("ContentItems", t =>
-                        {
-                            t.Property("Title")
-                                .HasColumnName("AudioContent_Title");
-                        });
-
-                    b.HasDiscriminator().HasValue("AudioContent");
-                });
-
-            modelBuilder.Entity("Core.Entity.AnyContent.BookContent", b =>
-                {
-                    b.HasBaseType("Core.Entity.AnyContent.ContentItem");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FileUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasDiscriminator().HasValue("BookContent");
-                });
-
-            modelBuilder.Entity("Core.Entity.AnyContent.ImageContent", b =>
-                {
-                    b.HasBaseType("Core.Entity.AnyContent.ContentItem");
-
-                    b.Property<string>("AltText")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.ToTable("ContentItems", t =>
-                        {
-                            t.Property("Title")
-                                .HasColumnName("ImageContent_Title");
-                        });
-
-                    b.HasDiscriminator().HasValue("ImageContent");
-                });
-
-            modelBuilder.Entity("Core.Entity.AnyContent.WordFileContent", b =>
-                {
-                    b.HasBaseType("Core.Entity.AnyContent.ContentItem");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FileUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.ToTable("ContentItems", t =>
-                        {
-                            t.Property("FileName")
-                                .HasColumnName("WordFileContent_FileName");
-
-                            t.Property("FileUrl")
-                                .HasColumnName("WordFileContent_FileUrl");
-
-                            t.Property("Title")
-                                .HasColumnName("WordFileContent_Title");
-                        });
-
-                    b.HasDiscriminator().HasValue("WordFileContent");
                 });
 
             modelBuilder.Entity("Core.Entity.AnyContent.ContentItem", b =>

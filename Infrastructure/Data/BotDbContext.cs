@@ -14,9 +14,14 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Course> Courses { get; set; }
     public DbSet<Topic> Topics { get; set; }
-    public DbSet<ContentItem> ContentItems { get; set; }
     public DbSet<UserProgress> UserProgresses { get; set; }
     public DbSet<UserActivity> UserActivities { get; set; }
+    
+    public DbSet<ContentItem> ContentItems { get; set; }
+    public DbSet<BookContent> BookContents { get; set; }
+    public DbSet<AudioContent> AudioContents { get; set; }
+    public DbSet<WordFileContent> WordFileContents { get; set; }
+    public DbSet<ImageContent> ImageContents { get; set; }
     
     public DbSet<Test> Tests { get; set; }
     public DbSet<TestQuestion> TestQuestions { get; set; }

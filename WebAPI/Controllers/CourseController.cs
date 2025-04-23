@@ -8,8 +8,8 @@ namespace Backend.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class CourseController(ICourseRepository courseRepository) : ControllerBase
-{
-    [Authorize]
+{ 
+    //[Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetCourseById(int id = 1)
     {

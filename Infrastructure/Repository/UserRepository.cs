@@ -1,6 +1,6 @@
-﻿using Core.Dto.User.Request;
-using Core.Entity;
+﻿using Core.Entity;
 using Core.Interfaces;
+using Core.Model;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,7 +15,7 @@ public class UserRepository : IUserRepository
         _context = context;
     }
     
-    public async Task<IEnumerable<User>> GetFilteredUsersAsync(UserFilterRequest filterRequest)
+    public async Task<IEnumerable<User>> GetFilteredUsersAsync(UserFilterModel filterRequest)
     {
         IQueryable<User> query = _context.Users;
 

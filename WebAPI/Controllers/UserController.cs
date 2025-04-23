@@ -1,6 +1,6 @@
-﻿using Core.Dto.User.Request;
-using Core.Entity;
+﻿using Core.Entity;
 using Core.Interfaces;
+using Core.Model;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;
@@ -126,7 +126,7 @@ public class UserController(IUserRepository userRepository) : ControllerBase
     /// <param name="filterRequest">Параметры для фильтрации.</param>
     /// <returns>Список пользователей.</returns>
     [HttpGet("filter")]
-    public async Task<ActionResult<IEnumerable<User>>> GetFilteredUsers([FromQuery] UserFilterRequest filterRequest)
+    public async Task<ActionResult<IEnumerable<User>>> GetFilteredUsers([FromQuery] UserFilterModel filterRequest)
     {
         var users = await userRepository.GetFilteredUsersAsync(filterRequest);
         return Ok(users);

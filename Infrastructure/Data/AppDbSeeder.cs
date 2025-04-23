@@ -34,62 +34,44 @@ public static class AppDbSeeder
                                 FileUrl = "/upload/books/Сверх продуктивность, Михаил Алистер.pdf",
                                 FileName = "Сверх продуктивность, Михаил Алистер.pdf"
                             },
-                            new BookContent
-                            {
-                                Title = "Тайм-менеджмент",
-                                Description = "Книга Брайана Трейси",
-                                FileUrl = "/upload/books/Тайм-менеджмент, Брайан Трейси.pdf",
-                                FileName = "Тайм-менеджмент, Брайан Трейси.pdf"
-                            },
-                            new TextContent
-                            {
-                                Title = "Лонгрид: АБВГДЕ",
-                                Description = "Текст о лидерстве",
-                                Text = "Здесь будет текст о лидерстве, который мог бы быть в лонгриде."
-                            },
-                            new TextContent
-                            {
-                                Title = "Матрица Эйзенхауэра",
-                                Description = "Текст о приоритезации",
-                                Text = "Здесь будет описание матрицы Эйзенхауэра и как ее использовать для приоритизации задач."
-                            },
-                            new ImageContent
-                            {
-                                Title = "Метод АБВГД",
-                                Description = "Изображение схемы",
-                                ImageUrl = "/upload/pictures/метод АБВГД.jpg",
-                                AltText = "метод АБВГД"
-                            }
+                            // new BookContent
+                            // {
+                            //     Title = "Тайм-менеджмент",
+                            //     Description = "Книга Брайана Трейси",
+                            //     FileUrl = "/upload/books/Тайм-менеджмент, Брайан Трейси.pdf",
+                            //     FileName = "Тайм-менеджмент, Брайан Трейси.pdf"
+                            // },
+                            // new ImageContent
+                            // {
+                            //     Title = "Метод АБВГД",
+                            //     Description = "Изображение схемы",
+                            //     ImageUrl = "/upload/pictures/метод АБВГД.jpg",
+                            //     AltText = "метод АБВГД"
+                            // }
                         }
                     },
-                    new Topic
-                    {
-                        Title = "Практики командной работы",
-                        Order = 2,
-                        ContentItems = new List<ContentItem>
-                        {
-                            new BookContent
-                            {
-                                Title = "Пять пороков команды",
-                                Description = "Книга Патрика Ленсиони",
-                                FileUrl = "/upload/books/Пять_пороков_команды_Патрик Ленсиони.pdf",
-                                FileName = "Пять_пороков_команды_Патрик Ленсиони.pdf"
-                            },
-                            new BookContent
-                            {
-                                Title = "Теория U",
-                                Description = "Книга Отто Шармера",
-                                FileUrl = "/upload/books/Теория U_Отто Шармер.pdf",
-                                FileName = "Теория U_Отто Шармер.pdf"
-                            },
-                            new TextContent
-                            {
-                                Title = "Кто такой лидер?",
-                                Description = "Разбор понятий",
-                                Text = "Лидер - это человек, который ведет за собой и вдохновляет других на достижение общей цели."
-                            }
-                        }
-                    }
+                    // new Topic
+                    // {
+                    //     Title = "Практики командной работы",
+                    //     Order = 2,
+                    //     ContentItems = new List<ContentItem>
+                    //     {
+                    //         new BookContent
+                    //         {
+                    //             Title = "Пять пороков команды",
+                    //             Description = "Книга Патрика Ленсиони",
+                    //             FileUrl = "/upload/books/Пять_пороков_команды_Патрик Ленсиони.pdf",
+                    //             FileName = "Пять_пороков_команды_Патрик Ленсиони.pdf"
+                    //         },
+                    //         new BookContent
+                    //         {
+                    //             Title = "Теория U",
+                    //             Description = "Книга Отто Шармера",
+                    //             FileUrl = "/upload/books/Теория U_Отто Шармер.pdf",
+                    //             FileName = "Теория U_Отто Шармер.pdf"
+                    //         }
+                    //     }
+                    //}
                 }
             };
 

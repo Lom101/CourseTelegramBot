@@ -115,6 +115,7 @@ builder.Services.AddSingleton<JwtService>();
 builder.Services.AddScoped<IImageFileService, ImageFileService>();
 builder.Services.AddScoped<IBookFileService, BookFileService>();
 builder.Services.AddScoped<IAudioFileService, AudioFileService>();
+builder.Services.AddScoped<IWordFileService, WordFileService>();
 
 
 var app = builder.Build();
@@ -138,6 +139,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger(); // Включаем Swagger
     app.UseSwaggerUI(); // UI для Swagger (автоматическая генерация документации)
 }
+
+app.UseStaticFiles();
 
 app.MapControllers();
 app.Run();

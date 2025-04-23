@@ -1,5 +1,5 @@
-﻿using Core.Dto.User.Request;
-using Core.Entity;
+﻿using Core.Entity;
+using Core.Model;
 
 namespace Core.Interfaces;
 
@@ -10,7 +10,7 @@ public interface IUserRepository
     Task<User?> GetByPhoneNumberAsync(string phoneNumber);
     Task<User?> GetByEmailAsync(string email);
     Task<List<User>> GetAllAsync();
-    Task<IEnumerable<User>> GetFilteredUsersAsync(UserFilterRequest filterRequest);
+    Task<IEnumerable<User>> GetFilteredUsersAsync(UserFilterModel filterRequest);
     Task AddAsync(User user);
     Task UpdateAsync(User user);
     Task DeleteAsync(User user);

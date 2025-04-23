@@ -5,9 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Backend.Dto;
+using Backend.Dto.Audio;
+using Backend.Dto.Audio.Response;
+using Backend.Dto.Book;
 using Backend.Service;
 using Backend.Service.Interfaces;
-using Core.Dto.Content.Request;
 using Core.Entity.AnyContent;
 
 namespace Backend.Controllers
@@ -24,10 +26,11 @@ namespace Backend.Controllers
         ITopicRepository topicRepository, 
         IImageFileService imageFileService,
         IBookFileService bookFileService,
-        IAudioFileService audioFileService)
+        IAudioFileService audioFileService,
+        IWordFileService wordFileService)
         : ControllerBase
     {
-        // TODO: сделать загрузку текста, как файлом, так и строкой
+        // TODO: сделать загрузку текста файлом word 
         
         private async Task<int> CalculateOrderAsync(int topicId)
         {
@@ -35,19 +38,55 @@ namespace Backend.Controllers
             return contentItems.Any() ? contentItems.Max(c => c.Order) + 1 : 1;
         }
         
-        /// <summary>
-        /// Получить контент-элемент по его уникальному идентификатору.
-        /// </summary>
-        /// <param name="id">Уникальный идентификатор контент-элемента.</param>
-        /// <returns>
-        /// Возвращает <see cref="ContentItem"/> в случае успеха или код 404, если элемент не найден.
-        /// </returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetContentById(int id)
         {
             var contentItem = await contentItemRepository.GetByIdAsync(id);
-            return contentItem != null ? Ok(contentItem) : NotFound($"Content item with id {id} not found");
+            if (contentItem == null)
+            {
+                return NotFound($"Content item with id {id} not found");
+            }
+
+            // Проверка типа контента и возврат соответствующего DTO
+            switch (contentItem)
+            {
+                case BookContent bookContent:
+                    return Ok(new GetBookContentResponse
+                    {
+                        Id = bookContent.Id,
+                        Description = bookContent.Description,
+                        FileUrl = bookContent.FileUrl,
+                        FileName = bookContent.FileName,
+                        Title = bookContent.Title,
+                        TopicTitle = bookContent.Topic?.Title
+                    });
+        
+                case AudioContent audioContent:
+                    return Ok(new GetAudioContentResponse
+                    {
+                        Id = audioContent.Id,
+                        Description = audioContent.Description,
+                        AudioUrl = audioContent.AudioUrl,
+                        Title = audioContent.Title,
+                        TopicTitle = audioContent.Topic?.Title
+                    });
+
+                case WordFileContent wordFileContent:
+                    return Ok(new GetWordFileContentResponse()
+                    {
+                        Id = wordFileContent.Id,
+                        Description = wordFileContent.Description,
+                        FileUrl = wordFileContent.FileUrl,
+                        FileName = wordFileContent.FileName,
+                        Title = wordFileContent.Title,
+                        //TopicTitle = wordFileContent.Topic?.Title
+                    });
+
+                default:
+                    return BadRequest("Unknown content type");
+            }
         }
+
 
         /// <summary>
         /// Получить список всех контент-элементов, принадлежащих указанному топику.
@@ -69,31 +108,27 @@ namespace Backend.Controllers
             return sortedContentItems.Any() ? Ok(sortedContentItems) : NotFound($"No content found for topic with id {topicId}");
         }
 
-        /// <summary>
-        /// Создать текстовый контент внутри топика.
-        /// </summary>
-        /// <param name="request">Объект запроса, содержащий текст и ID топика.</param>
-        /// <returns>
-        /// Возвращает созданный объект <see cref="TextContent"/> с кодом 201,
-        /// либо код 400/404 при ошибке валидации или отсутствии топика.
-        /// </returns>
-        [HttpPost("text")]
-        public async Task<IActionResult> CreateTextContent([FromBody] CreateTextContentRequest request)
+        [HttpPost("word")]
+        public async Task<IActionResult> CreateWordFileContent([FromForm] CreateWordFileContentRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.Text))
-                return BadRequest("Text is required");
-            
+            if (request.File == null || request.File.Length == 0)
+                return BadRequest("Файл обязателен");
+
             var topic = await topicRepository.GetByIdAsync(request.TopicId);
             if (topic == null)
-                return NotFound($"Topic with id {request.TopicId} not found");
+                return NotFound($"Топик с ID {request.TopicId} не найден");
 
-            int order = await CalculateOrderAsync(request.TopicId);
+            var fileUrl = await wordFileService.SaveWordFileAsync(request.File);
+            var fileName = Path.GetFileName(fileUrl);
+            var order = await CalculateOrderAsync(request.TopicId);
 
-            var content = new TextContent
+            var content = new WordFileContent
             {
                 TopicId = request.TopicId,
                 Order = order,
-                Text = request.Text
+                Title = request.Title,
+                FileName = fileName,
+                FileUrl = fileUrl
             };
 
             await contentItemRepository.AddAsync(content);
@@ -179,7 +214,7 @@ namespace Backend.Controllers
                 TopicId = request.TopicId,
                 Order = await CalculateOrderAsync(request.TopicId),
                 AudioUrl = audioUrl,
-                AudioTitle = request.AudioTitle
+                Title = request.Title
             };
 
             await contentItemRepository.AddAsync(content);
