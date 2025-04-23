@@ -1,4 +1,5 @@
 ﻿using Core.Entity;
+using Core.Entity.AnyContent;
 using Core.Entity.Test;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +18,7 @@ public class AppDbContext : DbContext
     public DbSet<UserProgress> UserProgresses { get; set; }
     public DbSet<UserActivity> UserActivities { get; set; }
     
+    public DbSet<Test> Tests { get; set; }
     public DbSet<TestQuestion> TestQuestions { get; set; }
 
 

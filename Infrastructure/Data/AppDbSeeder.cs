@@ -1,4 +1,5 @@
 ﻿using Core.Entity;
+using Core.Entity.AnyContent;
 using Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,82 +13,90 @@ public static class AppDbSeeder
         //await context.Database.EnsureCreatedAsync();
         await context.Database.MigrateAsync();
 
-        if (!context.Courses.Any())
+       if (!context.Courses.Any())
+{
+    var course = new Course
+    {
+        Title = "Курс по Лидерству",
+        Description = "Подборка контента для развития лидерских навыков.",
+        Topics = new List<Topic>
         {
-            var course = new Course
+            new Topic
             {
-                Title = "Тим Лид",
-                Description = "Образовательный курс для будущих тимлидов, включающий теорию, практику, видеоуроки и тесты.",
-                Topics = new List<Topic>
+                Title = "Основы лидерства",
+                Order = 1,
+                ContentItems = new List<ContentItem>
                 {
-                    new Topic
+                    new BookContent
                     {
-                        Title = "Введение в лидерство",
-                        Order = 1,
-                        ContentItems = new List<ContentItem>
-                        {
-                            new TextContent
-                            {
-                                Title = "Роль тимлида",
-                                Description = "Основные обязанности тимлида в IT-команде.",
-                                Text = "Тимлид отвечает за техническое руководство командой, коммуникации с заказчиком и развитие членов команды."
-                            },
-                            new VideoContent
-                            {
-                                Title = "Кто такой тимлид?",
-                                Description = "Интервью с опытным руководителем.",
-                                VideoUrl = "https://example.com/videos/teamlead-role.mp4",
-                                ThumbnailUrl = "https://example.com/thumbs/teamlead-role.jpg",
-                                Duration = TimeSpan.FromMinutes(7)
-                            }
-                        }
+                        Title = "Сверх продуктивность",
+                        Description = "Книга Михаила Алистера",
+                        FileUrl = "/files/books/Сверх продуктивность, Михаил Алистер.pdf",
+                        FileName = "Сверх продуктивность, Михаил Алистер.pdf"
                     },
-                    new Topic
+                    new BookContent
                     {
-                        Title = "Эффективная коммуникация",
-                        Order = 2,
-                        ContentItems = new List<ContentItem>
-                        {
-                            new TextContent
-                            {
-                                Title = "Обратная связь",
-                                Description = "Как давать конструктивную обратную связь.",
-                                Text = "Обратная связь должна быть своевременной, конкретной и конструктивной, с акцентом на развитие."
-                            },
-                            new LinkContent
-                            {
-                                Title = "Статья на Хабре",
-                                Description = "Практика общения внутри команды.",
-                                Url = "https://habr.com/ru/company/example/blog/feedback-practice/"
-                            }
-                        }
+                        Title = "Тайм-менеджмент",
+                        Description = "Книга Брайана Трейси",
+                        FileUrl = "/files/books/Тайм-менеджмент, Брайан Трейси.pdf",
+                        FileName = "Тайм-менеджмент, Брайан Трейси.pdf"
                     },
-                    new Topic
+                    new TextContent
                     {
-                        Title = "Управление задачами",
-                        Order = 3,
-                        ContentItems = new List<ContentItem>
-                        {
-                            new TextContent
-                            {
-                                Title = "Приоритезация",
-                                Description = "Методы расстановки приоритетов.",
-                                Text = "Популярные методы приоритезации: Eisenhower Matrix, MoSCoW, RICE и др."
-                            },
-                            new ImageContent
-                            {
-                                Title = "Матрица Эйзенхауэра",
-                                Description = "Инструмент для принятия решений.",
-                                ImageUrl = "https://example.com/images/eisenhower-matrix.png",
-                                AltText = "Матрица Эйзенхауэра"
-                            }
-                        }
+                        Title = "Лонгрид: АБВГДЕ",
+                        Description = "Текст о лидерстве",
+                        Text = File.ReadAllText("blocks/block1/texts/Лонгрид, ABCDE (АБВГД).txt")
+                    },
+                    new TextContent
+                    {
+                        Title = "Матрица Эйзенхауэра",
+                        Description = "Текст о приоритезации",
+                        Text = File.ReadAllText("blocks/block1/texts/Лонгрид. Матрица Эйзенхауэра.txt")
+                    },
+                    new ImageContent
+                    {
+                        Title = "Метод АБВГД",
+                        Description = "Изображение схемы",
+                        ImageUrl = "/files/pictures/метод АБВГД.jpg",
+                        AltText = "метод АБВГД"
                     }
                 }
-            };
-            context.Courses.Add(course);
+            },
+            new Topic
+            {
+                Title = "Практики командной работы",
+                Order = 2,
+                ContentItems = new List<ContentItem>
+                {
+                    new BookContent
+                    {
+                        Title = "Пять пороков команды",
+                        Description = "Книга Патрика Ленсиони",
+                        FileUrl = "/files/books/Пять_пороков_команды_Патрик Ленсиони.pdf",
+                        FileName = "Пять_пороков_команды_Патрик Ленсиони.pdf"
+                    },
+                    new BookContent
+                    {
+                        Title = "Теория U",
+                        Description = "Книга Отто Шармера",
+                        FileUrl = "/files/books/Теория U_Отто Шармер.pdf",
+                        FileName = "Теория U_Отто Шармер.pdf"
+                    },
+                    new TextContent
+                    {
+                        Title = "Кто такой лидер?",
+                        Description = "Разбор понятий",
+                        Text = File.ReadAllText("blocks/block2/texts/Лонгрид. Кто такой лидер.txt")
+                    }
+                }
+            }
         }
-        
+    };
+
+    context.Courses.Add(course);
+    context.SaveChanges();
+}
+
         if (!context.Users.Any())
         {
             var users = new List<User>

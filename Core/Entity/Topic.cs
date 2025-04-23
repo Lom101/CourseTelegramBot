@@ -1,4 +1,6 @@
-﻿namespace Core.Entity;
+﻿using Core.Entity.AnyContent;
+
+namespace Core.Entity;
 
 public class Topic
 {

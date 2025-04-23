@@ -3,6 +3,7 @@ using Bot.Helpers.Session;
 using Bot.Helpers.Session.Interface;
 using Bot.Service.Interfaces;
 using Core.Entity;
+using Core.Entity.AnyContent;
 using Core.Interfaces;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;

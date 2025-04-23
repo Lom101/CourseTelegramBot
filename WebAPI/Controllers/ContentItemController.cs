@@ -8,6 +8,7 @@ using Backend.Dto;
 using Backend.Service;
 using Backend.Service.Interfaces;
 using Core.Dto.Content.Request;
+using Core.Entity.AnyContent;
 
 namespace Backend.Controllers
 {
@@ -18,9 +19,16 @@ namespace Backend.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    public class ContentItemController(IContentItemRepository contentItemRepository, ITopicRepository topicRepository, IImageFileService imageFileService)
+    public class ContentItemController(
+        IContentItemRepository contentItemRepository,
+        ITopicRepository topicRepository, 
+        IImageFileService imageFileService,
+        IBookFileService bookFileService,
+        IAudioFileService audioFileService)
         : ControllerBase
     {
+        // TODO: сделать загрузку текста, как файлом, так и строкой
+        
         private async Task<int> CalculateOrderAsync(int topicId)
         {
             var contentItems = await contentItemRepository.GetByTopicIdAsync(topicId);
@@ -120,38 +128,66 @@ namespace Backend.Controllers
 
             return CreatedAtAction(nameof(GetContentById), new { id = content.Id }, content);
         }
-
+        
         /// <summary>
-        /// Создать ссылку как контент внутри топика.
+        /// Создать книжный файл как контент внутри топика.
         /// </summary>
-        /// <param name="request">Объект запроса с URL и ID топика.</param>
+        /// <param name="request">Объект запроса с ID топика и файлом книги (PDF, EPUB и т.п.).</param>
         /// <returns>
-        /// Возвращает созданный объект <see cref="LinkContent"/> с кодом 201,
-        /// либо код 400/404 при ошибке валидации или отсутствии топика.
+        /// Возвращает созданный объект <see cref="BookContent"/> с кодом 201,
+        /// либо код 404, если топик не найден.
         /// </returns>
-        [HttpPost("link")]
-        public async Task<IActionResult> CreateLinkContent([FromBody] CreateLinkContentRequest request)
+        [HttpPost("book")]
+        public async Task<IActionResult> CreateBookContent([FromForm] CreateBookContentRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.Url))
-                return BadRequest("Link is required");
-            
             var topic = await topicRepository.GetByIdAsync(request.TopicId);
             if (topic == null)
                 return NotFound($"Topic with id {request.TopicId} not found");
 
-            int order = await CalculateOrderAsync(request.TopicId);
+            var fileUrl = await bookFileService.SaveBookAsync(request.File);
 
-            var content = new LinkContent()
+            var content = new BookContent
             {
                 TopicId = request.TopicId,
-                Order = order,
-                Url = request.Url
+                Order = await CalculateOrderAsync(request.TopicId),
+                FileUrl = fileUrl,
             };
 
             await contentItemRepository.AddAsync(content);
             return CreatedAtAction(nameof(GetContentById), new { id = content.Id }, content);
         }
-       
+        
+        /// <summary>
+        /// Создать аудиофайл как контент внутри топика.
+        /// </summary>
+        /// <param name="request">Объект запроса с ID топика, аудиофайлом и опциональным названием аудио.</param>
+        /// <returns>
+        /// Возвращает созданный объект <see cref="AudioContent"/> с кодом 201,
+        /// либо код 404, если топик не найден.
+        /// </returns>
+        [HttpPost("audio")]
+        public async Task<IActionResult> CreateAudioContent([FromForm] CreateAudioContentRequest request)
+        {
+            var topic = await topicRepository.GetByIdAsync(request.TopicId);
+            if (topic == null)
+                return NotFound($"Topic with id {request.TopicId} not found");
+
+            var audioUrl = await audioFileService.SaveAudioAsync(request.AudioFile); 
+
+            var content = new AudioContent
+            {
+                TopicId = request.TopicId,
+                Order = await CalculateOrderAsync(request.TopicId),
+                AudioUrl = audioUrl,
+                AudioTitle = request.AudioTitle
+            };
+
+            await contentItemRepository.AddAsync(content);
+
+            return CreatedAtAction(nameof(GetContentById), new { id = content.Id }, content);
+        }
+
+        
         /// <summary>
         /// Обновить порядок (позицию) контент-элемента внутри своего топика.
         /// </summary>

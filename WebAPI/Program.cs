@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text;
 using Backend.Middleware;
 using Backend.Service;
+using Backend.Service.Interfaces;
 using Core.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Repository;
@@ -110,7 +111,11 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 builder.Services.AddSingleton<JwtService>();
-builder.Services.AddScoped<ImageFileService>();
+
+builder.Services.AddScoped<IImageFileService, ImageFileService>();
+builder.Services.AddScoped<IBookFileService, BookFileService>();
+builder.Services.AddScoped<IAudioFileService, AudioFileService>();
+
 
 var app = builder.Build();
 
