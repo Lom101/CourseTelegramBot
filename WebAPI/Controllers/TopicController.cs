@@ -6,7 +6,7 @@ namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class TopicsController(ITopicRepository topicRepository) : ControllerBase
+public class TopicsController (ITopicRepository topicRepository) : ControllerBase
 {
     
     
