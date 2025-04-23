@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Core.Dto.Topic.Request;
+namespace Backend.Dto.Topic.Request;
 
 public class CreateTopicRequest
 {

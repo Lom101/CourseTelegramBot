@@ -1,4 +1,6 @@
-﻿using Core.Entity;
+﻿using Backend.Mapper;
+using Core.Dto.Request;
+using Core.Entity;
 using Core.Interfaces;
 using Core.Model;
 using Microsoft.AspNetCore.Mvc;
@@ -10,19 +12,20 @@ namespace Backend.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class UserController(IUserRepository userRepository) : ControllerBase
+public class UserController(IUserRepository userRepository) : ControllerBase    
 {
     /// <summary>
     /// Получить пользователя по ID.
     /// </summary>
     [HttpGet("{id}")]
-    public async Task<IActionResult>  GetUserById(int id)
+    public async Task<IActionResult> GetUserById(int id)
     {
         var user = await userRepository.GetByIdAsync(id);
         if (user == null)
             return NotFound($"User with id {id} not found");
 
-        return Ok(user);
+        var dto = UserMapper.ToDto(user); 
+        return Ok(dto);
     }
     
     /// <summary>
@@ -32,7 +35,11 @@ public class UserController(IUserRepository userRepository) : ControllerBase
     public async Task<IActionResult> GetAllUsers()
     {
         var users = await userRepository.GetAllAsync();
-        return Ok(users);
+        if (!users.Any())
+            return NotFound("No users found");
+
+        var dtos = users.Select(UserMapper.ToDto).ToList(); // Преобразуем все сущности в GetUserResponse
+        return Ok(dtos);
     }
 
     /// <summary>
@@ -45,26 +52,35 @@ public class UserController(IUserRepository userRepository) : ControllerBase
         if (user == null)
             return NotFound($"User with chat id {chatId} not found");
 
-        return Ok(user);
+        var dto = UserMapper.ToDto(user); 
+        return Ok(dto);
     }
     
     /// <summary>
     /// Зарегистрировать нового пользователя.
     /// </summary>
     [HttpPost("add-new-user")]
-    public async Task<IActionResult> AddNewUser([FromBody] User user)
+    public async Task<IActionResult> AddNewUser([FromBody] CreateUserRequest request)
     {
         if (!ModelState.IsValid)
             throw new ArgumentException("Invalid user data");
 
-        var existingUser = await userRepository.GetByChatIdAsync((long)user.ChatId);
-        if (existingUser != null)
-            throw new ArgumentException($"User with chat id {user.ChatId} already exists");
+        if (request.ChatId.HasValue)
+        {
+            var existingUser = await userRepository.GetByChatIdAsync(request.ChatId.Value);
+            if (existingUser != null)
+                throw new ArgumentException($"User with chat id {request.ChatId} already exists");
+        }
 
+        // Преобразуем DTO в сущность User
+        var user = UserMapper.ToEntity(request);
+        
         await userRepository.AddAsync(user);
-        return CreatedAtAction(nameof(GetUserByChatId), new { chatId = user.ChatId }, user);
+        
+        var dto = UserMapper.ToDto(user);
+        return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, dto);
     }
-
+    
     /// <summary>
     /// Обновить данные пользователя.
     /// </summary>
@@ -72,20 +88,25 @@ public class UserController(IUserRepository userRepository) : ControllerBase
     /// <param name="updatedUser">Обновлённые данные пользователя.</param>
     /// <returns>Обновлённый пользователь.</returns>
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateUser(int id, [FromBody] User updatedUser)
+    public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest request)
     {
+        if (request == null)
+            return BadRequest("Invalid user data");
+        
+        if (request.Id != id)
+            return BadRequest("Id does not match request id");
+
         var user = await userRepository.GetByIdAsync(id);
         if (user == null)
             return NotFound($"User with id {id} not found");
-
-        user.FullName = updatedUser.FullName;
-        user.Email = updatedUser.Email;
-        user.PhoneNumber = updatedUser.PhoneNumber;
-        user.IsBlocked = updatedUser.IsBlocked;
-        user.IsAdmin = updatedUser.IsAdmin;
-
+        
+        // Обновляем данные пользователя
+        user = UserMapper.ToEntity(user, request);
         await userRepository.UpdateAsync(user);
-        return Ok(user);
+
+        // Возвращаем обновленного пользователя
+        var dto = UserMapper.ToDto(user);
+        return Ok(dto);
     }
 
     /// <summary>
@@ -129,6 +150,8 @@ public class UserController(IUserRepository userRepository) : ControllerBase
     public async Task<ActionResult<IEnumerable<User>>> GetFilteredUsers([FromQuery] UserFilterModel filterRequest)
     {
         var users = await userRepository.GetFilteredUsersAsync(filterRequest);
-        return Ok(users);
+        
+        var dtos = users.Select(UserMapper.ToDto).ToList();
+        return Ok(dtos);
     }
 }

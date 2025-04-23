@@ -1,4 +1,7 @@
-﻿using Core.Entity;
+﻿using Backend.Dto.Topic.Request;
+using Backend.Mapper;
+using Core.Dto.Topic.Request;
+using Core.Entity;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +15,11 @@ public class TopicController(ITopicRepository topicRepository) : ControllerBase
     public async Task<IActionResult> GetTopicByCourseId(int courseId)
     {
         var topics = await topicRepository.GetByCourseIdAsync(courseId);
-        return topics.Any() ? Ok(topics) : throw new KeyNotFoundException($"No topics found for course {courseId}");
+        if (!topics.Any())
+            return NotFound($"No topics found for course {courseId}");
+        
+        var dtos = topics.Select(TopicMapper.ToDto).ToList();
+        return Ok(dtos);
     }
 
     [HttpGet("{id}")]
@@ -22,13 +29,24 @@ public class TopicController(ITopicRepository topicRepository) : ControllerBase
         if (topic == null)
             throw new KeyNotFoundException($"Topic with id {id} not found");
 
-        return Ok(topic);
+        var dto = TopicMapper.ToDto(topic);
+        
+        return Ok(dto);
     }
     
     [HttpPost]
-    public async Task<IActionResult> CreateTopic([FromBody] Topic topic)
+    public async Task<IActionResult> CreateTopic([FromBody] CreateTopicRequest topicDto) // Принимаем DTO
     {
+        if (topicDto == null)
+            return BadRequest("Invalid topic data");
+
+        // Преобразуем DTO в сущность
+        var topic = TopicMapper.ToEntity(topicDto);
+
         await topicRepository.AddAsync(topic);
-        return CreatedAtAction(nameof(GetTopicById), new { id = topic.Id }, topic);
+
+        // Возвращаем только что созданный объект как DTO
+        var createdDto = TopicMapper.ToDto(topic);
+        return CreatedAtAction(nameof(GetTopicById), new { id = topic.Id }, createdDto);
     }
 }

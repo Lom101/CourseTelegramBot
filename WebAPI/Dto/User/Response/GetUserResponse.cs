@@ -1,11 +1,10 @@
-﻿namespace Core.Dto.Response;
+﻿namespace Backend.Dto.User.Response;
 
 public class GetUserResponse
 {
-    public int Id { get; set; }
-    public long ChatId { get; set; }
+    public long? ChatId { get; set; }
     public string PhoneNumber { get; set; }
-    public string? Email { get; set; }
+    public string Email { get; set; }
     public string FullName { get; set; }
     public DateTime RegistrationDate { get; set; }
     public DateTime? LastActivity { get; set; }

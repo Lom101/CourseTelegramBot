@@ -18,7 +18,6 @@ public static class AppDbSeeder
             var course = new Course
             {
                 Title = "Курс по Лидерству",
-                Description = "Подборка контента для развития лидерских навыков.",
                 Topics = new List<Topic>
                 {
                     new Topic

@@ -78,6 +78,7 @@
       <_ContentIncludedByDefault Remove="wwwroot\upload\pictures\Модель HD-RW-RM.jpg" />
       <_ContentIncludedByDefault Remove="wwwroot\upload\pictures\Модель SMART.jpg" />
       <_ContentIncludedByDefault Remove="wwwroot\upload\pictures\Модель TOTE.jpg" />
+      <_ContentIncludedByDefault Remove="wwwroot\uploads\images\9e35f6e6-e391-48a1-a36d-984486e26094.docx" />
     </ItemGroup>
 
 
