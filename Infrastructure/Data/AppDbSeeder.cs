@@ -29,10 +29,10 @@ public static class AppDbSeeder
                         {
                             new BookContent
                             {
-                                Title = "Сверх продуктивность",
-                                Description = "Книга Михаила Алистера",
+                                Title = "Книга Михаила Алистера 'Сверх продуктивность'",
                                 FileUrl = "/upload/books/Сверх продуктивность, Михаил Алистер.pdf",
-                                FileName = "Сверх продуктивность, Михаил Алистер.pdf"
+                                FileName = "Сверх продуктивность, Михаил Алистер.pdf",
+                                Order = 1
                             },
                             // new BookContent
                             // {

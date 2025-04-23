@@ -1,4 +1,5 @@
-﻿using Backend.Service;
+﻿using Backend.Dto.Auth.Response;
+using Backend.Service;
 using Core.Dto.Auth.Request;
 using Core.Interfaces;
 using Infrastructure.Helpers;
@@ -11,7 +12,7 @@ namespace Backend.Controllers;
 /// Контроллер для авторизации администраторов.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/[controller]")] 
 public class AuthController(IUserRepository userRepository, JwtService jwtService) : ControllerBase
 {
     /// <summary>
@@ -33,7 +34,7 @@ public class AuthController(IUserRepository userRepository, JwtService jwtServic
             return Unauthorized("Неверный пароль");
 
         var token = jwtService.GenerateToken(user.Email);
-        return Ok(new { token });
+        return Ok(new TokenResponse { Token = token });
     }
 
     /// <summary>

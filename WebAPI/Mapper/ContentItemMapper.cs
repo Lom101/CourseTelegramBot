@@ -16,7 +16,6 @@ namespace Backend.Mapper
             FileUrl = content.FileUrl,
             FileName = content.FileName,
             Title = content.Title,
-            Description = content.Description
         };
 
         // Маппинг для AudioContent
@@ -25,7 +24,6 @@ namespace Backend.Mapper
             Id = content.Id,
             AudioUrl = content.AudioUrl,
             Title = content.Title,
-            Description = content.Description
         };
 
         // Маппинг для WordFileContent
@@ -35,7 +33,6 @@ namespace Backend.Mapper
             FileUrl = content.FileUrl,
             FileName = content.FileName,
             Title = content.Title,
-            Description = content.Description
         };
 
         // Маппинг для ImageContent
