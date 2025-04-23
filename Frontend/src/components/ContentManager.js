@@ -1,14 +1,61 @@
 import React from 'react';
 import ContentItem from './ContentItem';
 
+const FILES = {
+  block1: {
+    audios: ['Аудио.m4a'],
+    books: [
+      'Сверх продуктивность, Михаил Алистер.pdf',
+      'Тайм-менеджмент, Брайан Трейси.pdf'
+    ],
+    pictures: ['метод АБВГД.jpg', 'метод Матрица Эйзенхауэра.jpg'],
+    texts: [
+      'Лонгрид. тайм-менеджмент тим лида.txt',
+      'Лонгрид. Матрица Эйзенхауэра.txt',
+      'Лонгрид. ABCDE (АБВГД).txt'
+    ]
+  },
+  block2: {
+    books: [
+      'Пять_пороков_команды_Патрик Ленсиони.pdf',
+      'Теория U_Отто Шармер.pdf'
+    ],
+    pictures: ['картинка к лонгриду 2 (1).png', 'картинка к лонгриду 2.png'],
+    texts: [
+      'Лонгрид. Кто такой лидер.txt',
+      'Лонгрид. Стили лидерства.txt'
+    ]
+  },
+  block3: {
+    audios: ['Делегирование.m4a'],
+    books: [
+      'Делегирование и управление_Трейси Б..pdf',
+      'Делегирование. Фридман.pdf'
+    ],
+    pictures: ['Модель HD-RW-RM.jpg', 'Модель SMART.jpg', 'Модель TOTE.jpg'],
+    texts: [
+      'Лонгрид. Постановка задач (модели).txt',
+      'Лонгрид. Делегирование.txt'
+    ]
+  },
+  block4: {
+    audios: ['Культура совместной работы. правила тимлида.m4a'],
+    books: ['Пять_пороков_команды_Притчи_о_лидерстве.pdf'],
+    texts: [
+      'Лонгрид. Культура совместной работы.txt',
+      'Лонгрид. Роли в команде.txt'
+    ]
+  }
+};
+
 const formatFileName = (filename) => {
   const withoutExt = filename.replace(/\.[^/.]+$/, '');
   const withSpaces = withoutExt.replace(/[_-]+/g, ' ');
   return withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1);
 };
 
-const ContentManager = ({ blockId, files }) => {
-  const blockData = files?.[`block${blockId}`];
+const ContentManager = ({ blockId }) => {
+  const blockData = FILES[`block${blockId}`];
   if (!blockData) return null;
 
   const renderItems = (type, folderName) => {

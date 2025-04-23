@@ -1,34 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ContentManager from '../components/ContentManager';
 
 const BlockPage = () => {
   const { id } = useParams();
-  const [blockData, setBlockData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchBlockData = async () => {
-      try {
-        const response = await fetch(`/api/blocks/${id}`);
-        if (!response.ok) {
-          throw new Error('Не удалось загрузить данные блока');
-        }
-        const data = await response.json();
-        setBlockData(data);
-        setLoading(false);
-      } catch (error) {
-        setError(error.message);
-        setLoading(false);
-      }
-    };
-
-    fetchBlockData();
-  }, [id]);
-
-  if (loading) return <div>Загрузка...</div>;
-  if (error) return <div>Ошибка: {error}</div>;
 
   return (
     <div>
@@ -56,11 +31,8 @@ const BlockPage = () => {
           </span>
         </h2>
       </div>
-
-      {/* Отображаем данные блока */}
-      {blockData && (
-        <ContentManager blockId={id} materials={blockData.materials} />
-      )}
+  
+      <ContentManager blockId={id} />
     </div>
   );
 };

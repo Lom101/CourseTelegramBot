@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
-import '../index.css';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../components/AuthContext';
+import axios from 'axios';
 
 const LoginPage = () => {
   const [login, setLogin] = useState('');
@@ -9,15 +9,32 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { login: doLogin } = useContext(AuthContext);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-
-    // Здесь можно добавить реальную проверку, например на сервере
-    if (login === 'admin' && password === '1234') {
-      doLogin();
-      navigate('/users');
-    } else {
-      alert('Неверный логин или пароль');
+  
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/Auth/admin-login`, {
+        email: login, // ← заменили "login" на "email", как требует бэкенд
+        password,
+      });
+  
+      if (response.data.token) {
+        doLogin(response.data.token);
+        navigate('/users');
+      } else {
+        alert('Неверный логин или пароль');
+      }
+    } catch (error) {
+      if (error.response) {
+        console.error('Ответ от сервера:', error.response.data);
+        alert(`Ошибка: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
+      } else if (error.request) {
+        console.error('Нет ответа от сервера. Запрос был отправлен:', error.request);
+        alert('Сервер не ответил. Проверь соединение.');
+      } else {
+        console.error('Ошибка при настройке запроса:', error.message);
+        alert(`Ошибка: ${error.message}`);
+      }
     }
   };
 

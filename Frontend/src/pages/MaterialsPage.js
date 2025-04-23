@@ -1,34 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 
+const blocks = [1, 2, 3, 4];
+
 const MaterialsPage = () => {
-  const [blocks, setBlocks] = useState([1, 2, 3, 4]);
-
-  const handleAddBlock = async () => {
-    const newBlockId = blocks.length + 1; // Новый ID для блока
-
-    try {
-      const response = await fetch('/api/blocks', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id: newBlockId, name: `Блок ${newBlockId}` }), // Параметры для нового блока
-      });
-
-      if (response.ok) {
-        const newBlock = await response.json();
-        setBlocks((prevBlocks) => [...prevBlocks, newBlock.id]); // Обновление состояния блоков
-        alert(`Блок ${newBlockId} добавлен!`);
-      } else {
-        alert('Ошибка при добавлении блока');
-      }
-    } catch (error) {
-      console.error('Ошибка:', error);
-      alert('Что-то пошло не так');
-    }
-  };
-
   return (
     <div>
       <div className="mb-6">
@@ -68,7 +43,7 @@ const MaterialsPage = () => {
         ))}
 
         <button
-          onClick={handleAddBlock}
+          onClick={() => alert("Добавить блок?")}
           className="flex items-center gap-2 border rounded-2xl px-6 py-3 bg-[#B4FCFD] text-[#2E2E2E] hover:bg-[#87CEEB] transition shadow"
         >
           <svg
