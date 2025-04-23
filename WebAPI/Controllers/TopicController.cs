@@ -25,7 +25,7 @@ public class TopicController(ITopicRepository topicRepository) : ControllerBase
     }
     
     /// <summary>
-    /// Получить все темы по идентификатору блока.
+    /// Получить все темы по идентификатору главы.
     /// </summary>
     [HttpGet("all-by-block/{id}")]
     public async Task<IActionResult> GetTopicsByBlockId(int blockId)

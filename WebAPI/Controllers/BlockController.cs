@@ -7,10 +7,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;
 
+/// <summary>
+/// Контроллер для управления главами курса.
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class BlockController(IBlockRepository blockRepository) : ControllerBase
 { 
+    /// <summary>
+    /// Получить главу по ID.
+    /// </summary>
     [HttpGet("{id}")]
     public async Task<IActionResult> GetBlockById(int id)
     {
@@ -22,6 +28,9 @@ public class BlockController(IBlockRepository blockRepository) : ControllerBase
         return Ok(dto);
     }
     
+    /// <summary>
+    /// Получить список всех глав.
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetAllBlocks()
     {
@@ -30,6 +39,9 @@ public class BlockController(IBlockRepository blockRepository) : ControllerBase
         return Ok(dtos);
     }
     
+    /// <summary>
+    /// Создать новую главу.
+    /// </summary>
     [HttpPost]
     public async Task<IActionResult> CreateBlock([FromBody] CreateBlockRequest request)
     {
@@ -43,6 +55,9 @@ public class BlockController(IBlockRepository blockRepository) : ControllerBase
 
     }
     
+    /// <summary>
+    /// Обновить существующую главу.
+    /// </summary>
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateBlock(int id, [FromBody] UpdateBlockRequest request)
     {
@@ -57,6 +72,9 @@ public class BlockController(IBlockRepository blockRepository) : ControllerBase
         return Ok(dto);
     }
         
+    /// <summary>
+    /// Удалить главу по ID.
+    /// </summary>
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteBlock(int id)
     {

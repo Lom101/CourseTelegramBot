@@ -17,9 +17,9 @@ using Core.Entity.AnyContent;
 namespace Backend.Controllers
 {
     /// <summary>
-    /// Контроллер для управления контентом внутри топиков.
-    /// Поддерживает создание, получение, обновление порядка и удаление контент-элементов:
-    /// текст, изображение и ссылка.
+    /// Контроллер для управления контентом внутри тем глав курса.
+    /// Поддерживает создание, получение и удаление контент-элементов:
+    /// word файлы, книги, изображение и аудио.
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
@@ -32,7 +32,9 @@ namespace Backend.Controllers
         IWordFileService wordFileService)
         : ControllerBase
     {
-        // Метод для получения контента по ID с маппингом
+        /// <summary>
+        /// Получить элемент контента по ID
+        /// </summary>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetContentById(int id)
         {
@@ -47,13 +49,8 @@ namespace Backend.Controllers
         }
 
         /// <summary>
-        /// Получить список всех контент-элементов, принадлежащих указанному топику.
+        /// Получить список всех контент-элементов, принадлежащих указанной теме.
         /// </summary>
-        /// <param name="topicId">Уникальный идентификатор топика.</param>
-        /// <returns>
-        /// Возвращает отсортированный список <see cref="ContentItem"/> по полю Order,
-        /// либо код 404, если топик или его контент отсутствует.
-        /// </returns>
         [HttpGet("by-topic/{topicId}")]
         public async Task<IActionResult> GetAllContentByTopicId(int topicId)
         {
@@ -68,6 +65,9 @@ namespace Backend.Controllers
             return dtoList.Any() ? Ok(dtoList) : NotFound($"No content found for topic with id {topicId}");
         }
 
+        /// <summary>
+        /// Создать новый word file элемент в выбранной теме
+        /// </summary>
         [HttpPost("word")]
         public async Task<IActionResult> CreateWordFileContent([FromForm] CreateWordFileContentRequest request)
         {
@@ -89,13 +89,8 @@ namespace Backend.Controllers
         }
 
         /// <summary>
-        /// Создать изображение как контент внутри топика.
+        /// Создать новое изображение в выбранной теме
         /// </summary>
-        /// <param name="request">Объект запроса с ID топика и файлом изображения.</param>
-        /// <returns>
-        /// Возвращает созданный объект <see cref="ImageContent"/> с кодом 201,
-        /// либо код 404, если топик не найден.
-        /// </returns>
         [HttpPost("image")]
         public async Task<IActionResult> CreateImageContent([FromForm] CreateImageContentRequest request)
         {
@@ -114,13 +109,8 @@ namespace Backend.Controllers
         }
         
         /// <summary>
-        /// Создать книжный файл как контент внутри топика.
+        /// Создать книжный файл в выбранной теме
         /// </summary>
-        /// <param name="request">Объект запроса с ID топика и файлом книги (PDF, EPUB и т.п.).</param>
-        /// <returns>
-        /// Возвращает созданный объект <see cref="BookContent"/> с кодом 201,
-        /// либо код 404, если топик не найден.
-        /// </returns>
         [HttpPost("book")]
         public async Task<IActionResult> CreateBookContent([FromForm] CreateBookContentRequest request)
         {
@@ -139,13 +129,8 @@ namespace Backend.Controllers
         }
         
         /// <summary>
-        /// Создать аудиофайл как контент внутри топика.
+        /// Создать аудиофайл в выбранной теме
         /// </summary>
-        /// <param name="request">Объект запроса с ID топика, аудиофайлом и опциональным названием аудио.</param>
-        /// <returns>
-        /// Возвращает созданный объект <see cref="AudioContent"/> с кодом 201,
-        /// либо код 404, если топик не найден.
-        /// </returns>
         [HttpPost("audio")]
         public async Task<IActionResult> CreateAudioContent([FromForm] CreateAudioContentRequest request)
         {
@@ -165,12 +150,8 @@ namespace Backend.Controllers
 
         
         /// <summary>
-        /// Удалить контент-элемент по его идентификатору.
+        /// Удалить контент-элемент по его id.
         /// </summary>
-        /// <param name="id">Уникальный идентификатор контент-элемента.</param>
-        /// <returns>
-        /// Возвращает код 204 при успешном удалении, либо код 404, если элемент не найден.
-        /// </returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteContent(int id)
         {
