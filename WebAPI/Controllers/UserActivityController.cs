@@ -14,7 +14,7 @@ public class UserActivityController(IUserActivityRepository activityRepository) 
     /// <summary>
     /// Получить активность пользователя
     /// </summary>
-    [HttpGet("{id}")]
+    [HttpGet("{userId}")]
     public async Task<IActionResult> GetUserActivityByUserId(int userId)
     {
         var activities = await activityRepository.GetByUserIdAsync(userId);
