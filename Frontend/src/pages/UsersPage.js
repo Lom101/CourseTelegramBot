@@ -1,16 +1,49 @@
-import React, { useState } from "react";
-import usersData from "../data/users";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import UserList from "../components/UserList";
 
 const UsersPage = () => {
-  const [users, setUsers] = useState(usersData);
+  const [users, setUsers] = useState([]);
 
-  const handleBlock = (id) => {
-    setUsers(users.map(u => u.id === id ? { ...u, blocked: !u.blocked } : u));
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/User");
+      const data = response.data.map(user => ({
+        id: user.id,
+        name: user.fullName,
+        progress: user.progress ?? 0,
+        blocked: user.isBlocked ?? false
+      }));
+      setUsers(data);
+    } catch (error) {
+      console.error("Ошибка при загрузке пользователей:", error);
+    }
   };
 
-  const handleDelete = (id) => {
-    setUsers(users.filter(u => u.id !== id));
+  const handleBlock = async (id) => {
+    try {
+      const user = users.find(u => u.id === id);
+      const endpoint = user.blocked
+        ? `http://localhost:5000/api/User/${id}/unblock`
+        : `http://localhost:5000/api/User/${id}/block`;
+      await axios.post(endpoint);
+      setUsers(users.map(u => u.id === id ? { ...u, blocked: !u.blocked } : u));
+    } catch (error) {
+      console.error("Ошибка при блокировке/разблокировке пользователя:", error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/User/${id}`);
+      setUsers(users.filter(u => u.id !== id));
+    } catch (error) {
+      console.error("Ошибка при удалении пользователя:", error);
+    }
   };
 
   return (
