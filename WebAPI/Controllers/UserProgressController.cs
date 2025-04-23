@@ -9,10 +9,9 @@ namespace Backend.Controllers;
 public class UserProgressController(IUserProgressRepository progressRepository) : ControllerBase
 {
     [HttpGet("{userId:long}")]
-    public async Task<ActionResult<IEnumerable<UserProgress>>> GetByUserId(long userId)
+    public async Task<IActionResult> GetUserProgressByUserId(int userId)
     {
         var progress = await progressRepository.GetByUserIdAsync(userId);
         return Ok(progress);
     }
-   
 }

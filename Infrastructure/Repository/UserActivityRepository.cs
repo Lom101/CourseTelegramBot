@@ -19,7 +19,7 @@ public class UserActivityRepository : IUserActivityRepository
         return await _context.UserActivities.FindAsync(id);
     }
 
-    public async Task<List<UserActivity>> GetByUserIdAsync(long userId)
+    public async Task<List<UserActivity>> GetByUserIdAsync(int userId)
     {
         return await _context.UserActivities
             .Where(ua => ua.UserId == userId)

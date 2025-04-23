@@ -1,10 +1,14 @@
 using System.Reflection;
+using System.Text;
 using Backend.Middleware;
+using Backend.Service;
+using Backend.Service.Interfaces;
 using Core.Interfaces;
-using DotNetEnv;
 using Infrastructure.Data;
 using Infrastructure.Repository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 if (File.Exists(".env.local"))
     DotNetEnv.Env.Load(".env.local");
@@ -32,6 +36,7 @@ builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ITopicRepository, TopicRepository>();
 builder.Services.AddScoped<IUserActivityRepository, UserActivityRepository>();
 builder.Services.AddScoped<IUserProgressRepository, UserProgressRepository>();
+builder.Services.AddScoped<IContentItemRepository, ContentItemRepository>();
 
 // Добавление Swagger
 builder.Services.AddEndpointsApiExplorer(); // Эксплорер для API
@@ -40,6 +45,33 @@ builder.Services.AddSwaggerGen(options => // Генерация Swagger доку
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     options.IncludeXmlComments(xmlPath);
+    
+    // Добавляем JWT-схему авторизации
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Введите токен в формате: Bearer {токен}"
+    });
+
+    // Применяем схему ко всем операциям
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
 
 builder.Services.AddCors(options =>
@@ -52,7 +84,40 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddSingleton<JwtService>();
+
+builder.Services.AddScoped<IImageFileService, ImageFileService>();
+builder.Services.AddScoped<IBookFileService, BookFileService>();
+builder.Services.AddScoped<IAudioFileService, AudioFileService>();
+builder.Services.AddScoped<IWordFileService, WordFileService>();
+
+
 var app = builder.Build();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Применяем CORS
 app.UseCors("AllowAllOrigins");
@@ -71,6 +136,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(); // UI для Swagger (автоматическая генерация документации)
 }
 
+app.UseStaticFiles();
 
 app.MapControllers();
 app.Run();

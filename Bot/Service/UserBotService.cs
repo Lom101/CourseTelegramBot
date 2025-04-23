@@ -3,6 +3,7 @@ using Bot.Helpers.Session;
 using Bot.Helpers.Session.Interface;
 using Bot.Service.Interfaces;
 using Core.Entity;
+using Core.Entity.AnyContent;
 using Core.Interfaces;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
@@ -189,42 +190,16 @@ public class UserBotService : IUserBotService
         {
             switch (contentItem)
             {
-                case TextContent text:
-                    await _botClient.SendTextMessageAsync(
-                        chatId,
-                        $"📝 *{text.Title}*\n_{text.Description}_\n\n{text.Text}",
-                        parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
-                        cancellationToken: cancellationToken);
-                    break;
-
-                // case VideoContent video:
-                //     await _botClient.SendVideoAsync(
-                //         chatId,
-                //         video.VideoUrl,
-                //         caption: $"🎥 *{video.Title}*\n_{video.Description}_\nДлительность: {video.Duration:mm\\:ss}",
-                //         parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
-                //         thumbnail: string.IsNullOrWhiteSpace(video.ThumbnailUrl)
-                //             ? null
-                //             : InputFile.FromUri(video.ThumbnailUrl),
-                //         cancellationToken: cancellationToken);
-                //     break;
-                //
-                // case ImageContent image:
-                //     await _botClient.SendPhotoAsync(
-                //         chatId,
-                //         image.ImageUrl,
-                //         caption: $"🖼 *{image.Title}*\n_{image.Description}_",
-                //         parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
-                //         cancellationToken: cancellationToken);
-                //     break;
-                //
-                // case LinkContent link:
+                // TODO: отправлять ссылка на longread
+                
+                // case ContentItem text:
                 //     await _botClient.SendTextMessageAsync(
                 //         chatId,
-                //         $"🔗 *{link.Title}*\n_{link.Description}_\n[Перейти по ссылке]({link.Url})",
+                //         $"📝 *{text.Title}*\n_{text.Description}_\n\n{text.Text}",
                 //         parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
                 //         cancellationToken: cancellationToken);
                 //     break;
+
             }
         }
     }

@@ -13,6 +13,7 @@
 
     <ItemGroup>
         <PackageReference Include="DotNetEnv" Version="3.1.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.15" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.15">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -39,6 +40,45 @@
         <None Include=".env.docker">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Dto\Auth\NewDirectory1\" />
+      <Folder Include="wwwroot\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\upload\block1\books\Сверх продуктивность, Михаил Алистер.pdf" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\block1\books\Тайм-менеджмент, Брайан Трейси.pdf" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\block1\audios\Аудио.m4a" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\audios\Аудио.m4a" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\audios\Делегирование.m4a" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\audios\Культура совместной работы. правила тимлида.m4a" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\books\Делегирование и управление_Трейси Б..pdf" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\books\Делегирование. Фридман.pdf" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\books\Пять_пороков_команды_Патрик Ленсиони.pdf" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\books\Пять_пороков_команды_Притчи_о_лидерстве.pdf" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\books\Сверх продуктивность, Михаил Алистер.pdf" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\books\Тайм-менеджмент, Брайан Трейси.pdf" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\books\Теория U_Отто Шармер.pdf" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\docs\Лонгрид. ABCDE (АБВГД).txt" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\docs\Лонгрид. Делегирование.txt" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\docs\Лонгрид. Кто такой лидер.txt" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\docs\Лонгрид. Культура совместной работы.txt" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\docs\Лонгрид. Матрица Эйзенхауэра.txt" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\docs\Лонгрид. Постановка задач (модели).txt" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\docs\Лонгрид. Роли в команде.txt" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\docs\Лонгрид. Стили лидерства.txt" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\docs\Лонгрид. тайм-менеджмент тим лида.txt" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\pictures\text1.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\pictures\картинка к лонгриду 2 (1).png" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\pictures\картинка к лонгриду 2.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\pictures\метод АБВГД.jpg" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\pictures\метод Матрица Эйзенхуэра.jpg" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\pictures\Модель HD-RW-RM.jpg" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\pictures\Модель SMART.jpg" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\pictures\Модель TOTE.jpg" />
+      <_ContentIncludedByDefault Remove="wwwroot\uploads\images\9e35f6e6-e391-48a1-a36d-984486e26094.docx" />
     </ItemGroup>
 
 

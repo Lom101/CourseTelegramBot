@@ -23,7 +23,7 @@ namespace Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Core.Entity.ContentItem", b =>
+            modelBuilder.Entity("Core.Entity.AnyContent.ContentItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -31,18 +31,13 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("Discriminator")
                         .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("character varying(13)");
+                        .HasMaxLength(21)
+                        .HasColumnType("character varying(21)");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
 
                     b.Property<int>("TopicId")
                         .HasColumnType("integer");
@@ -51,7 +46,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("TopicId");
 
-                    b.ToTable("ContentItem");
+                    b.ToTable("ContentItems");
 
                     b.HasDiscriminator().HasValue("ContentItem");
 
@@ -66,10 +61,6 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
@@ -79,7 +70,29 @@ namespace Infrastructure.Migrations
                     b.ToTable("Courses");
                 });
 
-            modelBuilder.Entity("Core.Entity.TestQuestion", b =>
+            modelBuilder.Entity("Core.Entity.Test.Test", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("TopicId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TopicId");
+
+                    b.ToTable("Tests");
+                });
+
+            modelBuilder.Entity("Core.Entity.Test.TestQuestion", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -98,7 +111,12 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("TestId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("TestId");
 
                     b.ToTable("TestQuestions");
                 });
@@ -144,7 +162,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("FullName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("IsAdmin")
@@ -156,8 +173,10 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("LastActivity")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
+
                     b.Property<string>("PhoneNumber")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("RegistrationDate")
@@ -176,26 +195,22 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ActionType")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("ActionType")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("ActivityDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Details")
+                    b.Property<string>("Metadata")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("UserId1")
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId1");
+                    b.HasIndex("UserId");
 
                     b.ToTable("UserActivities");
                 });
@@ -211,30 +226,68 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("CompletionDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("ContentId")
-                        .HasColumnType("integer");
-
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("boolean");
 
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("TargetId")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("UserId1")
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ContentId");
-
-                    b.HasIndex("UserId1");
+                    b.HasIndex("UserId");
 
                     b.ToTable("UserProgresses");
                 });
 
-            modelBuilder.Entity("Core.Entity.ImageContent", b =>
+            modelBuilder.Entity("Core.Entity.AnyContent.AudioContent", b =>
                 {
-                    b.HasBaseType("Core.Entity.ContentItem");
+                    b.HasBaseType("Core.Entity.AnyContent.ContentItem");
+
+                    b.Property<string>("AudioUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.ToTable("ContentItems", t =>
+                        {
+                            t.Property("Title")
+                                .HasColumnName("AudioContent_Title");
+                        });
+
+                    b.HasDiscriminator().HasValue("AudioContent");
+                });
+
+            modelBuilder.Entity("Core.Entity.AnyContent.BookContent", b =>
+                {
+                    b.HasBaseType("Core.Entity.AnyContent.ContentItem");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasDiscriminator().HasValue("BookContent");
+                });
+
+            modelBuilder.Entity("Core.Entity.AnyContent.ImageContent", b =>
+                {
+                    b.HasBaseType("Core.Entity.AnyContent.ContentItem");
 
                     b.Property<string>("AltText")
                         .IsRequired()
@@ -244,50 +297,51 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.ToTable("ContentItems", t =>
+                        {
+                            t.Property("Title")
+                                .HasColumnName("ImageContent_Title");
+                        });
+
                     b.HasDiscriminator().HasValue("ImageContent");
                 });
 
-            modelBuilder.Entity("Core.Entity.LinkContent", b =>
+            modelBuilder.Entity("Core.Entity.AnyContent.WordFileContent", b =>
                 {
-                    b.HasBaseType("Core.Entity.ContentItem");
+                    b.HasBaseType("Core.Entity.AnyContent.ContentItem");
 
-                    b.Property<string>("Url")
+                    b.Property<string>("FileName")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasDiscriminator().HasValue("LinkContent");
+                    b.Property<string>("FileUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.ToTable("ContentItems", t =>
+                        {
+                            t.Property("FileName")
+                                .HasColumnName("WordFileContent_FileName");
+
+                            t.Property("FileUrl")
+                                .HasColumnName("WordFileContent_FileUrl");
+
+                            t.Property("Title")
+                                .HasColumnName("WordFileContent_Title");
+                        });
+
+                    b.HasDiscriminator().HasValue("WordFileContent");
                 });
 
-            modelBuilder.Entity("Core.Entity.TextContent", b =>
-                {
-                    b.HasBaseType("Core.Entity.ContentItem");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasDiscriminator().HasValue("TextContent");
-                });
-
-            modelBuilder.Entity("Core.Entity.VideoContent", b =>
-                {
-                    b.HasBaseType("Core.Entity.ContentItem");
-
-                    b.Property<TimeSpan>("Duration")
-                        .HasColumnType("interval");
-
-                    b.Property<string>("ThumbnailUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("VideoUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasDiscriminator().HasValue("VideoContent");
-                });
-
-            modelBuilder.Entity("Core.Entity.ContentItem", b =>
+            modelBuilder.Entity("Core.Entity.AnyContent.ContentItem", b =>
                 {
                     b.HasOne("Core.Entity.Topic", "Topic")
                         .WithMany("ContentItems")
@@ -296,6 +350,28 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Topic");
+                });
+
+            modelBuilder.Entity("Core.Entity.Test.Test", b =>
+                {
+                    b.HasOne("Core.Entity.Topic", "Topic")
+                        .WithMany()
+                        .HasForeignKey("TopicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Topic");
+                });
+
+            modelBuilder.Entity("Core.Entity.Test.TestQuestion", b =>
+                {
+                    b.HasOne("Core.Entity.Test.Test", "Test")
+                        .WithMany("Questions")
+                        .HasForeignKey("TestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Test");
                 });
 
             modelBuilder.Entity("Core.Entity.Topic", b =>
@@ -313,7 +389,7 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Core.Entity.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId1")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -322,19 +398,11 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entity.UserProgress", b =>
                 {
-                    b.HasOne("Core.Entity.ContentItem", "Content")
-                        .WithMany()
-                        .HasForeignKey("ContentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Core.Entity.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId1")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Content");
 
                     b.Navigation("User");
                 });
@@ -342,6 +410,11 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Core.Entity.Course", b =>
                 {
                     b.Navigation("Topics");
+                });
+
+            modelBuilder.Entity("Core.Entity.Test.Test", b =>
+                {
+                    b.Navigation("Questions");
                 });
 
             modelBuilder.Entity("Core.Entity.Topic", b =>

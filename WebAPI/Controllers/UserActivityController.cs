@@ -9,11 +9,10 @@ namespace Backend.Controllers;
 [Route("api/[controller]")]
 public class UserActivityController(IUserActivityRepository activityRepository) : ControllerBase
 {
-    [HttpGet("{userId:long}")]
-    public async Task<ActionResult<IEnumerable<UserActivity>>> GetByUserId(long userId)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetUserActivityByUserId(int userId)
     {
         var activities = await activityRepository.GetByUserIdAsync(userId);
         return Ok(activities);
     }
-    
 }
