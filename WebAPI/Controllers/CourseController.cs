@@ -10,18 +10,10 @@ namespace Backend.Controllers;
 public class CourseController(ICourseRepository courseRepository) : ControllerBase
 {
     [Authorize]
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Course>>> GetAllCourses()
-    {
-        var courses = await courseRepository.GetAllAsync();
-        return Ok(courses);
-    }
-
-    [Authorize]
     [HttpGet("{id}")]
-    public async Task<ActionResult<Course>> GetCourseById(int id)
+    public async Task<IActionResult> GetCourseById(int id = 1)
     {
         var course = await courseRepository.GetByIdAsync(id);
-        return course ?? throw new KeyNotFoundException($"Course with id {id} not found");
+        return Ok(course) ?? throw new KeyNotFoundException($"Course with id {id} not found");
     }
 }

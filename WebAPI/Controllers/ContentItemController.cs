@@ -13,6 +13,8 @@ namespace Backend.Controllers
 {
     /// <summary>
     /// Контроллер для управления контентом внутри топиков.
+    /// Поддерживает создание, получение, обновление порядка и удаление контент-элементов:
+    /// текст, изображение и ссылка.
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
@@ -26,10 +28,12 @@ namespace Backend.Controllers
         }
         
         /// <summary>
-        /// Получить контент по ID.
+        /// Получить контент-элемент по его уникальному идентификатору.
         /// </summary>
-        /// <param name="id">ID контента.</param>
-        /// <returns>Контент с заданным ID.</returns>
+        /// <param name="id">Уникальный идентификатор контент-элемента.</param>
+        /// <returns>
+        /// Возвращает <see cref="ContentItem"/> в случае успеха или код 404, если элемент не найден.
+        /// </returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetContentById(int id)
         {
@@ -38,10 +42,13 @@ namespace Backend.Controllers
         }
 
         /// <summary>
-        /// Получить все контент-элементы по ID топика.
+        /// Получить список всех контент-элементов, принадлежащих указанному топику.
         /// </summary>
-        /// <param name="topicId">ID топика.</param>
-        /// <returns>Список контента для указанного топика.</returns>
+        /// <param name="topicId">Уникальный идентификатор топика.</param>
+        /// <returns>
+        /// Возвращает отсортированный список <see cref="ContentItem"/> по полю Order,
+        /// либо код 404, если топик или его контент отсутствует.
+        /// </returns>
         [HttpGet("by-topic/{topicId}")]
         public async Task<IActionResult> GetAllContentByTopicId(int topicId)
         {
@@ -54,6 +61,14 @@ namespace Backend.Controllers
             return sortedContentItems.Any() ? Ok(sortedContentItems) : NotFound($"No content found for topic with id {topicId}");
         }
 
+        /// <summary>
+        /// Создать текстовый контент внутри топика.
+        /// </summary>
+        /// <param name="request">Объект запроса, содержащий текст и ID топика.</param>
+        /// <returns>
+        /// Возвращает созданный объект <see cref="TextContent"/> с кодом 201,
+        /// либо код 400/404 при ошибке валидации или отсутствии топика.
+        /// </returns>
         [HttpPost("text")]
         public async Task<IActionResult> CreateTextContent([FromBody] CreateTextContentRequest request)
         {
@@ -77,6 +92,14 @@ namespace Backend.Controllers
             return CreatedAtAction(nameof(GetContentById), new { id = content.Id }, content);
         }
 
+        /// <summary>
+        /// Создать изображение как контент внутри топика.
+        /// </summary>
+        /// <param name="request">Объект запроса с ID топика и файлом изображения.</param>
+        /// <returns>
+        /// Возвращает созданный объект <see cref="ImageContent"/> с кодом 201,
+        /// либо код 404, если топик не найден.
+        /// </returns>
         [HttpPost("image")]
         public async Task<IActionResult> CreateImageContent([FromForm] CreateImageContentRequest request)
         {
@@ -98,7 +121,14 @@ namespace Backend.Controllers
             return CreatedAtAction(nameof(GetContentById), new { id = content.Id }, content);
         }
 
-        
+        /// <summary>
+        /// Создать ссылку как контент внутри топика.
+        /// </summary>
+        /// <param name="request">Объект запроса с URL и ID топика.</param>
+        /// <returns>
+        /// Возвращает созданный объект <see cref="LinkContent"/> с кодом 201,
+        /// либо код 400/404 при ошибке валидации или отсутствии топика.
+        /// </returns>
         [HttpPost("link")]
         public async Task<IActionResult> CreateLinkContent([FromBody] CreateLinkContentRequest request)
         {
@@ -122,13 +152,15 @@ namespace Backend.Controllers
             return CreatedAtAction(nameof(GetContentById), new { id = content.Id }, content);
         }
        
-
         /// <summary>
-        /// Обновить порядок контента в рамках топика.
+        /// Обновить порядок (позицию) контент-элемента внутри своего топика.
         /// </summary>
-        /// <param name="id">ID контента для обновления.</param>
-        /// <param name="newOrder">Новый порядок.</param>
-        /// <returns>Обновленный контент.</returns>
+        /// <param name="id">Уникальный идентификатор контент-элемента.</param>
+        /// <param name="newOrder">Новый порядковый номер элемента.</param>
+        /// <returns>
+        /// Возвращает обновлённый объект <see cref="ContentItem"/> с кодом 200,
+        /// либо код 400/404 при ошибках.
+        /// </returns>
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateContentOrder(int id, [FromBody] int newOrder)
         {
@@ -154,10 +186,12 @@ namespace Backend.Controllers
         }
 
         /// <summary>
-        /// Удалить контент.
+        /// Удалить контент-элемент по его идентификатору.
         /// </summary>
-        /// <param name="id">ID контента для удаления.</param>
-        /// <returns>Результат операции удаления.</returns>
+        /// <param name="id">Уникальный идентификатор контент-элемента.</param>
+        /// <returns>
+        /// Возвращает код 204 при успешном удалении, либо код 404, если элемент не найден.
+        /// </returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteContent(int id)
         {
