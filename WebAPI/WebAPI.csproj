@@ -47,5 +47,11 @@
       <Folder Include="wwwroot\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\upload\block1\books\Сверх продуктивность, Михаил Алистер.pdf" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\block1\books\Тайм-менеджмент, Брайан Трейси.pdf" />
+      <_ContentIncludedByDefault Remove="wwwroot\upload\block1\audios\Аудио.m4a" />
+    </ItemGroup>
+
 
 </Project>

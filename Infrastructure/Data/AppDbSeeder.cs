@@ -13,89 +13,89 @@ public static class AppDbSeeder
         //await context.Database.EnsureCreatedAsync();
         await context.Database.MigrateAsync();
 
-       if (!context.Courses.Any())
-{
-    var course = new Course
-    {
-        Title = "Курс по Лидерству",
-        Description = "Подборка контента для развития лидерских навыков.",
-        Topics = new List<Topic>
+        if (!context.Courses.Any())
         {
-            new Topic
+            var course = new Course
             {
-                Title = "Основы лидерства",
-                Order = 1,
-                ContentItems = new List<ContentItem>
+                Title = "Курс по Лидерству",
+                Description = "Подборка контента для развития лидерских навыков.",
+                Topics = new List<Topic>
                 {
-                    new BookContent
+                    new Topic
                     {
-                        Title = "Сверх продуктивность",
-                        Description = "Книга Михаила Алистера",
-                        FileUrl = "/files/books/Сверх продуктивность, Михаил Алистер.pdf",
-                        FileName = "Сверх продуктивность, Михаил Алистер.pdf"
+                        Title = "Основы лидерства",
+                        Order = 1,
+                        ContentItems = new List<ContentItem>
+                        {
+                            new BookContent
+                            {
+                                Title = "Сверх продуктивность",
+                                Description = "Книга Михаила Алистера",
+                                FileUrl = "/upload/books/Сверх продуктивность, Михаил Алистер.pdf",
+                                FileName = "Сверх продуктивность, Михаил Алистер.pdf"
+                            },
+                            new BookContent
+                            {
+                                Title = "Тайм-менеджмент",
+                                Description = "Книга Брайана Трейси",
+                                FileUrl = "/upload/books/Тайм-менеджмент, Брайан Трейси.pdf",
+                                FileName = "Тайм-менеджмент, Брайан Трейси.pdf"
+                            },
+                            new TextContent
+                            {
+                                Title = "Лонгрид: АБВГДЕ",
+                                Description = "Текст о лидерстве",
+                                Text = "Здесь будет текст о лидерстве, который мог бы быть в лонгриде."
+                            },
+                            new TextContent
+                            {
+                                Title = "Матрица Эйзенхауэра",
+                                Description = "Текст о приоритезации",
+                                Text = "Здесь будет описание матрицы Эйзенхауэра и как ее использовать для приоритизации задач."
+                            },
+                            new ImageContent
+                            {
+                                Title = "Метод АБВГД",
+                                Description = "Изображение схемы",
+                                ImageUrl = "/upload/pictures/метод АБВГД.jpg",
+                                AltText = "метод АБВГД"
+                            }
+                        }
                     },
-                    new BookContent
+                    new Topic
                     {
-                        Title = "Тайм-менеджмент",
-                        Description = "Книга Брайана Трейси",
-                        FileUrl = "/files/books/Тайм-менеджмент, Брайан Трейси.pdf",
-                        FileName = "Тайм-менеджмент, Брайан Трейси.pdf"
-                    },
-                    new TextContent
-                    {
-                        Title = "Лонгрид: АБВГДЕ",
-                        Description = "Текст о лидерстве",
-                        Text = File.ReadAllText("blocks/block1/texts/Лонгрид, ABCDE (АБВГД).txt")
-                    },
-                    new TextContent
-                    {
-                        Title = "Матрица Эйзенхауэра",
-                        Description = "Текст о приоритезации",
-                        Text = File.ReadAllText("blocks/block1/texts/Лонгрид. Матрица Эйзенхауэра.txt")
-                    },
-                    new ImageContent
-                    {
-                        Title = "Метод АБВГД",
-                        Description = "Изображение схемы",
-                        ImageUrl = "/files/pictures/метод АБВГД.jpg",
-                        AltText = "метод АБВГД"
+                        Title = "Практики командной работы",
+                        Order = 2,
+                        ContentItems = new List<ContentItem>
+                        {
+                            new BookContent
+                            {
+                                Title = "Пять пороков команды",
+                                Description = "Книга Патрика Ленсиони",
+                                FileUrl = "/upload/books/Пять_пороков_команды_Патрик Ленсиони.pdf",
+                                FileName = "Пять_пороков_команды_Патрик Ленсиони.pdf"
+                            },
+                            new BookContent
+                            {
+                                Title = "Теория U",
+                                Description = "Книга Отто Шармера",
+                                FileUrl = "/upload/books/Теория U_Отто Шармер.pdf",
+                                FileName = "Теория U_Отто Шармер.pdf"
+                            },
+                            new TextContent
+                            {
+                                Title = "Кто такой лидер?",
+                                Description = "Разбор понятий",
+                                Text = "Лидер - это человек, который ведет за собой и вдохновляет других на достижение общей цели."
+                            }
+                        }
                     }
                 }
-            },
-            new Topic
-            {
-                Title = "Практики командной работы",
-                Order = 2,
-                ContentItems = new List<ContentItem>
-                {
-                    new BookContent
-                    {
-                        Title = "Пять пороков команды",
-                        Description = "Книга Патрика Ленсиони",
-                        FileUrl = "/files/books/Пять_пороков_команды_Патрик Ленсиони.pdf",
-                        FileName = "Пять_пороков_команды_Патрик Ленсиони.pdf"
-                    },
-                    new BookContent
-                    {
-                        Title = "Теория U",
-                        Description = "Книга Отто Шармера",
-                        FileUrl = "/files/books/Теория U_Отто Шармер.pdf",
-                        FileName = "Теория U_Отто Шармер.pdf"
-                    },
-                    new TextContent
-                    {
-                        Title = "Кто такой лидер?",
-                        Description = "Разбор понятий",
-                        Text = File.ReadAllText("blocks/block2/texts/Лонгрид. Кто такой лидер.txt")
-                    }
-                }
-            }
-        }
-    };
+            };
 
-    context.Courses.Add(course);
-    context.SaveChanges();
-}
+            context.Courses.Add(course);
+            await context.SaveChangesAsync();
+        }
 
         if (!context.Users.Any())
         {
@@ -119,14 +119,14 @@ public static class AppDbSeeder
                     RegistrationDate = DateTime.UtcNow,
                     LastActivity = DateTime.UtcNow,
                     IsBlocked = false,
-                    IsAdmin = true, // администратор
+                    IsAdmin = true,
                     PasswordHash = PasswordHasher.HashPassword("admin123")
                 }
             };
 
             context.Users.AddRange(users);
         }
-        
+
         await context.SaveChangesAsync();
     }
 }
