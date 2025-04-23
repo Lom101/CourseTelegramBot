@@ -1,6 +1,6 @@
-﻿namespace Backend.Dto.Topic.Response;
+﻿namespace Backend.Dto.Block.Request;
 
-public class GetTopicResponse
+public class UpdateBlockRequest
 {
     public int Id { get; set; }
     public string Title { get; set; }

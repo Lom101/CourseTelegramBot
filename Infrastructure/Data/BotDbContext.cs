@@ -12,7 +12,7 @@ public class AppDbContext : DbContext
     }
     
     public DbSet<User> Users { get; set; }
-    public DbSet<Course> Courses { get; set; }
+    public DbSet<Block> Blocks { get; set; }
     public DbSet<Topic> Topics { get; set; }
     public DbSet<UserProgress> UserProgresses { get; set; }
     public DbSet<UserActivity> UserActivities { get; set; }

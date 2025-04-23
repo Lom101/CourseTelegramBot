@@ -1,6 +1,6 @@
 ﻿namespace Core.Entity;
 
-public class Course
+public class Block
 {
     public int Id { get; set; }
     

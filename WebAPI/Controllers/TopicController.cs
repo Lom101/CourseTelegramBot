@@ -1,6 +1,5 @@
 ﻿using Backend.Dto.Topic.Request;
 using Backend.Mapper;
-using Core.Dto.Topic.Request;
 using Core.Entity;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -11,17 +10,9 @@ namespace Backend.Controllers;
 [Route("api/[controller]")]
 public class TopicController(ITopicRepository topicRepository) : ControllerBase
 {
-    [HttpGet("by-course/{id}")]
-    public async Task<IActionResult> GetTopicByCourseId(int courseId)
-    {
-        var topics = await topicRepository.GetByCourseIdAsync(courseId);
-        if (!topics.Any())
-            return NotFound($"No topics found for course {courseId}");
-        
-        var dtos = topics.Select(TopicMapper.ToDto).ToList();
-        return Ok(dtos);
-    }
-
+    /// <summary>
+    /// Получить тему по ID.
+    /// </summary>
     [HttpGet("{id}")]
     public async Task<IActionResult> GetTopicById(int id)
     {
@@ -30,23 +21,71 @@ public class TopicController(ITopicRepository topicRepository) : ControllerBase
             throw new KeyNotFoundException($"Topic with id {id} not found");
 
         var dto = TopicMapper.ToDto(topic);
-        
         return Ok(dto);
     }
     
+    /// <summary>
+    /// Получить все темы по идентификатору блока.
+    /// </summary>
+    [HttpGet("all-by-block/{id}")]
+    public async Task<IActionResult> GetTopicsByBlockId(int blockId)
+    {
+        var topics = await topicRepository.GetByBlockIdAsync(blockId);
+        if (!topics.Any())
+            return NotFound($"No topics found for block {blockId}");
+        
+        var dtos = topics.Select(TopicMapper.ToDto).ToList();
+        return Ok(dtos);
+    }
+    
+    /// <summary>
+    /// Создать новую тему.
+    /// </summary>
     [HttpPost]
-    public async Task<IActionResult> CreateTopic([FromBody] CreateTopicRequest topicDto) // Принимаем DTO
+    public async Task<IActionResult> CreateTopic([FromBody] CreateTopicRequest topicDto)
     {
         if (topicDto == null)
             return BadRequest("Invalid topic data");
-
-        // Преобразуем DTO в сущность
+        
         var topic = TopicMapper.ToEntity(topicDto);
-
         await topicRepository.AddAsync(topic);
 
-        // Возвращаем только что созданный объект как DTO
-        var createdDto = TopicMapper.ToDto(topic);
-        return CreatedAtAction(nameof(GetTopicById), new { id = topic.Id }, createdDto);
+        var dto = TopicMapper.ToDto(topic);
+        return CreatedAtAction(nameof(GetTopicById), new { id = topic.Id }, dto);
     }
+    
+    /// <summary>
+    /// Изменить существующую тему.
+    /// </summary>
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateTopic(int id, [FromBody] UpdateTopicRequest request)
+    {
+        if (request.Id != id)
+            return BadRequest("Mismatched topic ID");
+        
+        var existingTopic = await topicRepository.GetByIdAsync(id);
+        if (existingTopic == null)
+            return NotFound($"Topic with id {id} not found");
+        
+        TopicMapper.ToEntity(existingTopic, request);
+        await topicRepository.UpdateAsync(existingTopic);
+
+        var dto = TopicMapper.ToDto(existingTopic);
+        return Ok(dto);
+    }
+
+    /// <summary>
+    /// Удалить тему по ID.
+    /// </summary>
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteTopic(int id)
+    {
+        var existingTopic = await topicRepository.GetByIdAsync(id);
+        if (existingTopic == null)
+            return NotFound($"Topic with id {id} not found");
+
+        await topicRepository.DeleteAsync(existingTopic);
+        return NoContent();
+    }
+
 }

@@ -13,25 +13,23 @@ public static class AppDbSeeder
         //await context.Database.EnsureCreatedAsync();
         await context.Database.MigrateAsync();
 
-        if (!context.Courses.Any())
+        if (!context.Blocks.Any())
         {
-            var course = new Course
+            var course = new Block
             {
-                Title = "Курс по Лидерству",
+                Title = "Глава 1. Лидерство",
                 Topics = new List<Topic>
                 {
                     new Topic
                     {
                         Title = "Основы лидерства",
-                        Order = 1,
                         ContentItems = new List<ContentItem>
                         {
                             new BookContent
                             {
                                 Title = "Книга Михаила Алистера 'Сверх продуктивность'",
                                 FileUrl = "/upload/books/Сверх продуктивность, Михаил Алистер.pdf",
-                                FileName = "Сверх продуктивность, Михаил Алистер.pdf",
-                                Order = 1
+                                FileName = "Сверх продуктивность, Михаил Алистер.pdf"
                             },
                             // new BookContent
                             // {
@@ -74,7 +72,7 @@ public static class AppDbSeeder
                 }
             };
 
-            context.Courses.Add(course);
+            context.Blocks.Add(course);
             await context.SaveChangesAsync();
         }
 
