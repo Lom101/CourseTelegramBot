@@ -14,7 +14,7 @@ public class UserProgressController(IUserProgressRepository progressRepository) 
     /// <summary>
     /// Получить прогресс пользователя по курсу
     /// </summary>
-    [HttpGet("{userId:long}")]
+    [HttpGet("{userId}")]
     public async Task<IActionResult> GetUserProgressByUserId(int userId)
     {
         var progress = await progressRepository.GetByUserIdAsync(userId);
