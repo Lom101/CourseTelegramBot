@@ -1,11 +1,12 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Backend.Service.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Backend.Service;
 
-public class JwtService
+public class JwtService : IJwtService
 {
     private readonly IConfiguration _configuration;
     private readonly string _secretKey;

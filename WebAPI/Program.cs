@@ -108,7 +108,9 @@ builder.Services.AddAuthentication(options =>
     });
 
 builder.Services.AddAuthorization();
+
 builder.Services.AddSingleton<JwtService>();
+builder.Services.AddScoped<ImageFileService>();
 
 var app = builder.Build();
 
