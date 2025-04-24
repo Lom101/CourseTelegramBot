@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const LongreadPage = ({ id }) => {
+const ContentItem = ({ id }) => {
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -8,8 +8,7 @@ const LongreadPage = ({ id }) => {
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        // Используем правильный синтаксис для шаблонных строк
-        const response = await fetch('https://localhost:44315/api/ContentItem/1');
+        const response = await fetch('http://localhost:5000/api/${id}');
         if (!response.ok) {
           throw new Error('Content not found');
         }
@@ -36,4 +35,4 @@ const LongreadPage = ({ id }) => {
   );
 };
 
-export default LongreadPage;
+export default ContentItem;
