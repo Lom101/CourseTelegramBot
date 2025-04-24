@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250424104639_3456")]
+    partial class _3456
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -133,60 +136,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("TestId");
 
                     b.ToTable("TestQuestions");
-                });
-
-            modelBuilder.Entity("Core.Entity.Test.UserTest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<long>("ChatId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("CurrentQuestionIndex")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("TestId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TestId");
-
-                    b.ToTable("UserTests");
-                });
-
-            modelBuilder.Entity("Core.Entity.Test.UserTestAnswer", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsCorrect")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("QuestionId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SelectedIndex")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UserTestId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserTestId");
-
-                    b.ToTable("UserTestAnswers");
                 });
 
             modelBuilder.Entity("Core.Entity.Topic", b =>
@@ -463,13 +412,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entity.Block", b =>
                 {
-                    b.HasOne("Core.Entity.Test.Test", "Test")
+                    b.HasOne("Core.Entity.Test.Test", "FinalTest")
                         .WithMany()
                         .HasForeignKey("TestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Test");
+                    b.Navigation("FinalTest");
                 });
 
             modelBuilder.Entity("Core.Entity.Test.TestOption", b =>
@@ -492,28 +441,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Test");
-                });
-
-            modelBuilder.Entity("Core.Entity.Test.UserTest", b =>
-                {
-                    b.HasOne("Core.Entity.Test.Test", "Test")
-                        .WithMany()
-                        .HasForeignKey("TestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Test");
-                });
-
-            modelBuilder.Entity("Core.Entity.Test.UserTestAnswer", b =>
-                {
-                    b.HasOne("Core.Entity.Test.UserTest", "UserTest")
-                        .WithMany("Answers")
-                        .HasForeignKey("UserTestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("UserTest");
                 });
 
             modelBuilder.Entity("Core.Entity.Topic", b =>
@@ -572,11 +499,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Core.Entity.Test.TestQuestion", b =>
                 {
                     b.Navigation("Options");
-                });
-
-            modelBuilder.Entity("Core.Entity.Test.UserTest", b =>
-                {
-                    b.Navigation("Answers");
                 });
 
             modelBuilder.Entity("Core.Entity.Topic", b =>
