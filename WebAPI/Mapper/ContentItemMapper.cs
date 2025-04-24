@@ -3,6 +3,8 @@ using Backend.Dto.Audio.Response;
 using Backend.Dto.Book;
 using Backend.Dto.Image;
 using Backend.Dto.Image.Response;
+using Backend.Dto.WordFile.Request;
+using Backend.Dto.WordFile.Response;
 using Core.Entity.AnyContent;
 
 namespace Backend.Mapper
@@ -44,45 +46,41 @@ namespace Backend.Mapper
             Title = content.Title,
         };
         
-        public static WordFileContent ToEntity(CreateWordFileContentRequest request, string fileUrl, int order)
+        public static WordFileContent ToEntity(CreateWordFileContentRequest request, string fileUrl)
         {
             return new WordFileContent
             {
                 TopicId = request.TopicId,
-                Order = order,
                 Title = request.Title,
                 FileName = Path.GetFileName(fileUrl),
                 FileUrl = fileUrl
             };
         }
 
-        public static BookContent ToEntity(CreateBookContentRequest request, string fileUrl, int order)
+        public static BookContent ToEntity(CreateBookContentRequest request, string fileUrl)
         {
             return new BookContent
             {
                 TopicId = request.TopicId,
-                Order = order,
                 FileUrl = fileUrl
             };
         }
 
-        public static AudioContent ToEntity(CreateAudioContentRequest request, string audioUrl, int order)
+        public static AudioContent ToEntity(CreateAudioContentRequest request, string audioUrl)
         {
             return new AudioContent
             {
                 TopicId = request.TopicId,
-                Order = order,
                 Title = request.Title,
                 AudioUrl = audioUrl
             };
         }
 
-        public static ImageContent ToEntity(CreateImageContentRequest request, string imageUrl, int order)
+        public static ImageContent ToEntity(CreateImageContentRequest request, string imageUrl)
         {
             return new ImageContent
             {
                 TopicId = request.TopicId,
-                Order = order,
                 ImageUrl = imageUrl
             };
         }

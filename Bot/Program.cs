@@ -39,7 +39,7 @@ builder.Services.AddScoped<IUserBotService, UserBotService>(); // хэндлер
 builder.Services.AddScoped<IAdminBotService, AdminBotService>(); // админка
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<IBlockRepository, BlockRepository>();
 builder.Services.AddScoped<ITopicRepository, TopicRepository>();
 builder.Services.AddScoped<IUserActivityRepository, UserActivityRepository>();
 builder.Services.AddScoped<IUserProgressRepository, UserProgressRepository>();

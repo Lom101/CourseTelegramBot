@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Core.Dto.Topic.Request;
+namespace Backend.Dto.Topic.Request;
 
 public class CreateTopicRequest
 {
@@ -8,8 +8,5 @@ public class CreateTopicRequest
     public string Title { get; set; }
 
     [DefaultValue(1)]
-    public int Order { get; set; }
-
-    [DefaultValue(1)]
-    public int CourseId { get; set; } 
+    public int BlockId { get; set; } 
 }

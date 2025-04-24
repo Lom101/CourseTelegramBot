@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250423193342_12435r5t6y")]
+    partial class _12435r5t6y
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,6 +39,9 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(21)
                         .HasColumnType("character varying(21)");
 
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
                     b.Property<int>("TopicId")
                         .HasColumnType("integer");
 
@@ -50,7 +56,7 @@ namespace Infrastructure.Migrations
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("Core.Entity.Block", b =>
+            modelBuilder.Entity("Core.Entity.Course", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -64,7 +70,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Blocks");
+                    b.ToTable("Courses");
                 });
 
             modelBuilder.Entity("Core.Entity.Test.Test", b =>
@@ -126,7 +132,10 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BlockId")
+                    b.Property<int>("CourseId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Order")
                         .HasColumnType("integer");
 
                     b.Property<string>("Title")
@@ -135,7 +144,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BlockId");
+                    b.HasIndex("CourseId");
 
                     b.ToTable("Topics");
                 });
@@ -152,6 +161,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("FullName")
@@ -170,7 +180,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("PhoneNumber")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("RegistrationDate")
@@ -370,13 +379,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entity.Topic", b =>
                 {
-                    b.HasOne("Core.Entity.Block", "Block")
+                    b.HasOne("Core.Entity.Course", "Course")
                         .WithMany("Topics")
-                        .HasForeignKey("BlockId")
+                        .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Block");
+                    b.Navigation("Course");
                 });
 
             modelBuilder.Entity("Core.Entity.UserActivity", b =>
@@ -401,7 +410,7 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Core.Entity.Block", b =>
+            modelBuilder.Entity("Core.Entity.Course", b =>
                 {
                     b.Navigation("Topics");
                 });

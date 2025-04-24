@@ -14,10 +14,7 @@ public class UpdateUserRequest
 
     [DefaultValue("Новое Имя")]
     public string? FullName { get; set; }
-
-    [DefaultValue(false)]
-    public bool? IsBlocked { get; set; }
-
-    [DefaultValue(false)]
-    public bool? IsAdmin { get; set; }
+    
+    [DefaultValue(12345678)]
+    public long? ChatId { get; set; }
 }

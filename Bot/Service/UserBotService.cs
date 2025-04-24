@@ -16,7 +16,7 @@ public class UserBotService : IUserBotService
 {
     private readonly ITelegramBotClient _botClient;
     private readonly IUserRepository _userRepository;
-    private readonly ICourseRepository _courseRepository;
+    private readonly IBlockRepository _blockRepository;
     private readonly ITopicRepository _topicRepository;
     private readonly ILogger<UserBotService> _logger;
     private readonly IUserSessionService _sessionService;
@@ -28,14 +28,14 @@ public class UserBotService : IUserBotService
     public UserBotService(
         ITelegramBotClient botClient,
         IUserRepository userRepository,
-        ICourseRepository courseRepository,
+        IBlockRepository blockRepository,
         ITopicRepository topicRepository,
         ILogger<UserBotService> logger,
         IUserSessionService sessionService)
     {
         _botClient = botClient;
         _userRepository = userRepository;
-        _courseRepository = courseRepository;
+        _blockRepository = blockRepository;
         _topicRepository = topicRepository;
         _logger = logger;
         _sessionService = sessionService;
@@ -101,7 +101,7 @@ public class UserBotService : IUserBotService
         {
             case "topics":
                 // Загружаем список тем из репозитория
-                var course = await _courseRepository.GetByIdWithTopicsAsync(1); // у нас всего один курс ;)
+                var course = await _blockRepository.GetByIdWithTopicsAsync(1); // у нас всего один курс ;)
                 if (course == null)
                 {
                     await _botClient.SendTextMessageAsync(chatId, "❌ Курс не найден. Попробуйте позже.", cancellationToken: cancellationToken);

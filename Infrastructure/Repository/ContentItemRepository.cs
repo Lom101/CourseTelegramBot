@@ -25,7 +25,6 @@ public class ContentItemRepository : IContentItemRepository
     {
         return await _context.ContentItems
             .Where(c => c.TopicId == topicId)
-            .OrderBy(c => c.Order) // Сортируем контент по порядку
             .ToListAsync();
     }
 

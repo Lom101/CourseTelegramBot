@@ -23,11 +23,7 @@ builder.Configuration
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
     .AddEnvironmentVariables();
 
-builder.Services.AddControllers(options =>
-{
-    // Этот код добавит [Authorize] ко всем контроллерам, если у метода или контроллера не указан [AllowAnonymous].
-    // options.Filters.Add(new Microsoft.AspNetCore.Mvc.Authorization.AuthorizeFilter()); 
-});
+builder.Services.AddControllers();
 
 var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection") 
                        ?? throw new ArgumentNullException("Не указан путь подключения к базе данных");
@@ -36,7 +32,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<IBlockRepository, BlockRepository>();
 builder.Services.AddScoped<ITopicRepository, TopicRepository>();
 builder.Services.AddScoped<IUserActivityRepository, UserActivityRepository>();
 builder.Services.AddScoped<IUserProgressRepository, UserProgressRepository>();

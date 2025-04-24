@@ -4,9 +4,9 @@ namespace Core.Dto.Request;
 
 public class CreateUserRequest
 {
-    [DefaultValue(123456789)]
-    public long ChatId { get; set; }
-
+    [DefaultValue(12345678)]
+    public long? ChatId { get; set; }
+    
     [DefaultValue("+79991234567")]
     public string PhoneNumber { get; set; }
 
@@ -14,5 +14,5 @@ public class CreateUserRequest
     public string? Email { get; set; }
 
     [DefaultValue("Иван Иванов")]
-    public string FullName { get; set; }
+    public string? FullName { get; set; }
 }
