@@ -1,6 +1,6 @@
 ﻿namespace Core.Entity.AnyContent;
 
-public class ContentItem
+public abstract class ContentItem
 {
     public int Id { get; set; }
     

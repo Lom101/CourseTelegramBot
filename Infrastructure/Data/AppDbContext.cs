@@ -14,7 +14,6 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Block> Blocks { get; set; }
     public DbSet<Topic> Topics { get; set; }
-    public DbSet<UserProgress> UserProgresses { get; set; }
     public DbSet<UserActivity> UserActivities { get; set; }
     
     public DbSet<ContentItem> ContentItems { get; set; }
@@ -25,7 +24,18 @@ public class AppDbContext : DbContext
     
     public DbSet<Test> Tests { get; set; }
     public DbSet<TestQuestion> TestQuestions { get; set; }
+    
+    public DbSet<UserTest> UserTests { get; set; }
+    public DbSet<UserTestAnswer> UserTestAnswers { get; set; }
 
+
+    
+    public DbSet<UserProgress> UserProgresses { get; set; }
+    public DbSet<TopicProgress> TopicProgresses { get; set; }
+    public DbSet<FinalTestProgress> FinalTestProgresses { get; set; }
+    public DbSet<BlockCompletionProgress> BlockCompletionProgresses { get; set; }
+    
+    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

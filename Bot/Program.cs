@@ -2,8 +2,11 @@
 using Bot.Helpers.ExceptionHandler.Intefaces;
 using Bot.Helpers.Session;
 using Bot.Helpers.Session.Interface;
+using Bot.Helpers.Test;
+using Bot.Helpers.Test.Interface;
 using Bot.Service;
 using Bot.Service.Interfaces;
+using Core.Entity.Test;
 using Core.Interfaces;
 using Telegram.Bot;
 using DotNetEnv;
@@ -43,6 +46,10 @@ builder.Services.AddScoped<IBlockRepository, BlockRepository>();
 builder.Services.AddScoped<ITopicRepository, TopicRepository>();
 builder.Services.AddScoped<IUserActivityRepository, UserActivityRepository>();
 builder.Services.AddScoped<IUserProgressRepository, UserProgressRepository>();
+builder.Services.AddScoped<ITestRepository, TestRepository>();
+
+builder.Services.AddScoped<ITestService, TestService>();
+builder.Services.AddScoped<IUserTestRepository, UserTestRepository>();
 
 builder.Services.AddSingleton<IUserSessionService, UserSessionService>();
 
