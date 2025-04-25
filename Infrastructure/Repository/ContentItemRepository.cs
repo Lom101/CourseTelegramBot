@@ -23,9 +23,8 @@ public class ContentItemRepository : IContentItemRepository
 
     public async Task<IEnumerable<ContentItem>> GetByTopicIdAsync(long topicId)
     {
-        return await _context.ContentItems
+        return await _context.ContentItems  
             .Where(c => c.TopicId == topicId)
-            .OrderBy(c => c.Order) // Сортируем контент по порядку
             .ToListAsync();
     }
 

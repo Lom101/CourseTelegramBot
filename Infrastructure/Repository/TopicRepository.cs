@@ -21,10 +21,10 @@ public class TopicRepository : ITopicRepository
             .FirstOrDefaultAsync(t => t.Id == id);
     }
 
-    public async Task<List<Topic>> GetByCourseIdAsync(int courseId)
+    public async Task<List<Topic>> GetByBlockIdAsync(int blockId)
     {
         return await _context.Topics
-            .Where(t => t.CourseId == courseId)
+            .Where(t => t.BlockId == blockId)
             .ToListAsync();
     }
 

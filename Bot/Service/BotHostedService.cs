@@ -51,7 +51,8 @@ public class BotHostedService : IHostedService
 
         var receiverOptions = new ReceiverOptions
         {
-            AllowedUpdates = Array.Empty<UpdateType>()  
+            AllowedUpdates = Array.Empty<UpdateType>(),
+            DropPendingUpdates = true
         };
 
         _botClient.StartReceiving(

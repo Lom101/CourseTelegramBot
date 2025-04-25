@@ -22,13 +22,14 @@ public class UserRepository : IUserRepository
         if (!string.IsNullOrEmpty(filterRequest.FullName))
             query = query.Where(u => u.FullName.Contains(filterRequest.FullName));
 
-        if (filterRequest.CompletedMaterialCount.HasValue)
-        {
-            query = query.Where(u =>
-                _context.UserProgresses
-                    .Where(p => p.UserId == u.Id && p.IsCompleted)
-                    .Count() >= filterRequest.CompletedMaterialCount.Value);
-        }
+        // TODO: сделать обработку CompletedMaterialCount
+        // if (filterRequest.CompletedMaterialCount.HasValue)
+        // {
+        //     query = query.Where(u =>
+        //         _context.UserProgresses
+        //             .Where(p => p.UserId == u.Id && p.IsCompleted)
+        //             .Count() >= filterRequest.CompletedMaterialCount.Value);
+        // }
 
         if (filterRequest.RegistrationDateFrom.HasValue)
             query = query.Where(u => u.RegistrationDate >= filterRequest.RegistrationDateFrom.Value);

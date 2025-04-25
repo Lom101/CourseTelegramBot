@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Core.Dto.Request;
+namespace Backend.Dto.User.Request;
 
 public class CreateUserRequest
 {

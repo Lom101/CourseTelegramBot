@@ -1,4 +1,5 @@
-﻿using Backend.Mapper;
+﻿using Backend.Dto.User.Request;
+using Backend.Mapper;
 using Core.Dto.Request;
 using Core.Entity;
 using Core.Interfaces;
@@ -84,9 +85,6 @@ public class UserController(IUserRepository userRepository) : ControllerBase
     /// <summary>
     /// Обновить данные пользователя.
     /// </summary>
-    /// <param name="id">ID пользователя.</param>
-    /// <param name="updatedUser">Обновлённые данные пользователя.</param>
-    /// <returns>Обновлённый пользователь.</returns>
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest request)
     {
@@ -108,11 +106,24 @@ public class UserController(IUserRepository userRepository) : ControllerBase
         var dto = UserMapper.ToDto(user);
         return Ok(dto);
     }
+    
+    /// <summary>
+    /// Удалить пользователя по ID.
+    /// </summary>
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var existingUser = await userRepository.GetByIdAsync(id);
+        if (existingUser == null)
+            return NotFound($"User with id {id} not found");
+
+        await userRepository.DeleteAsync(existingUser);
+        return NoContent();
+    }
 
     /// <summary>
     /// Заблокировать пользователя.
     /// </summary>
-    /// <param name="id">ID пользователя.</param>
     [HttpPost("{id}/block")]
     public async Task<IActionResult> BlockUser(int id)
     {
@@ -128,7 +139,6 @@ public class UserController(IUserRepository userRepository) : ControllerBase
     /// <summary>
     /// Разблокировать пользователя.
     /// </summary>
-    /// <param name="id">ID пользователя.</param>
     [HttpPost("{id}/unblock")]
     public async Task<IActionResult> UnblockUser(int id)
     {
@@ -142,10 +152,8 @@ public class UserController(IUserRepository userRepository) : ControllerBase
     }
     
     /// <summary>
-    /// Получить список пользователей с возможностью фильтрации.
+    /// Получить список пользователей с фильтрацией.
     /// </summary>
-    /// <param name="filterRequest">Параметры для фильтрации.</param>
-    /// <returns>Список пользователей.</returns>
     [HttpGet("filter")]
     public async Task<ActionResult<IEnumerable<User>>> GetFilteredUsers([FromQuery] UserFilterModel filterRequest)
     {
