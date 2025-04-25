@@ -1,10 +1,11 @@
 import React from 'react';
-import LongreadPage from './components/LongreadPage/LongreadPage';
+import LongreadPage from './components/LongreadPage/LongreadPage';  // Импортируем компонент LongreadPage
 
 function App() {
   return (
     <div className="App">
-      <LongreadPage />
+  
+      <LongreadPage id={2} /> 
     </div>
   );
 }
