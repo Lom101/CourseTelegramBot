@@ -42,8 +42,8 @@ public class UserProgressRepository : IUserProgressRepository
                 UserId = user.Id,
                 BlockId = block.Id,
                 IsPassed = true,
-                PassedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now,
+                PassedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
                 CorrectAnswersCount = correctAnswersCount
             };
 
@@ -52,8 +52,8 @@ public class UserProgressRepository : IUserProgressRepository
         else
         {
             existingProgress.IsPassed = true;
-            existingProgress.PassedAt = DateTime.Now;
-            existingProgress.UpdatedAt = DateTime.Now;
+            existingProgress.PassedAt = DateTime.UtcNow;
+            existingProgress.UpdatedAt = DateTime.UtcNow;
             existingProgress.CorrectAnswersCount = correctAnswersCount; 
         }
 

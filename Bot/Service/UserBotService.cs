@@ -58,6 +58,14 @@ public class UserBotService : IUserBotService
         
         _logger.LogInformation($"Получено сообщение от {chatId}: {messageText}");
         
+        // Получаем сессию для пользователя, если он проходит тест
+        if (_testSessionService.TryGetSession(chatId, out var session))
+        {
+            await _botClient.SendTextMessageAsync(chatId, "❌ Некорректный ответ. Тест завершен.", cancellationToken: cancellationToken);
+            _testSessionService.ClearSession(chatId);  // Очистить сессию
+            return;
+        }
+        
         // 1. Обрабатываем состояние, и сброс, если получили команду
         var shouldStop = await HandleUserStateAsync(chatId, message, cancellationToken);
         if (shouldStop)
@@ -166,9 +174,10 @@ public class UserBotService : IUserBotService
         var chatId = callbackQuery.Message.Chat.Id;
         var messageId = callbackQuery.Message.MessageId;
         var data = callbackQuery.Data;
-
+        
         switch (data)
         {
+           
             case "blocks":
                 await ShowBlocksAsync(chatId, cancellationToken);
                 break;
@@ -194,10 +203,35 @@ public class UserBotService : IUserBotService
                 break;
             
             case var answer when answer.StartsWith("answer_"):
-                var selectedIndex = int.Parse(answer.Split('_')[1]);
-                await HandleAnswerAsync(chatId, selectedIndex, cancellationToken); // обработка ответа на вопрос
-                break;
+                var parts = answer.Split('_');
+                var questionIndex = int.Parse(parts[1]); // не нужно
+                var questionId = int.Parse(parts[2]);
+                var optionIndex = int.Parse(parts[3]);
+                var optionId = int.Parse(parts[4]); // не нужно
 
+
+                // Получаем сессию для пользователя, если он проходит тест в данный момент
+                if (_testSessionService.TryGetSession(chatId, out var session))
+                {
+                    var currentQuestion = session.Test.Questions[session.CurrentQuestionIndex];
+
+                    // Проверяем, что текущий вопрос в сессии соответствует тому, который передан в callback
+                    if (currentQuestion.Id != questionId)
+                    {
+                        await _botClient.SendTextMessageAsync(chatId, "❌ Этот вопрос больше не доступен. Тест завершен.", cancellationToken: cancellationToken);
+                        _testSessionService.ClearSession(chatId);  // Очистить сессию
+                        return;
+                    }
+
+                    // Если все в порядке, обрабатываем ответ
+                    await HandleAnswerAsync(chatId, optionIndex, cancellationToken);
+                }
+                else
+                {
+                    // Если сессии нет, значит тест не активен для пользователя, пропускаем проверку
+                    await _botClient.SendTextMessageAsync(chatId, "❌ У вас нет активного теста.", cancellationToken: cancellationToken);
+                }
+                break;
             
             case "support":
                 await ShowSupportInfoAsync(chatId, cancellationToken);
@@ -233,7 +267,7 @@ public class UserBotService : IUserBotService
         await _botClient.SendTextMessageAsync(
             chatId,
             currentQuestion.QuestionText,
-            replyMarkup: GenerateAnswerButtons(currentQuestion),
+            replyMarkup: GenerateAnswerButtons(currentQuestion, chatId),
             cancellationToken: cancellationToken);
     }
     
@@ -242,24 +276,42 @@ public class UserBotService : IUserBotService
         if (_testSessionService.TryGetSession(chatId, out var session))
         {
             var currentQuestion = session.Test.Questions[session.CurrentQuestionIndex];
-            var correctAnswerIndex = currentQuestion.CorrectIndex;
 
+            # region Выводим правильный ли ответ юзера
+            // Проверка правильности ответа
+            var isCorrect = selectedIndex == currentQuestion.CorrectIndex;
+        
+            // Отправляем информацию о правильности ответа
+            var resultMessage = isCorrect ? "✅ Ваш ответ правильный!" : "❌ Ваш ответ неправильный.";
+
+            await _botClient.SendTextMessageAsync(
+                chatId,
+                resultMessage,
+                cancellationToken: cancellationToken);
+            # endregion
+            
             // Сохраняем ответ
             _testSessionService.SaveAnswer(chatId, selectedIndex);
             
-            // Подсчитываем количество правильных ответов
-            var correctAnswersCount = session.SelectedOptionIndices
-                .Count(selected => currentQuestion.Options[selected].Id == currentQuestion.CorrectIndex);
-            
+
             if (session.CurrentQuestionIndex >= session.Test.Questions.Count)
             {
-                // Если тест завершен, сохраняем результаты в БД
+                // Подсчитываем количество правильных ответов
+                var correctAnswersCount = session.SelectedOptionIndices
+                    .Select((selectedIndex, i) =>
+                    {
+                        var question = session.Test.Questions[i];
+                        return question.Options[selectedIndex].Id == question.Options[question.CorrectIndex].Id;
+                    })
+                    .Count(isCorrect => isCorrect);
+
+                // Выводим, что тест завершен
                 await _botClient.SendTextMessageAsync(
                         chatId, 
                     $"🎉 Поздравляем, тест завершен!  Ваш результат: {correctAnswersCount} из {session.Test.Questions.Count}.",
                     cancellationToken: cancellationToken);
 
-                // Сохранение прогресса в БД
+                // Сохранение прогресс в БД
                 await _userProgressRepository.SaveFinalTestResultAsync(
                     chatId,
                     session.Test.Id,
@@ -275,20 +327,30 @@ public class UserBotService : IUserBotService
                 await _botClient.SendTextMessageAsync(
                     chatId,
                     nextQuestion.QuestionText,
-                    replyMarkup: GenerateAnswerButtons(nextQuestion),
+                    replyMarkup: GenerateAnswerButtons(nextQuestion, chatId),
                     cancellationToken: cancellationToken);
             }
         }
     }
     
-    private InlineKeyboardMarkup GenerateAnswerButtons(TestQuestion question)
+    private InlineKeyboardMarkup GenerateAnswerButtons(TestQuestion question, long chatId)
     {
-        var buttons = question.Options.Select((option, index) => InlineKeyboardButton.WithCallbackData(option.OptionText, $"answer_{index}")).ToArray();
+        // добываем index среди ответов на вопрос - текущего ответа
+        _testSessionService.TryGetSession(chatId, out var session);
+        var questionIndex = session.Test.Questions.IndexOf(question);
+        
+        var buttons = question.Options
+            .Select((option, optionIndex) => new InlineKeyboardButton
+            {
+                Text = option.OptionText,
+                CallbackData = $"answer_{questionIndex}_{question.Id}_{optionIndex}_{option.Id}"
+            })
+            .ToArray();
+
         return new InlineKeyboardMarkup(buttons);
     }
-    
+
     # endregion test session
-    
     
     # region Handlers
 
