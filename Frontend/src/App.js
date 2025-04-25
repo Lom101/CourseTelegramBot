@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import MaterialsPage from './pages/MaterialsPage';
-import UsersPage from './pages/UsersPage';
 import BlockPage from './pages/BlockPage';
+import UsersPage from './pages/UsersPage';
 import Navbar from './components/Navbar';
 import LoginPage from './pages/LoginPage';
 import { AuthContext } from './components/AuthContext';
+import ContentItemPage from './pages/ContentItemPage';
+import TopicsPage from './pages/TopicsPage';
 
 // Компонент для защищённых маршрутов
 const PrivateRoute = ({ element }) => {
@@ -30,8 +31,9 @@ function App() {
           <Routes>
             <Route path="/login" element={<PublicRoute element={<LoginPage />} />} />
             <Route path="/users" element={<PrivateRoute element={<UsersPage />} />} />
-            <Route path="/materials" element={<PrivateRoute element={<MaterialsPage />} />} />
-            <Route path="/materials/block/:id" element={<PrivateRoute element={<BlockPage />} />} />
+            <Route path="/blocks" element={<PrivateRoute element={<BlockPage />} />} />
+            <Route path="/blocks/:blockId" element={<TopicsPage />} />
+            <Route path="/topic/:topicId" element={<ContentItemPage />} />
             <Route
               path="*"
               element={<Navigate to={isAuthenticated ? "/users" : "/login"} replace />}

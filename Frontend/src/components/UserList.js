@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 
 const UserList = ({ users, onBlock, onDelete }) => {
   const [filter, setFilter] = useState({
@@ -6,29 +6,25 @@ const UserList = ({ users, onBlock, onDelete }) => {
     progress: '',
     status: '',
   });
-  const [showRanges, setShowRanges] = useState(false);
-  const progressInputRef = useRef();
-
-  const handleRangeClick = (range) => {
-    setFilter({ ...filter, progress: range });
-    setShowRanges(false);
-    progressInputRef.current.blur();
-  };
 
   const getRangeMatch = (progressValue) => {
     const userProgress = parseInt(progressValue, 10);
-    const filterValue = filter.progress.trim();
+    const filterValue = filter.progress;
 
-    if (filterValue.includes('-')) {
-      const [min, max] = filterValue.split('-').map(str => parseInt(str, 10));
-      return userProgress >= min && userProgress <= max;
+    switch (filterValue) {
+      case '0-20':
+        return userProgress >= 0 && userProgress <= 20;
+      case '21-40':
+        return userProgress >= 21 && userProgress <= 40;
+      case '41-60':
+        return userProgress >= 41 && userProgress <= 60;
+      case '61-80':
+        return userProgress >= 61 && userProgress <= 80;
+      case '81-100':
+        return userProgress >= 81 && userProgress <= 100;
+      default:
+        return true;
     }
-
-    if (!isNaN(parseInt(filterValue, 10))) {
-      return userProgress === parseInt(filterValue, 10);
-    }
-
-    return true;
   };
 
   const filteredUsers = users.filter(user => {
@@ -43,7 +39,7 @@ const UserList = ({ users, onBlock, onDelete }) => {
 
   return (
     <div className="max-w-5xl mt-6 px-4 ml-0 mr-auto">
-      <div className="mb-4 flex flex-wrap gap-4 relative">
+      <div className="mb-4 flex flex-wrap gap-4">
         <input
           type="text"
           placeholder="Поиск по ФИО"
@@ -51,31 +47,18 @@ const UserList = ({ users, onBlock, onDelete }) => {
           onChange={(e) => setFilter({ ...filter, name: e.target.value })}
           className="px-4 py-2 rounded-xl border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
         />
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Прогресс (или выбрать)"
-            value={filter.progress}
-            ref={progressInputRef}
-            onChange={(e) => setFilter({ ...filter, progress: e.target.value })}
-            onFocus={() => setShowRanges(true)}
-            onBlur={() => setTimeout(() => setShowRanges(false), 200)}
-            className="px-4 py-2 rounded-xl border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-          />
-          {showRanges && (
-            <ul className="absolute left-0 w-full mt-1 bg-white border border-gray-300 rounded-xl shadow-md z-10">
-              {['', '0-20', '21-40', '41-60', '61-80', '81-100'].map(range => (
-                <li
-                  key={range || 'none'}
-                  onMouseDown={() => handleRangeClick(range)}
-                  className="px-4 py-2 hover:bg-yellow-100 cursor-pointer text-sm"
-                >
-                  {range ? `${range}%` : 'Не выбрано'}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        <select
+          value={filter.progress}
+          onChange={(e) => setFilter({ ...filter, progress: e.target.value })}
+          className="px-4 py-2 rounded-xl border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+        >
+          <option value="">Не выбрано</option>
+          <option value="0-20">0–20%</option>
+          <option value="21-40">21–40%</option>
+          <option value="41-60">41–60%</option>
+          <option value="61-80">61–80%</option>
+          <option value="81-100">81–100%</option>
+        </select>
         <select
           value={filter.status}
           onChange={(e) => setFilter({ ...filter, status: e.target.value })}

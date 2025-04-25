@@ -11,8 +11,9 @@ const BlockPage = () => {
   const fetchBlocks = async () => {
     try {
       const data = await getAllBlocks();
+      console.log('Fetched blocks:', data); // Логирование полученных данных
       if (Array.isArray(data)) {
-        setBlocks(data);
+        setBlocks(data); // Если это массив, устанавливаем его в state
       } else {
         console.error("Unexpected data format:", data);
       }
@@ -100,7 +101,8 @@ const BlockPage = () => {
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <Link to={`/blocks/${block.id}`} className="text-blue-500 hover:underline">
+                  {/* Link to topics page */}
+                  <Link to={`/materials/block/${block.id}`} className="text-blue-500 hover:underline">
                     Block {block.title}
                   </Link>
                   <button onClick={() => handleEditBlock(block.id, block.title)} className="bg-yellow-400 p-1 rounded">
