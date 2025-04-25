@@ -1,5 +1,7 @@
 ﻿using Bot.Helpers.ExceptionHandler;
 using Bot.Helpers.ExceptionHandler.Intefaces;
+using Bot.Helpers.TestSession;
+using Bot.Helpers.TestSession.Interface;
 using Bot.Helpers.UserSession;
 using Bot.Helpers.UserSession.Interface;
 using Bot.Service;
@@ -45,6 +47,8 @@ builder.Services.AddScoped<IFinalTestRepository, FinalTestRepository>();
 
 
 builder.Services.AddSingleton<IUserSessionService, UserSessionService>();
+builder.Services.AddSingleton<IFinalTestSessionService, FinalTestSessionService>();
+
 
 var host = builder.Build();
 

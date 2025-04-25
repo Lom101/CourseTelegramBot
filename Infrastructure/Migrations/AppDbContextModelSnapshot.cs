@@ -57,7 +57,7 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("TestId")
+                    b.Property<int>("FinalTestId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Title")
@@ -66,12 +66,47 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TestId");
+                    b.HasIndex("FinalTestId");
 
                     b.ToTable("Blocks");
                 });
 
-            modelBuilder.Entity("Core.Entity.Test.Test", b =>
+            modelBuilder.Entity("Core.Entity.Progress.UserProgress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BlockId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(34)
+                        .HasColumnType("character varying(34)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlockId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserProgresses");
+
+                    b.HasDiscriminator().HasValue("UserProgress");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("Core.Entity.Test.FinalTest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -85,7 +120,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tests");
+                    b.ToTable("FinalTests");
                 });
 
             modelBuilder.Entity("Core.Entity.Test.TestOption", b =>
@@ -107,7 +142,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("TestQuestionId");
 
-                    b.ToTable("TestOption");
+                    b.ToTable("TestOptions");
                 });
 
             modelBuilder.Entity("Core.Entity.Test.TestQuestion", b =>
@@ -121,72 +156,18 @@ namespace Infrastructure.Migrations
                     b.Property<int>("CorrectIndex")
                         .HasColumnType("integer");
 
+                    b.Property<int>("FinalTestId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("QuestionText")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("TestId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("TestId");
+                    b.HasIndex("FinalTestId");
 
                     b.ToTable("TestQuestions");
-                });
-
-            modelBuilder.Entity("Core.Entity.Test.UserTest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<long>("ChatId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("CurrentQuestionIndex")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("TestId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TestId");
-
-                    b.ToTable("UserTests");
-                });
-
-            modelBuilder.Entity("Core.Entity.Test.UserTestAnswer", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsCorrect")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("QuestionId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SelectedIndex")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UserTestId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserTestId");
-
-                    b.ToTable("UserTestAnswers");
                 });
 
             modelBuilder.Entity("Core.Entity.Topic", b =>
@@ -263,15 +244,8 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ActionType")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("ActivityDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Metadata")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -281,41 +255,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserActivities");
-                });
-
-            modelBuilder.Entity("Core.Entity.UserProgress", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BlockId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(34)
-                        .HasColumnType("character varying(34)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BlockId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserProgresses");
-
-                    b.HasDiscriminator().HasValue("UserProgress");
-
-                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Core.Entity.AnyContent.AudioContent", b =>
@@ -414,9 +353,9 @@ namespace Infrastructure.Migrations
                     b.HasDiscriminator().HasValue("WordFileContent");
                 });
 
-            modelBuilder.Entity("Core.Entity.BlockCompletionProgress", b =>
+            modelBuilder.Entity("Core.Entity.Progress.BlockCompletionProgress", b =>
                 {
-                    b.HasBaseType("Core.Entity.UserProgress");
+                    b.HasBaseType("Core.Entity.Progress.UserProgress");
 
                     b.Property<bool>("IsBlockCompleted")
                         .HasColumnType("boolean");
@@ -424,9 +363,12 @@ namespace Infrastructure.Migrations
                     b.HasDiscriminator().HasValue("BlockCompletionProgress");
                 });
 
-            modelBuilder.Entity("Core.Entity.FinalTestProgress", b =>
+            modelBuilder.Entity("Core.Entity.Progress.FinalTestProgress", b =>
                 {
-                    b.HasBaseType("Core.Entity.UserProgress");
+                    b.HasBaseType("Core.Entity.Progress.UserProgress");
+
+                    b.Property<int>("CorrectAnswersCount")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("IsPassed")
                         .HasColumnType("boolean");
@@ -437,9 +379,9 @@ namespace Infrastructure.Migrations
                     b.HasDiscriminator().HasValue("FinalTestProgress");
                 });
 
-            modelBuilder.Entity("Core.Entity.TopicProgress", b =>
+            modelBuilder.Entity("Core.Entity.Progress.TopicProgress", b =>
                 {
-                    b.HasBaseType("Core.Entity.UserProgress");
+                    b.HasBaseType("Core.Entity.Progress.UserProgress");
 
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("boolean");
@@ -463,13 +405,32 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entity.Block", b =>
                 {
-                    b.HasOne("Core.Entity.Test.Test", "Test")
+                    b.HasOne("Core.Entity.Test.FinalTest", "FinalTest")
                         .WithMany()
-                        .HasForeignKey("TestId")
+                        .HasForeignKey("FinalTestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Test");
+                    b.Navigation("FinalTest");
+                });
+
+            modelBuilder.Entity("Core.Entity.Progress.UserProgress", b =>
+                {
+                    b.HasOne("Core.Entity.Block", "Block")
+                        .WithMany("UserProgress")
+                        .HasForeignKey("BlockId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Entity.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Block");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Core.Entity.Test.TestOption", b =>
@@ -485,35 +446,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entity.Test.TestQuestion", b =>
                 {
-                    b.HasOne("Core.Entity.Test.Test", "Test")
+                    b.HasOne("Core.Entity.Test.FinalTest", "FinalTest")
                         .WithMany("Questions")
-                        .HasForeignKey("TestId")
+                        .HasForeignKey("FinalTestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Test");
-                });
-
-            modelBuilder.Entity("Core.Entity.Test.UserTest", b =>
-                {
-                    b.HasOne("Core.Entity.Test.Test", "Test")
-                        .WithMany()
-                        .HasForeignKey("TestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Test");
-                });
-
-            modelBuilder.Entity("Core.Entity.Test.UserTestAnswer", b =>
-                {
-                    b.HasOne("Core.Entity.Test.UserTest", "UserTest")
-                        .WithMany("Answers")
-                        .HasForeignKey("UserTestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("UserTest");
+                    b.Navigation("FinalTest");
                 });
 
             modelBuilder.Entity("Core.Entity.Topic", b =>
@@ -538,25 +477,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Core.Entity.UserProgress", b =>
-                {
-                    b.HasOne("Core.Entity.Block", "Block")
-                        .WithMany("UserProgress")
-                        .HasForeignKey("BlockId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Core.Entity.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Block");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Core.Entity.Block", b =>
                 {
                     b.Navigation("Topics");
@@ -564,7 +484,7 @@ namespace Infrastructure.Migrations
                     b.Navigation("UserProgress");
                 });
 
-            modelBuilder.Entity("Core.Entity.Test.Test", b =>
+            modelBuilder.Entity("Core.Entity.Test.FinalTest", b =>
                 {
                     b.Navigation("Questions");
                 });
@@ -572,11 +492,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Core.Entity.Test.TestQuestion", b =>
                 {
                     b.Navigation("Options");
-                });
-
-            modelBuilder.Entity("Core.Entity.Test.UserTest", b =>
-                {
-                    b.Navigation("Answers");
                 });
 
             modelBuilder.Entity("Core.Entity.Topic", b =>

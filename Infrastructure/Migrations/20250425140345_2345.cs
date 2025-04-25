@@ -5,25 +5,24 @@
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class migr : Migration
+    public partial class _2345 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "LongreadUrl",
-                table: "Topics",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
+            migrationBuilder.AddColumn<int>(
+                name: "CorrectAnswersCount",
+                table: "UserProgresses",
+                type: "integer",
+                nullable: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "LongreadUrl",
-                table: "Topics");
+                name: "CorrectAnswersCount",
+                table: "UserProgresses");
         }
     }
 }

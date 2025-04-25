@@ -19,8 +19,6 @@ public class UserProgressRepository : IUserProgressRepository
     // Получение прогресса по теме
     public async Task SaveFinalTestResultAsync(long chatId, int finalTestId, int correctAnswersCount)
     {
-        // TODO: correctAnswersCount - нигде не используется 
-        
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.ChatId == chatId);
 
@@ -46,6 +44,7 @@ public class UserProgressRepository : IUserProgressRepository
                 IsPassed = true,
                 PassedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
+                CorrectAnswersCount = correctAnswersCount
             };
 
             _context.FinalTestProgresses.Add(existingProgress);
@@ -55,6 +54,7 @@ public class UserProgressRepository : IUserProgressRepository
             existingProgress.IsPassed = true;
             existingProgress.PassedAt = DateTime.Now;
             existingProgress.UpdatedAt = DateTime.Now;
+            existingProgress.CorrectAnswersCount = correctAnswersCount; 
         }
 
         await _context.SaveChangesAsync();

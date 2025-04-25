@@ -242,18 +242,29 @@ public class UserBotService : IUserBotService
         if (_testSessionService.TryGetSession(chatId, out var session))
         {
             var currentQuestion = session.Test.Questions[session.CurrentQuestionIndex];
+            var correctAnswerIndex = currentQuestion.CorrectIndex;
 
             // Сохраняем ответ
             _testSessionService.SaveAnswer(chatId, selectedIndex);
-
+            
+            // Подсчитываем количество правильных ответов
+            var correctAnswersCount = session.SelectedOptionIndices
+                .Count(selected => currentQuestion.Options[selected].Id == currentQuestion.CorrectIndex);
+            
             if (session.CurrentQuestionIndex >= session.Test.Questions.Count)
             {
                 // Если тест завершен, сохраняем результаты в БД
                 await _botClient.SendTextMessageAsync(
-                    chatId,
-                    "🎉 Поздравляем, тест завершен! Ваш результат: [тут может быть логика вывода результатов].",
+                        chatId, 
+                    $"🎉 Поздравляем, тест завершен!  Ваш результат: {correctAnswersCount} из {session.Test.Questions.Count}.",
                     cancellationToken: cancellationToken);
 
+                // Сохранение прогресса в БД
+                await _userProgressRepository.SaveFinalTestResultAsync(
+                    chatId,
+                    session.Test.Id,
+                    correctAnswersCount);
+                
                 // Закрыть сессию
                 _testSessionService.ClearSession(chatId);
             }
