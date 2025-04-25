@@ -4,10 +4,8 @@ import LongreadPage from './components/LongreadPage/LongreadPage';  // Импо�
 function App() {
   return (
     <div className="App">
-      <h1>Контент</h1>
-      
-      <h2>Получить контент по ID</h2>
-      <LongreadPage id={1} /> {/* Передаем id прямо в LongreadPage */}
+  
+      <LongreadPage id={2} /> 
     </div>
   );
 }
