@@ -13,6 +13,13 @@ public class UserTestRepository : IUserTestRepository
     {
         _context = context;
     }
+    
+    public async Task<UserTest?> GetByChatIdAndTestIdAsync(long chatId, int testId)
+    {
+        return await _context.UserTests
+            .FirstOrDefaultAsync(ut => ut.ChatId == chatId && ut.TestId == testId);
+    }
+
 
     public async Task<UserTest?> GetByChatIdAsync(long chatId)
     {

@@ -37,11 +37,19 @@ public class TestRepository : ITestRepository
     
     public async Task<Test?> GetByIdAsync(int testId)
     {
-        return await _context.Tests
+        var test = await _context.Tests
             .Include(t => t.Questions)
             .ThenInclude(q => q.Options)
             .FirstOrDefaultAsync(t => t.Id == testId);
+
+        if (test != null)
+        {
+            test.Questions = test.Questions.OrderBy(q => q.Id).ToList(); // 🧠 здесь сортировка
+        }
+
+        return test;
     }
+
 
 
 }

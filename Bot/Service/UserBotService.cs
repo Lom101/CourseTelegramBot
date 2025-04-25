@@ -25,10 +25,6 @@ public class UserBotService : IUserBotService
     private readonly ILogger<UserBotService> _logger;
     private readonly IUserSessionService _sessionService;
 
-    // нажми кнопку снизу, если готов пройти тест 
-    // это нужно выдавать в keyboard button - после темы
-    // после каждой темы - должен быть тест на один вопрос
-
     public UserBotService(
         ITelegramBotClient botClient,
         IUserRepository userRepository,
@@ -99,7 +95,7 @@ public class UserBotService : IUserBotService
             
             case var topic when topic.StartsWith("topic_completed_"):
                 var topicId = int.Parse(topic.Split('_')[2]);
-                await UpdateProgress(chatId, topicId, cancellationToken);
+                await UpdateTopicProgress(chatId, topicId, cancellationToken);
                 break;
 
             case var topic when topic.StartsWith("topic_"):
@@ -108,8 +104,8 @@ public class UserBotService : IUserBotService
                 break;
             
             case var test when test.StartsWith("test_"):
-                var topicIdForTest = int.Parse(test.Split('_')[1]);
-                await HandleTestAsync(chatId, topicIdForTest, cancellationToken);
+                var blockIdForTest = int.Parse(test.Split('_')[1]);
+                await HandleTestAsync(chatId, blockIdForTest, cancellationToken);
                 break;
             
             case var answer when answer.StartsWith("answer_"):
@@ -118,7 +114,6 @@ public class UserBotService : IUserBotService
                 break;
             
             case "support":
-                // Информация по техподдержке
                 await _botClient.SendTextMessageAsync(
                     chatId,
                     "🛠 Связь с техподдержкой:\nНапишите ваш вопрос сюда - @BarsBotHelper, и мы постараемся помочь.",
@@ -140,15 +135,6 @@ public class UserBotService : IUserBotService
                     parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
                     cancellationToken: cancellationToken);
                 break;
-            
-            default:
-                if (data.StartsWith("topic_"))
-                {
-                    // Показ подробностей по выбранной теме
-                    topicId = int.Parse(data.Split('_')[1]);
-                    await ShowTopicDetailsAsync(chatId, topicId, cancellationToken);
-                }
-                break;
         }
         
         // Удаляем кнопку после нажатия 
@@ -156,7 +142,7 @@ public class UserBotService : IUserBotService
         await _botClient.AnswerCallbackQueryAsync(callbackQuery.Id, cancellationToken: cancellationToken);
     }
 
-    private async Task UpdateProgress(long chatId, int topicId, CancellationToken cancellationToken)
+    private async Task UpdateTopicProgress(long chatId, int topicId, CancellationToken cancellationToken)
     {
         // ✅ Обновляем прогресс как пройденную тему
         var user = await _userRepository.GetByChatIdAsync(chatId);
@@ -175,7 +161,7 @@ public class UserBotService : IUserBotService
             {
                 var keyboard = new InlineKeyboardMarkup(new[]
                 {
-                    InlineKeyboardButton.WithCallbackData("🧪 Пройти тест", $"test_{test.Id}")
+                    InlineKeyboardButton.WithCallbackData("🧪 Пройти тест", $"test_{topic.BlockId}")
                 });
 
                 await _botClient.SendTextMessageAsync(
@@ -187,8 +173,6 @@ public class UserBotService : IUserBotService
         }
     }
     
-    
-
     private async Task ShowWelcomeMenuAsync(long chatId, CancellationToken cancellationToken)
     {
         var keyboard = new InlineKeyboardMarkup(new[]
@@ -299,30 +283,46 @@ public class UserBotService : IUserBotService
     }
     
     
-    public async Task HandleTestAsync(long chatId, int topicId, CancellationToken cancellationToken)
+    public async Task HandleTestAsync(long chatId, int blockId, CancellationToken cancellationToken)
     {
-        // Получаем тест для указанной темы
-        var test = await _testService.GetTestByTopicIdAsync(topicId);
-        
+        var test = await _testRepository.GetByBlockIdAsync(blockId);
+    
         if (test == null)
         {
-            // Если тест не найден, уведомляем пользователя
-            await _botClient.SendTextMessageAsync(chatId, "Тест не найден для данной темы.", cancellationToken: cancellationToken);
+            await _botClient.SendTextMessageAsync(chatId, "❌ Тест не найден для этого блока.", cancellationToken: cancellationToken);
             return;
         }
 
-        // Сохраняем информацию о том, что пользователь начал тест
-        await _testService.StartTestAsync(chatId, test.Id);
+        try
+        {
+            await _testService.StartTestAsync(chatId, test.Id);
+            await _botClient.SendTextMessageAsync(chatId, "Тест начался!");
+        }
+        catch (InvalidOperationException ex)
+        {
+            await _botClient.SendTextMessageAsync(chatId, "Вы уже проходили этот тест. Повторное прохождение невозможно.");
+            return;
+        }
+        catch (Exception ex)
+        {
+            // логирование желательно
+            await _botClient.SendTextMessageAsync(chatId, "Произошла ошибка при запуске теста.");
+            return;
+        }
 
-        // Отправляем первый вопрос
         var firstQuestion = test.Questions.First();
-        var options = string.Join("\n", firstQuestion.Options.Select((opt, index) => $"{index + 1}. {opt.OptionText}"));
-        var questionText = $"{firstQuestion.QuestionText}\n\n{options}";
+        var keyboard = new InlineKeyboardMarkup(firstQuestion.Options.Select((opt, index) =>
+            InlineKeyboardButton.WithCallbackData(opt.OptionText, $"answer_{index}")
+        ));
 
-        // Отправляем первый вопрос пользователю
-        await _botClient.SendTextMessageAsync(chatId, questionText, cancellationToken: cancellationToken);
+        await _botClient.SendTextMessageAsync(
+            chatId,
+            
+            firstQuestion.QuestionText,
+            replyMarkup: keyboard,
+            cancellationToken: cancellationToken);
     }
-
+        
     public async Task HandleAnswerAsync(long chatId, int selectedIndex, CancellationToken cancellationToken)
     {
         // Получаем текущий тест для пользователя
@@ -349,14 +349,16 @@ public class UserBotService : IUserBotService
         await _botClient.SendTextMessageAsync(chatId, resultMessage, cancellationToken: cancellationToken);
 
         // Проверяем, есть ли следующий вопрос
-        if (userTest.HasNextQuestion)
+        if (await _testService.HasNextQuestionAsync(chatId))
         {
-            // Если есть следующий вопрос, отправляем его
-            var nextQuestion = userTest.GetNextQuestion();
-            var nextOptions = string.Join("\n", nextQuestion.Options.Select((opt, index) => $"{index + 1}. {opt.OptionText}"));
-            var nextQuestionText = $"{nextQuestion.QuestionText}\n\n{nextOptions}";
+            // Если есть следующий вопрос, отправляем его с кнопками
+            var nextQuestion = await _testService.GetNextQuestionAsync(chatId);
+            var keyboard = new InlineKeyboardMarkup(nextQuestion.Options.Select((opt, index) => 
+                InlineKeyboardButton.WithCallbackData(opt.OptionText, $"answer_{index}")
+            ));
 
-            await _botClient.SendTextMessageAsync(chatId, nextQuestionText, cancellationToken: cancellationToken);
+            var nextQuestionText = $"{nextQuestion.QuestionText}";
+            await _botClient.SendTextMessageAsync(chatId, nextQuestionText, replyMarkup: keyboard, cancellationToken: cancellationToken);
         }
         else
         {

@@ -24,16 +24,29 @@ public class TestService : ITestService
 
     public async Task StartTestAsync(long chatId, int testId)
     {
-        var userTest = new UserTest
-        {
-            ChatId = chatId,
-            TestId = testId,
-            CurrentQuestionIndex = 0, // Начинаем с первого вопроса
-            IsCompleted = false
-        };
+        var existingTest = await _userTestRepository.GetByChatIdAndTestIdAsync(chatId, testId);
 
-        await _userTestRepository.AddAsync(userTest);
+        if (existingTest != null && existingTest.IsCompleted)
+        {
+            // Пользователь уже прошёл этот тест
+            throw new InvalidOperationException("Вы уже проходили этот тест.");
+        }
+
+        if (existingTest == null)
+        {
+            var userTest = new UserTest
+            {
+                ChatId = chatId,
+                TestId = testId,
+                CurrentQuestionIndex = 0,
+                IsCompleted = false
+            };
+
+            await _userTestRepository.AddAsync(userTest);
+        }
+        // Иначе пользователь начал, но не завершил — пусть продолжает с текущего места
     }
+
 
     // Получить тест пользователя
     public async Task<UserTest?> GetUserTestAsync(long chatId)
@@ -55,13 +68,11 @@ public class TestService : ITestService
             SelectedIndex = selectedIndex,
             IsCorrect = isCorrect
         };
-
+    
         await _userTestRepository.SaveAnswerAsync(answer);
-
-        var test = await _testRepository.GetByIdAsync(userTest.TestId); // получаем объект
         
         // Обновляем статус завершенности теста
-        if (userTest.CurrentQuestionIndex + 1 >= test.Questions.Count)
+        if (userTest.CurrentQuestionIndex + 1 >= userTest.Test.Questions.Count)
         {
             userTest.IsCompleted = true;
         }
@@ -72,27 +83,59 @@ public class TestService : ITestService
 
         await _userTestRepository.UpdateAsync(userTest);
     }
-
-    // Проверка, есть ли следующий вопрос
     public async Task<bool> HasNextQuestionAsync(long chatId)
     {
         var userTest = await _userTestRepository.GetByChatIdAsync(chatId);
-        var test = await _testRepository.GetByIdAsync(userTest.TestId); // получаем объект
-        return userTest != null && userTest.CurrentQuestionIndex < test.Questions.Count - 1;
+        if (userTest == null)
+        {
+            return false;  // Если сессия не найдена
+        }
+
+        if (userTest.Test == null)
+        {
+            return false;
+        }
+
+        // Логируем количество вопросов
+        var questions = userTest.Test.Questions.OrderBy(q => q.Id).ToList();
+
+        // Проверяем, есть ли следующий вопрос
+        bool hasNext = userTest.CurrentQuestionIndex <= questions.Count - 1;
+
+        if (userTest.IsCompleted == true)
+        {
+            hasNext = false;
+        }
+
+        return hasNext;
     }
 
-    // Получить следующий вопрос
     public async Task<TestQuestion> GetNextQuestionAsync(long chatId)
     {
         var userTest = await _userTestRepository.GetByChatIdAsync(chatId);
-        var test = await _testRepository.GetByIdAsync(userTest.TestId); // получаем объект
-
-        if (userTest == null || userTest.CurrentQuestionIndex >= test.Questions.Count)
+        if (userTest == null)
         {
-            throw new InvalidOperationException("Тест завершен или не найден.");
+            throw new InvalidOperationException("Тест пользователя не найден.");
         }
 
-        var questions = test.Questions.ToList();
-        return questions[userTest.CurrentQuestionIndex + 1];
+        if (userTest.Test == null)
+        {
+            throw new InvalidOperationException("Тест не найден.");
+        }
+
+        // Логируем количество вопросов
+        var questions = userTest.Test.Questions.OrderBy(q => q.Id).ToList();
+
+        // Проверяем, есть ли следующий вопрос
+        if (userTest.CurrentQuestionIndex >= questions.Count)
+        {
+            throw new InvalidOperationException("Тест завершен или не найден следующий вопрос.");
+        }
+
+        // Логируем следующий вопрос
+        var nextQuestion = questions[userTest.CurrentQuestionIndex];
+
+        // Возвращаем следующий вопрос
+        return nextQuestion;
     }
 }

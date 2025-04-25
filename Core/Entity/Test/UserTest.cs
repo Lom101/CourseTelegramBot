@@ -19,20 +19,6 @@ public class UserTest
 
     // Ответы пользователя на вопросы этого теста
     public List<UserTestAnswer> Answers { get; set; } = new();
-    
-    // Проверяет, есть ли следующий вопрос
-    public bool HasNextQuestion => CurrentQuestionIndex + 1 < Test.Questions.Count;
-
-    // Возвращает следующий вопрос
-    public TestQuestion GetNextQuestion()
-    {
-        if (!HasNextQuestion)
-        {
-            throw new InvalidOperationException("Нет следующего вопроса.");
-        }
-
-        return Test.Questions.ElementAt(CurrentQuestionIndex + 1);  // Получаем следующий вопрос
-    }
 }
 
 public class UserTestAnswer
