@@ -345,6 +345,16 @@ namespace Infrastructure.Data
                     },
                     new User
                     {
+                        PhoneNumber = "+79033883307",
+                        Email = "123@mail.ru",
+                        FullName = "Куколка",
+                        RegistrationDate = DateTime.UtcNow,
+                        LastActivity = DateTime.UtcNow,
+                        IsBlocked = false,
+                        IsAdmin = false
+                    },
+                    new User
+                    {
                         PhoneNumber = "+79997654321",
                         Email = "admin@mail.ru",
                         FullName = "Админов Админ Админович",

@@ -177,31 +177,6 @@ public class UserBotService : IUserBotService
         
         switch (data)
         {
-           
-            case "blocks":
-                await ShowBlocksAsync(chatId, cancellationToken);
-                break;
-
-            case var block when block.StartsWith("block_"):
-                var blockId = int.Parse(block.Split('_')[1]);
-                await ShowTopicsAsync(chatId, blockId, cancellationToken);
-                break;
-            
-            case var topic when topic.StartsWith("topic_completed_"):
-                var topicId = int.Parse(topic.Split('_')[2]);
-                await UpdateTopicProgress(chatId, topicId, cancellationToken);
-                break;
-
-            case var topic when topic.StartsWith("topic_"):
-                 topicId = int.Parse(topic.Split('_')[1]);
-                await ShowTopicDetailsAsync(chatId, topicId, cancellationToken);
-                break;
-            
-            case var test when test.StartsWith("test_"):
-                var blockIdForTest = int.Parse(test.Split('_')[1]);
-                await HandleTestAsync(chatId, blockIdForTest, cancellationToken); // добавляем обработку теста
-                break;
-            
             case var answer when answer.StartsWith("answer_"):
                 var parts = answer.Split('_');
                 var questionIndex = int.Parse(parts[1]); // не нужно
@@ -232,6 +207,31 @@ public class UserBotService : IUserBotService
                     await _botClient.SendTextMessageAsync(chatId, "❌ У вас нет активного теста.", cancellationToken: cancellationToken);
                 }
                 break;
+           
+            case "blocks":
+                await ShowBlocksAsync(chatId, cancellationToken);
+                break;
+
+            case var block when block.StartsWith("block_"):
+                var blockId = int.Parse(block.Split('_')[1]);
+                await ShowTopicsAsync(chatId, blockId, cancellationToken);
+                break;
+            
+            case var topic when topic.StartsWith("topic_completed_"):
+                var topicId = int.Parse(topic.Split('_')[2]);
+                await UpdateTopicProgress(chatId, topicId, cancellationToken);
+                break;
+
+            case var topic when topic.StartsWith("topic_"):
+                 topicId = int.Parse(topic.Split('_')[1]);
+                await ShowTopicDetailsAsync(chatId, topicId, cancellationToken);
+                break;
+            
+            case var test when test.StartsWith("test_"):
+                var blockIdForTest = int.Parse(test.Split('_')[1]);
+                await HandleTestAsync(chatId, blockIdForTest, cancellationToken); // добавляем обработку теста
+                break;
+            
             
             case "support":
                 await ShowSupportInfoAsync(chatId, cancellationToken);
@@ -304,7 +304,15 @@ public class UserBotService : IUserBotService
                         return question.Options[selectedIndex].Id == question.Options[question.CorrectIndex].Id;
                     })
                     .Count(isCorrect => isCorrect);
+                
+                var user = await _userRepository.GetByChatIdAsync(chatId);
+                var userId = user.Id;
+                var block = await _blockRepository.GetByTestIdAsync(session.Test.Id);
+                var blockId = block.Id;
 
+                // Проверяем, все ли темы в блоке пройдены, и если да, помечаем блок как завершённый
+                await _userProgressRepository.MarkBlockAsCompletedAsync(userId, blockId);
+                
                 // Выводим, что тест завершен
                 await _botClient.SendTextMessageAsync(
                         chatId, 
@@ -338,6 +346,8 @@ public class UserBotService : IUserBotService
         // добываем index среди ответов на вопрос - текущего ответа
         _testSessionService.TryGetSession(chatId, out var session);
         var questionIndex = session.Test.Questions.IndexOf(question);
+        
+        // TODO: не отправлять ненужные поля answer_{questionIndex}_{question.Id}_{optionIndex}_{option.Id}
         
         var buttons = question.Options
             .Select((option, optionIndex) => new InlineKeyboardButton
@@ -451,7 +461,7 @@ public class UserBotService : IUserBotService
         {
             // Получаем прогресс пользователя по данному блоку
             var blockProgress = await _userProgressRepository.GetBlockCompletionProgressAsync(userId, block.Id);
-            var blockStatus = blockProgress?.IsBlockCompleted == true ? "✅ Пройден" : "";
+            var blockStatus = blockProgress?.IsBlockCompleted == true ? "✅" : "";
 
             // Добавляем кнопку с статусом
             buttons.Add(InlineKeyboardButton.WithCallbackData($"{block.Title} {blockStatus}", $"block_{block.Id}"));
@@ -492,6 +502,14 @@ public class UserBotService : IUserBotService
             // Добавляем кнопку с статусом
             buttons.Add(InlineKeyboardButton.WithCallbackData($"{topic.Title} {topicStatus}", $"topic_{topic.Id}"));
         }
+
+        // Проверяем, был ли пройден уже тест, чтобы показать кнопку пройти тест еще раз
+        var isTestCompleted = await _userProgressRepository.IsTestCompletedAsync(chatId, blockId);
+        if (isTestCompleted)
+        {
+            buttons.Add(InlineKeyboardButton.WithCallbackData("🔁 Перепройти тест", $"test_{blockId}"));
+        }
+
 
         var keyboard = new InlineKeyboardMarkup(buttons.Chunk(1));
         await _botClient.SendTextMessageAsync(
