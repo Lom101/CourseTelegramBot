@@ -1,6 +1,6 @@
-﻿using Backend.Dto.Auth.Response;
+﻿using Backend.Dto.Auth.Request;
+using Backend.Dto.Auth.Response;
 using Backend.Service;
-using Core.Dto.Auth.Request;
 using Core.Interfaces;
 using Infrastructure.Helpers;
 using Microsoft.AspNetCore.Authorization;

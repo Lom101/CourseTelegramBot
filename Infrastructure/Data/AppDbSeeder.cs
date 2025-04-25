@@ -1,5 +1,6 @@
 ﻿using Core.Entity;
 using Core.Entity.AnyContent;
+using Core.Entity.Progress;
 using Core.Entity.Test;
 using Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
@@ -14,9 +15,9 @@ namespace Infrastructure.Data
             await context.Database.MigrateAsync();
 
             // Проверяем, если тесты и блоки не созданы
-            if (!context.Tests.Any())
+            if (!context.FinalTests.Any())
             {
-                var test = new Test
+                var test = new FinalTest
                 {
                     Title = "Тест первой главе"
                 };
@@ -48,7 +49,7 @@ namespace Infrastructure.Data
                 test.Questions.Add(question1);
                 test.Questions.Add(question2);
 
-                context.Tests.Add(test);
+                context.FinalTests.Add(test);
                 context.SaveChanges();
             }
         
@@ -59,7 +60,7 @@ namespace Infrastructure.Data
                 var block1 = new Block
                 {
                     Title = "Блок 1",
-                    TestId = 1,
+                    FinalTestId = 1,
                     Topics = new List<Topic>
                     {
                         new Topic
@@ -141,7 +142,7 @@ namespace Infrastructure.Data
                 var course2 = new Block()
                 {
                     Title = "Блок 2",
-                    TestId = 1,
+                    FinalTestId = 1,
                     Topics = new List<Topic>
                     {
                         new Topic
@@ -205,7 +206,7 @@ namespace Infrastructure.Data
                 var course3 = new Block
                 {
                     Title = "Блок 3",
-                    TestId = 1,
+                    FinalTestId = 1,
                     Topics = new List<Topic>
                     {
                         new Topic
@@ -280,7 +281,7 @@ namespace Infrastructure.Data
                 var course4 = new Block()
                 {
                     Title = "Блок 4",
-                    TestId = 1,
+                    FinalTestId = 1,
                     Topics = new List<Topic>
                     {
                         new Topic

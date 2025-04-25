@@ -1,4 +1,4 @@
-﻿namespace Backend.Dto.Book;
+﻿namespace Backend.Dto.Book.Response;
 
 public class GetBookContentResponse
 {

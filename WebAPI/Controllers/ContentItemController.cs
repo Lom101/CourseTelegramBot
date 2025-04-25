@@ -1,19 +1,13 @@
-﻿using Core.Entity;
-using Core.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Backend.Dto;
-using Backend.Dto.Audio;
-using Backend.Dto.Audio.Response;
-using Backend.Dto.Book;
+﻿using Backend.Dto;
+using Backend.Dto.Audio.Request;
+using Backend.Dto.Book.Request;
+using Backend.Dto.Image.Request;
 using Backend.Dto.WordFile.Request;
 using Backend.Mapper;
 using Backend.Mapper.Service;
-using Backend.Service;
 using Backend.Service.Interfaces;
-using Core.Entity.AnyContent;
+using Core.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
 {

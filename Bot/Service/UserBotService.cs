@@ -1,10 +1,8 @@
-﻿using System.Collections.Concurrent;
-using Bot.Helpers.Session;
-using Bot.Helpers.Session.Interface;
-using Bot.Helpers.Test.Interface;
+﻿using Bot.Helpers.TestSession.Interface;
+using Bot.Helpers.UserSession;
+using Bot.Helpers.UserSession.Interface;
 using Bot.Service.Interfaces;
-using Core.Entity;
-using Core.Entity.AnyContent;
+using Core.Entity.Test;
 using Core.Interfaces;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
@@ -20,10 +18,10 @@ public class UserBotService : IUserBotService
     private readonly IBlockRepository _blockRepository;
     private readonly ITopicRepository _topicRepository;
     private readonly IUserProgressRepository _userProgressRepository;
-    private readonly ITestRepository _testRepository;
-    private readonly ITestService _testService;
+    private readonly IFinalTestRepository _testRepository;
     private readonly ILogger<UserBotService> _logger;
-    private readonly IUserSessionService _sessionService;
+    private readonly IUserSessionService _userSessionService;
+    private readonly IFinalTestSessionService _testSessionService;
 
     public UserBotService(
         ITelegramBotClient botClient,
@@ -31,10 +29,10 @@ public class UserBotService : IUserBotService
         IBlockRepository blockRepository,
         ITopicRepository topicRepository,
         IUserProgressRepository userProgressRepository,
-        ITestRepository testRepository,
-        ITestService testService,
+        IFinalTestRepository testRepository,
         ILogger<UserBotService> logger,
-        IUserSessionService sessionService)
+        IUserSessionService userSessionService,
+        IFinalTestSessionService testSessionService)
     {
         _botClient = botClient;
         _userRepository = userRepository;
@@ -42,10 +40,12 @@ public class UserBotService : IUserBotService
         _topicRepository = topicRepository;
         _userProgressRepository = userProgressRepository;
         _testRepository = testRepository;
-        _testService = testService;
         _logger = logger;
-        _sessionService = sessionService;
+        _userSessionService = userSessionService;
+        _testSessionService = testSessionService; 
     }
+    
+    # region Generic
     
     public async Task HandleMessageAsync(Message message, CancellationToken cancellationToken)
     {
@@ -75,6 +75,91 @@ public class UserBotService : IUserBotService
         }
     }
     
+    private async Task<bool> HandleUserStateAsync(long chatId, Message message, CancellationToken cancellationToken)
+    {
+        var messageText = message.Text;
+            
+        if (!string.IsNullOrEmpty(message.Text) && message.Text.StartsWith("/"))
+        {
+            _userSessionService.Clear(chatId); // Сброс состояния
+            return false;
+        }
+        
+        if (messageText == "❌ Отменить регистрацию")
+        {
+            _userSessionService.Clear(chatId);
+
+            await _botClient.SendTextMessageAsync(
+                chatId,
+                "🚫 Регистрация отменена.",
+                replyMarkup: new ReplyKeyboardRemove(),
+                cancellationToken: cancellationToken);
+            if (await _userRepository.IsAuthorizedAsync(chatId))
+            {
+                ShowWelcomeMenuAsync(chatId, cancellationToken);
+            }
+            return true;
+        }
+        
+        var session = _userSessionService.GetOrCreate(chatId);
+        
+        switch (session.State)
+        {
+            case UserState.AwaitingFullName:
+                // Проверка валидация ФИО
+                if (string.IsNullOrEmpty(messageText) || !IsValidFullName(messageText))
+                {
+                    await _botClient.SendTextMessageAsync(
+                        chatId, 
+                        "❗Введите корректные данные ФИО", 
+                        cancellationToken: cancellationToken);
+                    return true;
+                }
+                
+                session.FullName = messageText;
+                session.State = UserState.AwaitingPhone;
+                await RequestPhoneNumberAsync(chatId, cancellationToken);
+                return true;
+            
+            case UserState.AwaitingPhone:
+                // проверяем, отправил ли пользователь свой контакт
+                if (message.Contact != null && message.Contact.UserId == message.From.Id)
+                {
+                    await HandlePhoneNumberAsync(message, session, cancellationToken);
+                    return true;
+                }
+
+                // Если пользователь пытается ввести телефон вручную или отправил не свой контакт
+                await _botClient.SendTextMessageAsync(
+                    chatId, 
+                    "📱 Отправьте номер телефона через кнопку ниже 👇",
+                    cancellationToken: cancellationToken);
+                return true;
+        }
+        return false;
+    }
+    
+    private async Task<bool> HandleCommandAsync(long chatId, string messageText, CancellationToken cancellationToken)
+    {
+        if (!messageText.StartsWith("/"))
+            return false; // не команда
+        
+        switch (messageText)
+        {
+            case "/start":
+                _userSessionService.Clear(chatId); // сбрасываем старое состояние
+                var session = _userSessionService.GetOrCreate(chatId); // получаем новую пустую сессию
+                await ProcessStartCommandAsync(chatId, session, cancellationToken);
+                return true;
+            
+            default:
+                await _botClient.SendTextMessageAsync(
+                    chatId,
+                    "🤔 Не понимаю эту команду. Попробуйте /start.",
+                    cancellationToken: cancellationToken);
+                return true;
+        }
+    }
     
     public async Task HandleCallbackQueryAsync(CallbackQuery callbackQuery, CancellationToken cancellationToken)
     {
@@ -105,95 +190,180 @@ public class UserBotService : IUserBotService
             
             case var test when test.StartsWith("test_"):
                 var blockIdForTest = int.Parse(test.Split('_')[1]);
-                await HandleTestAsync(chatId, blockIdForTest, cancellationToken);
+                await HandleTestAsync(chatId, blockIdForTest, cancellationToken); // добавляем обработку теста
                 break;
             
             case var answer when answer.StartsWith("answer_"):
                 var selectedIndex = int.Parse(answer.Split('_')[1]);
-                await HandleAnswerAsync(chatId, selectedIndex, cancellationToken);
+                await HandleAnswerAsync(chatId, selectedIndex, cancellationToken); // обработка ответа на вопрос
                 break;
+
             
             case "support":
-                await _botClient.SendTextMessageAsync(
-                    chatId,
-                    "🛠 Связь с техподдержкой:\nНапишите ваш вопрос сюда - @BarsBotHelper, и мы постараемся помочь.",
-                    cancellationToken: cancellationToken);
+                await ShowSupportInfoAsync(chatId, cancellationToken);
                 break;
-            
-            case "faq":
-                var faqText = "❓ *Часто задаваемые вопросы:*\n\n" +
-                              "1️⃣ *Как проходит обучение?*\n" +
-                              "Обучение проходит онлайн, с доступом к материалам через этого бота.\n\n" +
-                              "2️⃣ *Что делать, если возникли проблемы?*\n" +
-                              "Обратитесь в техподдержку через раздел 🛠 Поддержка.\n\n" +
-                              "3️⃣ *Можно ли проходить курс в удобное время?*\n" +
-                              "Да! Вы можете проходить темы тогда, когда вам удобно.";
 
-                await _botClient.SendTextMessageAsync(
-                    chatId,
-                    faqText,
-                    parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
-                    cancellationToken: cancellationToken);
+            case "faq":
+                await ShowFaqInfoAsync(chatId, cancellationToken);
                 break;
         }
         
-        // Удаляем кнопку после нажатия 
         //await _botClient.DeleteMessageAsync(chatId, messageId);
         await _botClient.AnswerCallbackQueryAsync(callbackQuery.Id, cancellationToken: cancellationToken);
     }
-
-    private async Task UpdateTopicProgress(long chatId, int topicId, CancellationToken cancellationToken)
+    
+    # endregion
+    
+    # region test session
+    
+    // код работы с тестами
+    private async Task HandleTestAsync(long chatId, int blockId, CancellationToken cancellationToken)
     {
-        // ✅ Обновляем прогресс как пройденную тему
-        var user = await _userRepository.GetByChatIdAsync(chatId);
-        await _userProgressRepository.MarkTopicCompletedAsync(user.Id, topicId);
-
-        // ⬇️ Проверка: последняя ли это тема?
-        var topic = await _topicRepository.GetByIdAsync(topicId);
-        var allTopics = await _topicRepository.GetByBlockIdAsync(topic.BlockId);
-        var completedTopics = await _userProgressRepository.GetCompletedTopicIdsAsync(user.Id, topic.BlockId);
-
-        var isLastTopic = allTopics.All(t => completedTopics.Contains(t.Id));
-        if (isLastTopic)
+        var test = await _testRepository.GetByBlockIdAsync(blockId);
+        if (test == null)
         {
-            var test = await _testRepository.GetByBlockIdAsync(topic.BlockId);
-            if (test != null)
-            {
-                var keyboard = new InlineKeyboardMarkup(new[]
-                {
-                    InlineKeyboardButton.WithCallbackData("🧪 Пройти тест", $"test_{topic.BlockId}")
-                });
+            await _botClient.SendTextMessageAsync(chatId, "❌ Тест для этого блока не найден.", cancellationToken: cancellationToken);
+            return;
+        }
 
+        // Начинаем сессию теста
+        _testSessionService.StartSession(chatId, test);
+
+        var currentQuestion = test.Questions.First();
+        await _botClient.SendTextMessageAsync(
+            chatId,
+            currentQuestion.QuestionText,
+            replyMarkup: GenerateAnswerButtons(currentQuestion),
+            cancellationToken: cancellationToken);
+    }
+    
+    private async Task HandleAnswerAsync(long chatId, int selectedIndex, CancellationToken cancellationToken)
+    {
+        if (_testSessionService.TryGetSession(chatId, out var session))
+        {
+            var currentQuestion = session.Test.Questions[session.CurrentQuestionIndex];
+
+            // Сохраняем ответ
+            _testSessionService.SaveAnswer(chatId, selectedIndex);
+
+            if (session.CurrentQuestionIndex >= session.Test.Questions.Count)
+            {
+                // Если тест завершен, сохраняем результаты в БД
                 await _botClient.SendTextMessageAsync(
                     chatId,
-                    "🎉 Вы прошли все темы! Теперь можно пройти тест:",
-                    replyMarkup: keyboard,
+                    "🎉 Поздравляем, тест завершен! Ваш результат: [тут может быть логика вывода результатов].",
+                    cancellationToken: cancellationToken);
+
+                // Закрыть сессию
+                _testSessionService.ClearSession(chatId);
+            }
+            else
+            {
+                // Переходим к следующему вопросу
+                var nextQuestion = session.Test.Questions[session.CurrentQuestionIndex];
+                await _botClient.SendTextMessageAsync(
+                    chatId,
+                    nextQuestion.QuestionText,
+                    replyMarkup: GenerateAnswerButtons(nextQuestion),
                     cancellationToken: cancellationToken);
             }
         }
     }
     
-    private async Task ShowWelcomeMenuAsync(long chatId, CancellationToken cancellationToken)
+    private InlineKeyboardMarkup GenerateAnswerButtons(TestQuestion question)
     {
-        var keyboard = new InlineKeyboardMarkup(new[]
-        {
-            new[]
+        var buttons = question.Options.Select((option, index) => InlineKeyboardButton.WithCallbackData(option.OptionText, $"answer_{index}")).ToArray();
+        return new InlineKeyboardMarkup(buttons);
+    }
+    
+    # endregion test session
+    
+    
+    # region Handlers
+
+    private async Task ProcessStartCommandAsync(long chatId, UserSession session, CancellationToken cancellationToken)
+    {
+        await _botClient.SendTextMessageAsync(chatId, "Привет, я бот от компании Bars групп, который будет обучать тебя на курсе 'Тим Лид' 👋", cancellationToken: cancellationToken);
+        
+        // выставляем новое состояние - ждем ФИО
+        session.State = UserState.AwaitingFullName;
+        
+        await _botClient.SendTextMessageAsync(chatId,
+            "✍️ Введите свои ФИО (например: Иванов Иван Иванович):",
+            replyMarkup: new ReplyKeyboardMarkup(new[]
             {
-                InlineKeyboardButton.WithCallbackData("📚 Начать обучение", "blocks"),
-                InlineKeyboardButton.WithCallbackData("❓ Вопросы", "faq")
+                new[] { new KeyboardButton("❌ Отменить регистрацию") }
+            })
+            {
+                ResizeKeyboard = true,
+                OneTimeKeyboard = true
             },
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("🛠 Поддержка", "support")
-            }
-        });
+            cancellationToken: cancellationToken);
+    }
+    
+    private async Task HandlePhoneNumberAsync(Message message, UserSession session, CancellationToken cancellationToken)
+    {
+        var chatId = message.Chat.Id;
+        var phoneNumber = message.Contact.PhoneNumber;
+
+        var user = await _userRepository.GetByPhoneNumberAsync(phoneNumber);
+
+        if (user is null)
+        {
+            await _botClient.SendTextMessageAsync(
+                chatId,
+                "🚫 Доступ запрещён. Ваш номер не найден в базе зарегистрированных пользователей.",
+                replyMarkup: new ReplyKeyboardRemove(),
+                cancellationToken: cancellationToken);
+
+            _userSessionService.Clear(chatId);
+            return;
+        }
+
+        user.ChatId = chatId;
+        user.FullName = session.FullName;
+        user.LastActivity = DateTime.UtcNow;
+        await _userRepository.UpdateAsync(user);
+
+        _userSessionService.Clear(chatId);
 
         await _botClient.SendTextMessageAsync(
             chatId,
-            "Выберите интересующий раздел:",
+            $"✅ Добро пожаловать, {user.FullName}!\nВы успешно авторизованы.",
+            replyMarkup: new ReplyKeyboardRemove(),
+            cancellationToken: cancellationToken);
+        
+        ShowWelcomeMenuAsync(chatId, cancellationToken);
+    }
+
+    private async Task RequestPhoneNumberAsync(long chatId, CancellationToken cancellationToken)
+    {
+        var keyboard = new ReplyKeyboardMarkup(new[]
+        {
+            new[]
+            {
+                KeyboardButton.WithRequestContact("📱 Отправить номер телефона")
+            },
+            new[]
+            {
+                new KeyboardButton("❌ Отменить регистрацию")
+            }
+        })
+        {
+            ResizeKeyboard = true,
+            OneTimeKeyboard = true
+        };
+
+        await _botClient.SendTextMessageAsync(
+            chatId,
+            "Отлично! Теперь отправьте номер телефона, используя кнопку ниже:",
             replyMarkup: keyboard,
             cancellationToken: cancellationToken);
     }
+    
+    # endregion
+    
+    # region Send Messages
     
     private async Task ShowBlocksAsync(long chatId, CancellationToken cancellationToken)
     {
@@ -282,264 +452,92 @@ public class UserBotService : IUserBotService
             cancellationToken: cancellationToken);
     }
     
-    
-    public async Task HandleTestAsync(long chatId, int blockId, CancellationToken cancellationToken)
+    private async Task ShowWelcomeMenuAsync(long chatId, CancellationToken cancellationToken)
     {
-        var test = await _testRepository.GetByBlockIdAsync(blockId);
-    
-        if (test == null)
-        {
-            await _botClient.SendTextMessageAsync(chatId, "❌ Тест не найден для этого блока.", cancellationToken: cancellationToken);
-            return;
-        }
-
-        try
-        {
-            await _testService.StartTestAsync(chatId, test.Id);
-            await _botClient.SendTextMessageAsync(chatId, "Тест начался!");
-        }
-        catch (InvalidOperationException ex)
-        {
-            await _botClient.SendTextMessageAsync(chatId, "Вы уже проходили этот тест. Повторное прохождение невозможно.");
-            return;
-        }
-        catch (Exception ex)
-        {
-            // логирование желательно
-            await _botClient.SendTextMessageAsync(chatId, "Произошла ошибка при запуске теста.");
-            return;
-        }
-
-        var firstQuestion = test.Questions.First();
-        var keyboard = new InlineKeyboardMarkup(firstQuestion.Options.Select((opt, index) =>
-            InlineKeyboardButton.WithCallbackData(opt.OptionText, $"answer_{index}")
-        ));
-
-        await _botClient.SendTextMessageAsync(
-            chatId,
-            
-            firstQuestion.QuestionText,
-            replyMarkup: keyboard,
-            cancellationToken: cancellationToken);
-    }
-        
-    public async Task HandleAnswerAsync(long chatId, int selectedIndex, CancellationToken cancellationToken)
-    {
-        // Получаем текущий тест для пользователя
-        var userTest = await _testService.GetUserTestAsync(chatId);
-
-        if (userTest == null)
-        {
-            // Если нет текущего теста, уведомляем пользователя
-            await _botClient.SendTextMessageAsync(chatId, "Вы не начали тест.", cancellationToken: cancellationToken);
-            return;
-        }
-
-        // Получаем текущий вопрос
-        var currentQuestion = userTest.Test.Questions.ElementAt(userTest.CurrentQuestionIndex); // Используем ElementAt для ICollection
-
-        // Проверяем, правильный ли ответ
-        bool isCorrect = selectedIndex == currentQuestion.CorrectIndex;
-
-        // Сохраняем ответ пользователя и обновляем прогресс
-        await _testService.SaveUserAnswerAsync(chatId, currentQuestion.Id, selectedIndex, isCorrect);
-
-        // Отправляем результат ответа
-        var resultMessage = isCorrect ? "Правильный ответ!" : "Неправильный ответ.";
-        await _botClient.SendTextMessageAsync(chatId, resultMessage, cancellationToken: cancellationToken);
-
-        // Проверяем, есть ли следующий вопрос
-        if (await _testService.HasNextQuestionAsync(chatId))
-        {
-            // Если есть следующий вопрос, отправляем его с кнопками
-            var nextQuestion = await _testService.GetNextQuestionAsync(chatId);
-            var keyboard = new InlineKeyboardMarkup(nextQuestion.Options.Select((opt, index) => 
-                InlineKeyboardButton.WithCallbackData(opt.OptionText, $"answer_{index}")
-            ));
-
-            var nextQuestionText = $"{nextQuestion.QuestionText}";
-            await _botClient.SendTextMessageAsync(chatId, nextQuestionText, replyMarkup: keyboard, cancellationToken: cancellationToken);
-        }
-        else
-        {
-            // Если тест завершен, отправляем итоговый результат
-            await _botClient.SendTextMessageAsync(chatId, "Тест завершен! Спасибо за участие.", cancellationToken: cancellationToken);
-        }
-    }
-
-    
-    private async Task<bool> HandleUserStateAsync(long chatId, Message message, CancellationToken cancellationToken)
-    {
-        var messageText = message.Text;
-            
-        if (!string.IsNullOrEmpty(message.Text) && message.Text.StartsWith("/"))
-        {
-            _sessionService.Clear(chatId); // Сброс состояния
-            return false;
-        }
-        
-        if (messageText == "❌ Отменить регистрацию")
-        {
-            _sessionService.Clear(chatId);
-
-            await _botClient.SendTextMessageAsync(
-                chatId,
-                "🚫 Регистрация отменена.",
-                replyMarkup: new ReplyKeyboardRemove(),
-                cancellationToken: cancellationToken);
-            if (await _userRepository.IsAuthorizedAsync(chatId))
-            {
-                ShowWelcomeMenuAsync(chatId, cancellationToken);
-            }
-            return true;
-        }
-        
-        var session = _sessionService.GetOrCreate(chatId);
-        
-        switch (session.State)
-        {
-            case UserState.AwaitingFullName:
-                // Проверка валидация ФИО
-                if (string.IsNullOrEmpty(messageText) || !IsValidFullName(messageText))
-                {
-                    await _botClient.SendTextMessageAsync(
-                        chatId, 
-                        "❗Введите корректные данные ФИО", 
-                        cancellationToken: cancellationToken);
-                    return true;
-                }
-                
-                session.FullName = messageText;
-                session.State = UserState.AwaitingPhone;
-                await RequestPhoneNumberAsync(chatId, cancellationToken);
-                return true;
-            
-            case UserState.AwaitingPhone:
-                // проверяем, отправил ли пользователь свой контакт
-                if (message.Contact != null && message.Contact.UserId == message.From.Id)
-                {
-                    await HandlePhoneNumberAsync(message, session, cancellationToken);
-                    return true;
-                }
-
-                // Если пользователь пытается ввести телефон вручную или отправил не свой контакт
-                await _botClient.SendTextMessageAsync(
-                    chatId, 
-                    "📱 Отправьте номер телефона через кнопку ниже 👇",
-                    cancellationToken: cancellationToken);
-                return true;
-        }
-        return false;
-    }
-
-    private async Task ProcessStartCommandAsync(long chatId, UserSession session, CancellationToken cancellationToken)
-    {
-        await _botClient.SendTextMessageAsync(chatId, "Привет, я бот от компании Bars групп, который будет обучать тебя на курсе 'Тим Лид' 👋", cancellationToken: cancellationToken);
-        
-        // выставляем новое состояние - ждем ФИО
-        session.State = UserState.AwaitingFullName;
-        
-        await _botClient.SendTextMessageAsync(chatId,
-            "✍️ Введите свои ФИО (например: Иванов Иван Иванович):",
-            replyMarkup: new ReplyKeyboardMarkup(new[]
-            {
-                new[] { new KeyboardButton("❌ Отменить регистрацию") }
-            })
-            {
-                ResizeKeyboard = true,
-                OneTimeKeyboard = true
-            },
-            cancellationToken: cancellationToken);
-    }
-    
-    private async Task HandlePhoneNumberAsync(Message message, UserSession session, CancellationToken cancellationToken)
-    {
-        var chatId = message.Chat.Id;
-        var phoneNumber = message.Contact.PhoneNumber;
-
-        var user = await _userRepository.GetByPhoneNumberAsync(phoneNumber);
-
-        if (user is null)
-        {
-            await _botClient.SendTextMessageAsync(
-                chatId,
-                "🚫 Доступ запрещён. Ваш номер не найден в базе зарегистрированных пользователей.",
-                replyMarkup: new ReplyKeyboardRemove(),
-                cancellationToken: cancellationToken);
-
-            _sessionService.Clear(chatId);
-            return;
-        }
-
-        user.ChatId = chatId;
-        user.FullName = session.FullName;
-        user.LastActivity = DateTime.UtcNow;
-        await _userRepository.UpdateAsync(user);
-
-        _sessionService.Clear(chatId);
-
-        await _botClient.SendTextMessageAsync(
-            chatId,
-            $"✅ Добро пожаловать, {user.FullName}!\nВы успешно авторизованы.",
-            replyMarkup: new ReplyKeyboardRemove(),
-            cancellationToken: cancellationToken);
-        
-        ShowWelcomeMenuAsync(chatId, cancellationToken);
-    }
-
-    private async Task RequestPhoneNumberAsync(long chatId, CancellationToken cancellationToken)
-    {
-        var keyboard = new ReplyKeyboardMarkup(new[]
+        var keyboard = new InlineKeyboardMarkup(new[]
         {
             new[]
             {
-                KeyboardButton.WithRequestContact("📱 Отправить номер телефона")
+                InlineKeyboardButton.WithCallbackData("📚 Начать обучение", "blocks"),
+                InlineKeyboardButton.WithCallbackData("❓ Вопросы", "faq")
             },
             new[]
             {
-                new KeyboardButton("❌ Отменить регистрацию")
+                InlineKeyboardButton.WithCallbackData("🛠 Поддержка", "support")
             }
-        })
-        {
-            ResizeKeyboard = true,
-            OneTimeKeyboard = true
-        };
+        });
 
         await _botClient.SendTextMessageAsync(
             chatId,
-            "Отлично! Теперь отправьте номер телефона, используя кнопку ниже:",
+            "Выберите интересующий раздел:",
             replyMarkup: keyboard,
             cancellationToken: cancellationToken);
     }
     
-    private async Task<bool> HandleCommandAsync(long chatId, string messageText, CancellationToken cancellationToken)
+    private async Task ShowSupportInfoAsync(long chatId, CancellationToken cancellationToken)
     {
-        if (!messageText.StartsWith("/"))
-            return false; // не команда
-        
-        switch (messageText)
-        {
-            case "/start":
-                _sessionService.Clear(chatId); // сбрасываем старое состояние
-                var session = _sessionService.GetOrCreate(chatId); // получаем новую пустую сессию
-                await ProcessStartCommandAsync(chatId, session, cancellationToken);
-                return true;
-            
-            default:
-                await _botClient.SendTextMessageAsync(
-                    chatId,
-                    "🤔 Не понимаю эту команду. Попробуйте /start.",
-                    cancellationToken: cancellationToken);
-                return true;
-        }
+        await _botClient.SendTextMessageAsync(
+            chatId,
+            "🛠 Связь с техподдержкой:\nНапишите ваш вопрос сюда - @BarsBotHelper, и мы постараемся помочь.",
+            cancellationToken: cancellationToken);
     }
+
+    private async Task ShowFaqInfoAsync(long chatId, CancellationToken cancellationToken)
+    {
+        var faqText = "❓ *Часто задаваемые вопросы:*\n\n" +
+                      "1️⃣ *Как проходит обучение?*\n" +
+                      "Обучение проходит онлайн, с доступом к материалам через этого бота.\n\n" +
+                      "2️⃣ *Что делать, если возникли проблемы?*\n" +
+                      "Обратитесь в техподдержку через раздел 🛠 Поддержка.\n\n" +
+                      "3️⃣ *Можно ли проходить курс в удобное время?*\n" +
+                      "Да! Вы можете проходить темы тогда, когда вам удобно.";
+
+        await _botClient.SendTextMessageAsync(
+            chatId,
+            faqText,
+            parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
+            cancellationToken: cancellationToken);
+    }
+
     
+    # endregion
     
     #region helpers
 
     private bool IsValidFullName(string fullName)
     {
         return fullName.Trim().Split(' ').Length >= 2 && fullName.Length > 5;
+    }
+    
+    private async Task UpdateTopicProgress(long chatId, int topicId, CancellationToken cancellationToken)
+    {
+        // ✅ Обновляем прогресс как пройденную тему
+        var user = await _userRepository.GetByChatIdAsync(chatId);
+        await _userProgressRepository.MarkTopicCompletedAsync(user.Id, topicId);
+
+        // ⬇️ Проверка: последняя ли это тема?
+        var topic = await _topicRepository.GetByIdAsync(topicId);
+        var allTopics = await _topicRepository.GetByBlockIdAsync(topic.BlockId);
+        var completedTopics = await _userProgressRepository.GetCompletedTopicIdsAsync(user.Id, topic.BlockId);
+
+        var isLastTopic = allTopics.All(t => completedTopics.Contains(t.Id));
+        if (isLastTopic)
+        {
+            var test = await _testRepository.GetByBlockIdAsync(topic.BlockId);
+            if (test != null)
+            {
+                var keyboard = new InlineKeyboardMarkup(new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("🧪 Пройти тест", $"test_{topic.BlockId}")
+                });
+
+                await _botClient.SendTextMessageAsync(
+                    chatId,
+                    "🎉 Вы прошли главу! Нажми, когда будешь готов!",
+                    replyMarkup: keyboard,
+                    cancellationToken: cancellationToken);
+            }
+        }
     }
 
     #endregion

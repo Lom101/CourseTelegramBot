@@ -1,8 +1,6 @@
 ﻿using Backend.Dto.Block.Request;
 using Backend.Mapper;
-using Core.Entity;
 using Core.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;
@@ -28,6 +26,17 @@ public class BlockController(IBlockRepository blockRepository) : ControllerBase
         return Ok(dto);
     }
     
+    [HttpGet("with-topics/{id}")]
+    public async Task<IActionResult> GetByIdWithTopicsAsync(int id)
+    {
+        var block = await blockRepository.GetByIdAsync(id);
+        if (block == null)
+            return NotFound($"Block with id {id} not found");
+
+        var dto = BlockMapper.ToDto(block);
+        return Ok(dto);
+    }
+    
     /// <summary>
     /// Получить список всех глав.
     /// </summary>
@@ -38,6 +47,7 @@ public class BlockController(IBlockRepository blockRepository) : ControllerBase
         var dtos = blocks.Select(BlockMapper.ToDto);
         return Ok(dtos);
     }
+    
     
     /// <summary>
     /// Создать новую главу.

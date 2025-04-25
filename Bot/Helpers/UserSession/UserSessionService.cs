@@ -1,18 +1,18 @@
 ﻿using System.Collections.Concurrent;
-using Bot.Helpers.Session.Interface;
+using Bot.Helpers.UserSession.Interface;
 
-namespace Bot.Helpers.Session;
+namespace Bot.Helpers.UserSession;
 
 public class UserSessionService : IUserSessionService
 {
-    private readonly ConcurrentDictionary<long, UserSession> _sessions = new();
+    private readonly ConcurrentDictionary<long, Helpers.UserSession.UserSession> _sessions = new();
 
-    public UserSession GetOrCreate(long chatId)
+    public Helpers.UserSession.UserSession GetOrCreate(long chatId)
     {
-        return _sessions.GetOrAdd(chatId, new UserSession());
+        return _sessions.GetOrAdd(chatId, new Helpers.UserSession.UserSession());
     }
 
-    public bool TryGet(long chatId, out UserSession? session)
+    public bool TryGet(long chatId, out Helpers.UserSession.UserSession? session)
     {
         return _sessions.TryGetValue(chatId, out session);
     }

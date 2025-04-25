@@ -1,7 +1,8 @@
-﻿using Backend.Dto;
+﻿using Backend.Dto.Audio.Request;
 using Backend.Dto.Audio.Response;
-using Backend.Dto.Book;
-using Backend.Dto.Image;
+using Backend.Dto.Book.Request;
+using Backend.Dto.Book.Response;
+using Backend.Dto.Image.Request;
 using Backend.Dto.Image.Response;
 using Backend.Dto.WordFile.Request;
 using Backend.Dto.WordFile.Response;

@@ -1,4 +1,5 @@
 ﻿using Core.Entity;
+using Core.Entity.Progress;
 using Core.Interfaces;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,52 @@ public class UserProgressRepository : IUserProgressRepository
     {
         _context = context;
     }
+    
+    
+    // Получение прогресса по теме
+    public async Task SaveFinalTestResultAsync(long chatId, int finalTestId, int correctAnswersCount)
+    {
+        // TODO: correctAnswersCount - нигде не используется 
+        
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.ChatId == chatId);
+
+        if (user == null)
+            return;
+
+        var block = await _context.Blocks
+            .Include(b => b.UserProgress)
+            .FirstOrDefaultAsync(b => b.FinalTestId == finalTestId);
+
+        if (block == null)
+            return;
+
+        var existingProgress = await _context.FinalTestProgresses
+            .FirstOrDefaultAsync(p => p.UserId == user.Id && p.BlockId == block.Id);
+        
+        if (existingProgress == null)
+        {
+            existingProgress = new FinalTestProgress()
+            {
+                UserId = user.Id,
+                BlockId = block.Id,
+                IsPassed = true,
+                PassedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+            };
+
+            _context.FinalTestProgresses.Add(existingProgress);
+        }
+        else
+        {
+            existingProgress.IsPassed = true;
+            existingProgress.PassedAt = DateTime.Now;
+            existingProgress.UpdatedAt = DateTime.Now;
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
     
     public async Task<List<int>> GetCompletedTopicIdsAsync(int userId, int blockId)
     {
@@ -63,8 +110,7 @@ public class UserProgressRepository : IUserProgressRepository
         // Сохраняем изменения
         await _context.SaveChangesAsync();
     }
-    
-    // Получение прогресса по теме
+
     public async Task<TopicProgress?> GetTopicProgressAsync(int userId, int topicId)
     {
         return await _context.TopicProgresses
@@ -83,26 +129,5 @@ public class UserProgressRepository : IUserProgressRepository
     {
         return await _context.BlockCompletionProgresses
             .FirstOrDefaultAsync(x => x.UserId == userId && x.BlockId == blockId);
-    }
-
-    // Сохранение прогресса по теме
-    public async Task SaveTopicProgressAsync(TopicProgress progress)
-    {
-        _context.TopicProgresses.Update(progress);
-        await _context.SaveChangesAsync();
-    }
-
-    // Сохранение прогресса по финальному тесту
-    public async Task SaveFinalTestProgressAsync(FinalTestProgress progress)
-    {
-        _context.FinalTestProgresses.Update(progress);
-        await _context.SaveChangesAsync();
-    }
-
-    // Сохранение прогресса по завершению курса
-    public async Task SaveCourseCompletionProgressAsync(BlockCompletionProgress progress)
-    {
-        _context.BlockCompletionProgresses.Update(progress);
-        await _context.SaveChangesAsync();
     }
 }

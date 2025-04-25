@@ -1,4 +1,4 @@
-﻿namespace Core.Dto.Auth.Request;
+﻿namespace Backend.Dto.Auth.Request;
 
 public class AdminLoginRequest
 {

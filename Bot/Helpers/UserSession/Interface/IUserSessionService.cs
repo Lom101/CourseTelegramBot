@@ -1,4 +1,4 @@
-﻿namespace Bot.Helpers.Session.Interface;
+﻿namespace Bot.Helpers.UserSession.Interface;
 
 public interface IUserSessionService
 {

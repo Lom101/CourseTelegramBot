@@ -1,4 +1,4 @@
-﻿namespace Bot.Helpers.Session;
+﻿namespace Bot.Helpers.UserSession;
 
 public enum UserState
 {
