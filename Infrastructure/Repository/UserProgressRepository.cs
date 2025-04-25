@@ -174,7 +174,6 @@ public class UserProgressRepository : IUserProgressRepository
     // }
     
     
-    
     public async Task<List<int>> GetCompletedTopicIdsAsync(int userId, int blockId)
     {
         // Находим все Topic.Id, которые пользователь завершил в этом блоке

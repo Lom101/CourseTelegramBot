@@ -12,20 +12,21 @@ public class FinalTestRepository : IFinalTestRepository
         _context = context;
     }
     
-    // TODO: переписать запросы
-    
-    public async Task<FinalTest> GetByTopicIdAsync(int topicId)
+    public async Task<int> CreateAsync(FinalTest finalTest)
     {
-        return await _context.Topics
-            .Where(t => t.Id == topicId)  // Фильтруем по topicId
-            .Include(t => t.Block)         // Включаем Block для доступа к Test
-            .ThenInclude(b => b.FinalTest)      // Включаем Test, чтобы его получить
-            .ThenInclude(t => t.Questions) // Включаем Questions для Test
-            .ThenInclude(q => q.Options)  // Включаем Options для Questions
-            .Select(t => t.Block.FinalTest)    // Проецируем на Test, так как Block.Test - это нужная сущность
-            .FirstOrDefaultAsync();       // Получаем первый результат или null
+        _context.FinalTests.Add(finalTest);
+        await _context.SaveChangesAsync();
+        return finalTest.Id;
     }
-
+    
+    public async Task<List<FinalTest>> GetAllAsync()
+    {
+        return await _context.FinalTests
+            .Include(f => f.Questions)
+            .ThenInclude(q => q.Options)
+            .ToListAsync();
+    }
+    
     public async Task<FinalTest> GetByBlockIdAsync(int blockId)
     {
         return await _context.Blocks
@@ -46,7 +47,7 @@ public class FinalTestRepository : IFinalTestRepository
 
         if (test != null)
         {
-            test.Questions = test.Questions.OrderBy(q => q.Id).ToList(); // 🧠 здесь сортировка
+            test.Questions = test.Questions.OrderBy(q => q.Id).ToList(); // здесь сортировка
         }
 
         return test;
