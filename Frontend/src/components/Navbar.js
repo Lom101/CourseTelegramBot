@@ -4,10 +4,10 @@ export default function Navbar() {
   const location = useLocation();
 
   const menuItems = [
-    { label: "Участники", to: "/participants" },
+    { label: "Участники", to: "/users" },
     {
       label: "Материалы",
-      to: "/materials",
+      to: "/blocks",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
