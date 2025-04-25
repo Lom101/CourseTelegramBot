@@ -40,7 +40,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="flex justify-center mt-6 mb-8">
+    <nav className="flex justify-center pt-6 mb-8">
       <ul className="flex gap-6 px-6 py-2 rounded-full shadow-md border border-yellow-400 bg-yellow-300">
         {menuItems.map(({ label, to, icon }) => {
           const isActive = location.pathname === to;

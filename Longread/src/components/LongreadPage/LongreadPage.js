@@ -3,7 +3,7 @@ import mammoth from 'mammoth';
 import { useParams } from 'react-router-dom';
 import './LongreadPage.css';
 
-export const BASE_URL = 'https://localhost:44315';
+export const BASE_URL = 'http://localhost:5000';
 
 const LongreadPage = () => {
   const { topicId } = useParams(); // Получаем параметр из URL
@@ -30,7 +30,7 @@ const LongreadPage = () => {
         setTopicTitle(topicData.title);
 
         // Получаем и конвертируем DOCX файл
-        const response = await fetch(` https://localhost:44315/api/ContentItem/by-topic/4` );
+        const response = await fetch(` http://localhost:5000/api/ContentItem/by-topic/4` );
         const data = await response.json();
 
         // Находим DOCX файл для конвертации
