@@ -5,6 +5,7 @@ import LoginPage from "../pages/LoginPage";
 import ContentItemPage from "../pages/ContentItemPage";
 import TopicsPage from "../pages/TopicsPage";
 import TestPage from "../pages/TestPage";
+import NotFoundPage from "../pages/NotFoundPage";
 
 // Защищённые маршруты (для авторизованных пользователей)
 export const authRoutes = [
@@ -17,5 +18,6 @@ export const authRoutes = [
 
 // Публичные маршруты (для всех)
 export const publicRoutes = [
-    { path: "/login", Component: LoginPage }
+    { path: "/login", Component: LoginPage },
+    { path: "/notfound", Component: NotFoundPage }, 
 ];

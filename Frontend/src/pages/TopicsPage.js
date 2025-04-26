@@ -1,28 +1,47 @@
 import React, { useEffect, useState } from 'react';
 import { getAllTopicsByBlockId, createTopic, deleteTopic, updateTopic } from '../api/topicService';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { getBlockById } from '../api/blockService';
 
 const TopicsPage = () => {
   const { blockId } = useParams();
+  const navigate = useNavigate();
 
   const [topics, setTopics] = useState([]);
   const [newTopicName, setNewTopicName] = useState('');
   const [editingTopicId, setEditingTopicId] = useState(null);
   const [editingTopicName, setEditingTopicName] = useState('');
 
+
   const fetchTopics = async () => {
     try {
-      const data = await getAllTopicsByBlockId(blockId);
-      console.log('Fetched topics:', data);
-      if (Array.isArray(data)) {
-        setTopics(data);
-      } else {
-        console.error("Unexpected data format:", data);
+        try {
+        const block = await getBlockById(blockId); // Сначала проверяем блок
+        if (!block) {
+          console.error('Block not found');
+          navigate('/notfound');
+          return;
+        }
       }
-    } catch (error) {
-      console.error('Failed to fetch topics', error);
+      catch (error) {
+        console.error('Error fetching block or topics', error);
+        navigate('/notfound');
+      }
+
+      // Если блок найден — загружаем темы
+      const topicsData = await getAllTopicsByBlockId(blockId);
+      if (Array.isArray(topicsData)) {
+        setTopics(topicsData);
+      } 
+      else {
+        console.error("Unexpected topics data:", topicsData);
+        setTopics([]);
+      }
     }
-  };
+    catch (error) {
+        console.error('Error fetching block or topics', error);
+      }
+    };
 
   useEffect(() => {
     if (blockId) {
@@ -33,7 +52,7 @@ const TopicsPage = () => {
 
   const handleCreateTopic = async () => {
     try {
-      await createTopic({ title: newTopicName });
+      await createTopic({title: newTopicName, blockId: blockId});
       setNewTopicName('');
       fetchTopics();
     } catch (error) {
@@ -58,7 +77,7 @@ const TopicsPage = () => {
   const handleUpdateTopic = async () => {
     try {
       await updateTopic(editingTopicId, { title: editingTopicName });
-      setEditingTopicId(null);
+      setEditingTopicId(null);  
       setEditingTopicName('');
       fetchTopics();
     } catch (error) {

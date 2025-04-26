@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   getContentItemsByTopic,
   deleteContentItem,
@@ -8,9 +8,12 @@ import {
   createBookContentItem,
   createAudioContentItem,
 } from '../api/contentItemService';
+import { getTopicById } from '../api/topicService';
 
 const ContentItemPage = () => {
   const { topicId } = useParams();
+  const navigate = useNavigate();
+
   const [items, setItems] = useState([]);
   const [type, setType] = useState('word');
   const [formData, setFormData] = useState({
@@ -36,9 +39,25 @@ const ContentItemPage = () => {
     }
   }, [topicId]);
 
+  const checkTopicExistence = async () => {
+    try{
+      try {
+        const topic = await getTopicById(topicId); // Получаем тему по ID
+      }
+      catch {
+        console.error('Topic not found');
+        navigate('/notfound');  // Если тема не найдена, редиректим на страницу notfound
+      } 
+      loadContentItems();  // Если тема найдена, загружаем элементы
+    }
+      catch (err) {
+      console.error('Error fetching content items:', err);  // Ошибка при загрузке контента
+    }
+  };
+  
   useEffect(() => {
-    loadContentItems();
-  }, [loadContentItems]);
+    checkTopicExistence();
+  }, [topicId]);
 
   const handleDelete = async (id) => {
     try {

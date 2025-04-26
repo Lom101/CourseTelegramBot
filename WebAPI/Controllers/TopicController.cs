@@ -60,9 +60,6 @@ public class TopicController(ITopicRepository topicRepository) : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTopic(int id, [FromBody] UpdateTopicRequest request)
     {
-        if (request.Id != id)
-            return BadRequest("Mismatched topic ID");
-        
         var existingTopic = await topicRepository.GetByIdAsync(id);
         if (existingTopic == null)
             return NotFound($"Topic with id {id} not found");

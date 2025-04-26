@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getAllBlocks, createBlock, deleteBlock, updateBlock } from '../api/blockService';
 import { getAllTests } from '../api/testService'; // добавили импорт для тестов
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const BlockPage = () => {
   const [blocks, setBlocks] = useState([]);
@@ -43,6 +44,11 @@ const BlockPage = () => {
   }, []);
 
   const handleCreateBlock = async () => {
+    if (!selectedTestId) {
+      toast.error('Пожалуйста, выберите финальный тест!');
+      return;
+    }
+
     try {
       await createBlock({
         title: newBlockName,
