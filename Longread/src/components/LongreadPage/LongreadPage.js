@@ -29,6 +29,9 @@ const LongreadPage = () => {
           setLoading(false);
           return;
         }
+        const topicResponse = await fetch(`${BASE_URL}/api/Topic/${topicId}`);
+        const topicData = await topicResponse.json();
+        setTopicTitle(topicData.title);
 
         const response = await fetch(`${BASE_URL}/api/ContentItem/by-topic/${topicId}`);
         const data = await response.json();
