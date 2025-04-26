@@ -92,7 +92,7 @@ const handleSubmit = async (e) => {
 return (
   <div className="m-10">
 
-      <h2 className="text-2xl font-semibold mb-4">Content Items for Topic ID: {topicId}</h2>
+      <h2 className="text-2xl font-semibold mb-4">Элементы longread-сайта внутри темы №{topicId}</h2>
 
        {/* Create Content Item */}
       <div className="relative">
@@ -128,7 +128,7 @@ return (
                   placeholder="Translation"
                   value={formData.translation}
                   onChange={handleChange}
-                  className="w-full  w-auto p-2 border rounded"
+                  className="w-full w-auto p-2 border rounded"
                 />
               </div>
             </>
@@ -142,7 +142,7 @@ return (
                   placeholder="Image URL"
                   value={formData.imageUrl}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full w-auto p-2 border rounded"
                 />
               </div>
               <div>
@@ -151,7 +151,7 @@ return (
                   placeholder="Translation"
                   value={formData.translation}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full w-auto p-2 border rounded"
                 />
               </div>
             </>
@@ -165,7 +165,7 @@ return (
                   placeholder="Book Title"
                   value={formData.bookTitle}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full w-auto  p-2 border rounded"
                 />
               </div>
               <div>
@@ -174,7 +174,7 @@ return (
                   placeholder="Author"
                   value={formData.bookAuthor}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full w-auto  p-2 border rounded"
                 />
               </div>
             </>
@@ -188,7 +188,7 @@ return (
                   placeholder="Audio URL"
                   value={formData.audioUrl}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full w-auto  p-2 border rounded"
                 />
               </div>
               <div>
@@ -197,7 +197,7 @@ return (
                   placeholder="Translation"
                   value={formData.translation}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full w-auto  p-2 border rounded"
                 />
               </div>
             </>

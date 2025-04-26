@@ -67,20 +67,20 @@ const TopicsPage = () => {
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl mb-4">Topics</h1>
+    <div className="m-10">
+      <h1 className="text-2xl mb-4">Темы внутри главы №{blockId}</h1>
 
       {/* Create Topic */}
-      <div className="mb-6">
+      <div className="flex items-center gap-4 mb-8">
         <input
           type="text"
           value={newTopicName}
           onChange={(e) => setNewTopicName(e.target.value)}
-          placeholder="New Topic Name"
+          placeholder="Введите название темы"
           className="border p-2 mr-2"
         />
         <button onClick={handleCreateTopic} className="bg-green-500 text-white p-2 rounded">
-          Add Topic
+          Добавить
         </button>
       </div>
 
@@ -88,40 +88,55 @@ const TopicsPage = () => {
       <div className="space-y-4">
         {topics.length > 0 ? (
           topics.map((topic) => (
-            <div key={topic.id} className="border p-4 rounded flex justify-between items-center">
+            <div key={topic.id} className="border p-4 rounded flex justify-between items-center bg-white">
               {editingTopicId === topic.id ? (
+                <div className="flex items-center justify-between gap-4 w-full">
+                <input
+                  type="text"
+                  value={editingTopicName}
+                  onChange={(e) => setEditingTopicName(e.target.value)}
+                  className="border p-2 flex-1 rounded"
+                />
                 <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={editingTopicName}
-                    onChange={(e) => setEditingTopicName(e.target.value)}
-                    className="border p-1"
-                  />
-                  <button onClick={handleUpdateTopic} className="bg-blue-500 text-white p-1 rounded">
-                    Save
+                  <button
+                    onClick={handleUpdateTopic}
+                    className="bg-blue-500 text-white px-3 py-1 rounded"
+                  >
+                    Сохранить
                   </button>
-                  <button onClick={() => setEditingTopicId(null)} className="bg-gray-300 p-1 rounded">
-                    Cancel
+                  <button
+                    onClick={() => setEditingTopicId(null)}
+                    className="bg-gray-300 px-3 py-1 rounded"
+                  >
+                    Отмена
                   </button>
                 </div>
-              ) : (
+              </div>
+            ) : (
+              <>
+                <Link to={`/topic/${topic.id}`} className="text-blue-500 hover:underline">
+                  {topic.title}
+                </Link>
                 <div className="flex items-center gap-2">
-                  {/* Link to topic's content page */}
-                  <Link to={`/topic/${topic.id}`} className="text-blue-500 hover:underline">
-                    {topic.title}
-                  </Link>
-                  <button onClick={() => handleEditTopic(topic.id, topic.title)} className="bg-yellow-400 p-1 rounded">
-                    Edit
+                  <button
+                    onClick={() => handleEditTopic(topic.id, topic.title)}
+                    className="bg-yellow-400 px-3 py-1 rounded"
+                  >
+                    Редактировать
                   </button>
-                  <button onClick={() => handleDeleteTopic(topic.id)} className="bg-red-500 text-white p-1 rounded">
-                    Delete
+                  <button
+                    onClick={() => handleDeleteTopic(topic.id)}
+                    className="bg-red-500 text-white px-3 py-1 rounded"
+                  >
+                    Удалить
                   </button>
                 </div>
-              )}
-            </div>
+              </>
+            )}
+          </div>
           ))
         ) : (
-          <p>No topics available</p>
+          <p>Вы еще не добавили ни одну тему..</p>
         )}
       </div>
     </div>
