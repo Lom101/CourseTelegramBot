@@ -1,19 +1,16 @@
 ﻿using Bot.Helpers.ExceptionHandler;
 using Bot.Helpers.ExceptionHandler.Intefaces;
-using Bot.Helpers.Session;
-using Bot.Helpers.Session.Interface;
-using Bot.Helpers.Test;
-using Bot.Helpers.Test.Interface;
+using Bot.Helpers.TestSession;
+using Bot.Helpers.TestSession.Interface;
+using Bot.Helpers.UserSession;
+using Bot.Helpers.UserSession.Interface;
 using Bot.Service;
 using Bot.Service.Interfaces;
-using Core.Entity.Test;
 using Core.Interfaces;
 using Telegram.Bot;
-using DotNetEnv;
 using Infrastructure.Data;
 using Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -46,12 +43,12 @@ builder.Services.AddScoped<IBlockRepository, BlockRepository>();
 builder.Services.AddScoped<ITopicRepository, TopicRepository>();
 builder.Services.AddScoped<IUserActivityRepository, UserActivityRepository>();
 builder.Services.AddScoped<IUserProgressRepository, UserProgressRepository>();
-builder.Services.AddScoped<ITestRepository, TestRepository>();
+builder.Services.AddScoped<IFinalTestRepository, FinalTestRepository>();
 
-builder.Services.AddScoped<ITestService, TestService>();
-builder.Services.AddScoped<IUserTestRepository, UserTestRepository>();
 
 builder.Services.AddSingleton<IUserSessionService, UserSessionService>();
+builder.Services.AddSingleton<IFinalTestSessionService, FinalTestSessionService>();
+
 
 var host = builder.Build();
 

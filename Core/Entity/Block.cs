@@ -1,4 +1,6 @@
-﻿
+﻿using Core.Entity.Progress;
+using Core.Entity.Test;
+
 namespace Core.Entity;
 
 public class Block
@@ -7,8 +9,8 @@ public class Block
 
     public string Title { get; set; }
 
-    public int TestId { get; set; }
-    public global::Core.Entity.Test.Test Test { get; set; } // Финальный тест для этого курса
+    public int FinalTestId { get; set; }
+    public FinalTest FinalTest { get; set; } // Финальный тест для этого блока
     
     public List<Topic> Topics { get; set; } = new();
     public List<UserProgress> UserProgress { get; set; } = new();

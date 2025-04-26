@@ -10,13 +10,15 @@ public class BlockMapper
     {
         return new Block
         {
-            Title = request.Title
+            Title = request.Title,
+            FinalTestId = request.FinalTestId,
         };
     }
 
     public static void ToEntity(Block entity, UpdateBlockRequest request)
     {
         entity.Title = request.Title;
+        entity.FinalTestId = request.FinalTestId;
     }
 
     public static GetBlockResponse ToDto(Block entity)
@@ -24,7 +26,8 @@ public class BlockMapper
         return new GetBlockResponse
         {
             Id = entity.Id,
-            Title = entity.Title
+            Title = entity.Title,
+            FinalTestId = entity.FinalTestId,
         };
     }
 }

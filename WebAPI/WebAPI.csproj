@@ -43,7 +43,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Dto\Auth\NewDirectory1\" />
       <Folder Include="wwwroot\" />
     </ItemGroup>
 

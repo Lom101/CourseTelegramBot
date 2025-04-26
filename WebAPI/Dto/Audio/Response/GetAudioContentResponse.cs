@@ -1,6 +1,5 @@
 ﻿namespace Backend.Dto.Audio.Response;
 
-
 public class GetAudioContentResponse
 {
     public int Id { get; set; }

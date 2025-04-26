@@ -9,15 +9,21 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { login: doLogin } = useContext(AuthContext);
 
+  console.log('API URL:', process.env.REACT_APP_API_URL);
+
+
   const handleLogin = async (e) => {
     e.preventDefault();
   
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/Auth/admin-login`, {
-        email: login, // ← заменили "login" на "email", как требует бэкенд
-        password,
-      });
-  
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/Auth/admin-login`,
+        {
+          email: login,
+          password,
+        }
+      );
+
       if (response.data.token) {
         doLogin(response.data.token);
         navigate('/users');

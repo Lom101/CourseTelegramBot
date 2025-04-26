@@ -1,78 +1,159 @@
+/* Основной стиль для страницы */
 .longread-page {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-    padding: 20px;
-  }
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+  padding: 20px;
+}
 
-  .article-border {
-    border: 2px solid red;
-    padding: 20px;
-    margin-bottom: 20px;
-  }
- 
-  
-  .header {
-    text-align: center;
-    margin-bottom: 40px;
-  }
-  
-  .header h1 {
-    font-size: 3em;
-    color: #333;
-  }
-  
-  .header h2 {
-    font-size: 2em;
-    color: #555;
-  }
-  
-  .content {
-    max-width: 1200px;
-    margin: 0 auto;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .article {
-    margin-bottom: 30px;
-    font-size: 1.2em;
-    line-height: 1.6;
-  }
-  
-  .article img {
-    width: 100%;
-    margin-top: 20px;
-    border-radius: 8px;
-  }
-  
-  .image-container {
-    text-align: center;
-    margin-top: 40px;
-  }
-  
-  .longread-content {
-    background-color: #e0e0e0;
-    padding: 20px;
-    border-radius: 8px;
-  }
-  
-  .longread-content h3 {
-    color: #333;
-  }
-  
-  .longread-content p {
-    font-size: 1.1em;
-    line-height: 1.6;
-  }
-  
-  .longread-content img {
-    width: 80%;
-    margin-top: 20px;
-    border-radius: 8px;
-  }
+/* Контейнер для контента */
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #fff; /* Белый фон для статьи */
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+/* Общие стили */
+.longread-page {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+  padding: 20px;
+}
 
-  
-  
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.company-logo {
+  width: 150px; /* Размер логотипа */
+  margin-bottom: 20px;
+}
+
+.page-title {
+  font-size: 2.5em;
+  color: #333;
+  font-weight: bold;
+}
+
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  font-size: 2em;
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.longread-content {
+  font-size: 1.1em;
+  line-height: 1.6;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.books {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 30px;}
+
+/* Заголовок статьи */
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.header h2 {
+  font-size: 2.5em;
+  color: #333;
+  font-weight: 600;
+}
+
+/* Стили для содержимого */
+.longread-content {
+  background-color: #fafafa; /* Более светлый фон */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.longread-content h3 {
+  color: #333;
+  font-size: 1.6em;
+  margin-bottom: 10px;
+}
+
+.longread-content p {
+  font-size: 1.2em;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+/* Стили для картинок внутри статьи */
+.longread-content img {
+  width: 100%;
+  margin-top: 20px;
+  border-radius: 8px;
+}
+
+
+/* Кнопки для скачивания книг */
+.books {
+  display: flex;
+  justify-content: space-between; /* Расположить кнопки по горизонтали */
+  margin-top: 40px;
+}
+
+.book-item {
+  text-align: center;
+  flex: 1;
+  margin: 10px;
+}
+
+/* Стили для кнопки скачивания */
+.download-btn {
+  display: inline-block;
+  padding: 15px 30px;
+  margin-top: 20px;
+  background-color: #4CAF50;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 1.2em;
+  font-weight: 600;
+  text-align: center;
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Плавные переходы */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Эффект при наведении на кнопку */
+.download-btn:hover {
+  background-color: #45a049;
+  transform: translateY(-5px); /* Легкий подъем кнопки */
+}
+
+/* Эффект фокуса */
+.download-btn:focus {
+  outline: none;
+  box-shadow: 0 0 5px 2px rgba(0, 128, 0, 0.6); /* Светящийся эффект */
+}
+
+/* Стили для кнопок, если они расположены слишком близко друг к другу */
+.book-item:first-child {
+  margin-right: 20px;
+}
+.book-item:last-child {
+  margin-left: 20px;
+}

@@ -1,4 +1,4 @@
-﻿namespace Core.Entity;
+﻿namespace Core.Entity.Progress;
 
 public class TopicProgress : UserProgress
 {

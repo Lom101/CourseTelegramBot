@@ -38,6 +38,8 @@ builder.Services.AddScoped<IUserActivityRepository, UserActivityRepository>();
 builder.Services.AddScoped<IUserProgressRepository, UserProgressRepository>();
 builder.Services.AddScoped<IContentItemRepository, ContentItemRepository>();
 
+builder.Services.AddScoped<IFinalTestRepository, FinalTestRepository>();
+
 // Добавление Swagger
 builder.Services.AddEndpointsApiExplorer(); // Эксплорер для API
 builder.Services.AddSwaggerGen(options => // Генерация Swagger документации

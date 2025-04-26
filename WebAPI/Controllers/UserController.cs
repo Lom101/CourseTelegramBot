@@ -1,4 +1,5 @@
-﻿using Backend.Mapper;
+﻿using Backend.Dto.User.Request;
+using Backend.Mapper;
 using Core.Dto.Request;
 using Core.Entity;
 using Core.Interfaces;
@@ -104,6 +105,20 @@ public class UserController(IUserRepository userRepository) : ControllerBase
         // Возвращаем обновленного пользователя
         var dto = UserMapper.ToDto(user);
         return Ok(dto);
+    }
+    
+    /// <summary>
+    /// Удалить пользователя по ID.
+    /// </summary>
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var existingUser = await userRepository.GetByIdAsync(id);
+        if (existingUser == null)
+            return NotFound($"User with id {id} not found");
+
+        await userRepository.DeleteAsync(existingUser);
+        return NoContent();
     }
 
     /// <summary>

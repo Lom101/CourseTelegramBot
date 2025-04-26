@@ -10,4 +10,5 @@ public interface IBlockRepository
     Task AddAsync(Block block);
     Task UpdateAsync(Block block);
     Task DeleteAsync(Block block);
+    Task<Block> GetByTestIdAsync(int testId);
 }

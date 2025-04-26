@@ -1,38 +1,122 @@
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
-import ContentManager from '../components/ContentManager';
+import React, { useEffect, useState } from 'react';
+import { getAllBlocks, createBlock, deleteBlock, updateBlock } from '../api/blockService';
+import { Link } from 'react-router-dom';
 
 const BlockPage = () => {
-  const { id } = useParams();
+  const [blocks, setBlocks] = useState([]);
+  const [newBlockName, setNewBlockName] = useState('');
+  const [editingBlockId, setEditingBlockId] = useState(null);
+  const [editingBlockName, setEditingBlockName] = useState('');
+
+  const fetchBlocks = async () => {
+    try {
+      const data = await getAllBlocks();
+      if (Array.isArray(data)) {
+        setBlocks(data);
+      } else {
+        console.error("Unexpected data format:", data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch blocks', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBlocks();
+  }, []);
+
+  const handleCreateBlock = async () => {
+    try {
+      await createBlock({ title: newBlockName });
+      setNewBlockName('');
+      fetchBlocks();
+    } catch (error) {
+      console.error('Failed to create block', error);
+    }
+  };
+
+  const handleDeleteBlock = async (id) => {
+    try {
+      await deleteBlock(id);
+      fetchBlocks();
+    } catch (error) {
+      console.error('Failed to delete block', error);
+    }
+  };
+
+  const handleEditBlock = (id, name) => {
+    setEditingBlockId(id);
+    setEditingBlockName(name);
+  };
+
+  const handleUpdateBlock = async () => {
+    try {
+      await updateBlock(editingBlockId, { title: editingBlockName });
+      setEditingBlockId(null);
+      setEditingBlockName('');
+      fetchBlocks();
+    } catch (error) {
+      console.error('Failed to update block', error);
+    }
+  };
 
   return (
-    <div>
-      <Link
-        to="/materials"
-        className="inline-flex items-center gap-2 text-[#2E2E2E] hover:text-white bg-[#E2E8F0] hover:bg-[#A6C5E2] transition-colors px-4 py-2 rounded-xl text-sm font-medium w-fit mb-6"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-        </svg>
-        Назад
-      </Link>
-  
+    <div className="p-4">
+      <h1 className="text-2xl mb-4">Blocks</h1>
+
+      {/* Create Block */}
       <div className="mb-6">
-        <h2 className="relative inline-block text-white text-xl md:text-2xl font-semibold">
-          <span className="bg-[#8BC34A] py-2 px-4 pr-10 rounded-r-[30px] skew-x-[-10deg] inline-block">
-            <span className="skew-x-[10deg] block">Материалы блока {id}</span>
-          </span>
-        </h2>
+        <input
+          type="text"
+          value={newBlockName}
+          onChange={(e) => setNewBlockName(e.target.value)}
+          placeholder="New Block Name"
+          className="border p-2 mr-2"
+        />
+        <button onClick={handleCreateBlock} className="bg-green-500 text-white p-2 rounded">
+          Add Block
+        </button>
       </div>
-  
-      <ContentManager blockId={id} />
+
+      {/* List Blocks */}
+      <div className="space-y-4">
+        {blocks.length > 0 ? (
+          blocks.map((block) => (
+            <div key={block.id} className="border p-4 rounded flex justify-between items-center">
+              {editingBlockId === block.id ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={editingBlockName}
+                    onChange={(e) => setEditingBlockName(e.target.value)}
+                    className="border p-1"
+                  />
+                  <button onClick={handleUpdateBlock} className="bg-blue-500 text-white p-1 rounded">
+                    Save
+                  </button>
+                  <button onClick={() => setEditingBlockId(null)} className="bg-gray-300 p-1 rounded">
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Link to={`/blocks/${block.id}`} className="text-blue-500 hover:underline">
+                    Block {block.title}
+                  </Link>
+                  <button onClick={() => handleEditBlock(block.id, block.title)} className="bg-yellow-400 p-1 rounded">
+                    Edit
+                  </button>
+                  <button onClick={() => handleDeleteBlock(block.id)} className="bg-red-500 text-white p-1 rounded">
+                    Delete
+                  </button>
+                </div>
+              )}
+            </div>
+          ))
+        ) : (
+          <p>No blocks available</p>
+        )}
+      </div>
     </div>
   );
 };

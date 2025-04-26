@@ -48,4 +48,9 @@ public class BlockRepository : IBlockRepository
         _context.Blocks.Remove(block);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<Block> GetByTestIdAsync(int testId)
+    {
+        return await _context.Blocks.FirstOrDefaultAsync(b => b.FinalTestId == testId);
+    }
 }

@@ -1,6 +1,4 @@
-﻿using Core.Enum;
-
-namespace Core.Entity;
+﻿namespace Core.Entity.Progress;
 
 public class UserProgress
 {

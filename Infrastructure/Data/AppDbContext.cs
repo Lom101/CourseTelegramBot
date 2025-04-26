@@ -1,5 +1,6 @@
 ﻿using Core.Entity;
 using Core.Entity.AnyContent;
+using Core.Entity.Progress;
 using Core.Entity.Test;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,13 +23,9 @@ public class AppDbContext : DbContext
     public DbSet<WordFileContent> WordFileContents { get; set; }
     public DbSet<ImageContent> ImageContents { get; set; }
     
-    public DbSet<Test> Tests { get; set; }
+    public DbSet<FinalTest> FinalTests { get; set; }
     public DbSet<TestQuestion> TestQuestions { get; set; }
-    
-    public DbSet<UserTest> UserTests { get; set; }
-    public DbSet<UserTestAnswer> UserTestAnswers { get; set; }
-
-
+    public DbSet<TestOption> TestOptions { get; set; }
     
     public DbSet<UserProgress> UserProgresses { get; set; }
     public DbSet<TopicProgress> TopicProgresses { get; set; }
