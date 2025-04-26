@@ -17,8 +17,8 @@ public class BlockMapper
 
     public static void ToEntity(Block entity, UpdateBlockRequest request)
     {
-        entity.Title = request.Title;
-        entity.FinalTestId = request.FinalTestId;
+        if (request.Title != null) entity.Title = request.Title;
+        if (request.FinalTestId.HasValue) entity.FinalTestId = request.FinalTestId.Value;
     }
 
     public static GetBlockResponse ToDto(Block entity)
