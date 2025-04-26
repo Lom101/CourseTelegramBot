@@ -25,8 +25,11 @@ const TopicsPage = () => {
   };
 
   useEffect(() => {
-    fetchTopics();
-  }, []);
+    if (blockId) {
+      fetchTopics();
+    }
+  }, [blockId]);
+  
 
   const handleCreateTopic = async () => {
     try {

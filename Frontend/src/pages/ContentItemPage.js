@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   getContentItemsByTopic,
-  getContentItemById,
   deleteContentItem,
   createWordContentItem,
   createImageContentItem,
@@ -11,7 +10,7 @@ import {
 } from '../api/contentItemService';
 
 const ContentItemPage = () => {
-  const { topicId } = useParams(); // topicId, а не id
+  const { topicId } = useParams();
   const [items, setItems] = useState([]);
   const [type, setType] = useState('word');
   const [formData, setFormData] = useState({
@@ -23,22 +22,19 @@ const ContentItemPage = () => {
     translation: '',
   });
 
-  const [lookupId, setLookupId] = useState('');
-  const [lookedUpItem, setLookedUpItem] = useState(null);
-  const [loading, setLoading] = useState(true); // добавляем состояние для загрузки
+  const [loading, setLoading] = useState(true);
 
-  // loadContentItems теперь использует topicId
   const loadContentItems = useCallback(async () => {
     try {
-      setLoading(true); // включаем индикатор загрузки
-      const data = await getContentItemsByTopic(topicId); // используй topicId вместо id
+      setLoading(true);
+      const data = await getContentItemsByTopic(topicId);
       setItems(data);
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false); // выключаем индикатор загрузки
+      setLoading(false);
     }
-  }, [topicId]); // добавляем topicId в зависимости
+  }, [topicId]);
 
   useEffect(() => {
     loadContentItems();
@@ -47,7 +43,7 @@ const ContentItemPage = () => {
   const handleDelete = async (id) => {
     try {
       await deleteContentItem(id);
-      loadContentItems(); // обновляем список после удаления
+      loadContentItems();
     } catch (err) {
       console.error(err);
     }
@@ -57,184 +53,192 @@ const ContentItemPage = () => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      switch (type) {
-        case 'word':
-          await createWordContentItem({
-            word: formData.word,
-            translation: formData.translation,
-            topicId,
-          });
-          break;
-        case 'image':
-          await createImageContentItem({
-            imageUrl: formData.imageUrl,
-            translation: formData.translation,
-            topicId,
-          });
-          break;
-        case 'book':
-          await createBookContentItem({
-            title: formData.bookTitle,
-            author: formData.bookAuthor,
-            topicId,
-          });
-          break;
-        case 'audio':
-          await createAudioContentItem({
-            audioUrl: formData.audioUrl,
-            translation: formData.translation,
-            topicId,
-          });
-          break;
-        default:
-          return;
-      }
-
-      // сбрасываем форму после добавления
-      setFormData({
-        word: '',
-        imageUrl: '',
-        bookTitle: '',
-        bookAuthor: '',
-        audioUrl: '',
-        translation: '',
-      });
-
-      loadContentItems(); // обновляем список контента
-    } catch (err) {
-      console.error(err);
-    }
+  const contentData = {
+    word: formData.word,
+    translation: formData.translation,
+    imageUrl: formData.imageUrl,
+    bookTitle: formData.bookTitle,
+    bookAuthor: formData.bookAuthor,
+    audioUrl: formData.audioUrl,
+    topicId,
   };
 
-  const handleLookup = async () => {
-    try {
-      const item = await getContentItemById(lookupId);
-      setLookedUpItem(item);
-    } catch (err) {
-      console.error('Error fetching by ID:', err);
-      setLookedUpItem(null);
-    }
+  const createFunctions = {
+    word: createWordContentItem,
+    image: createImageContentItem,
+    book: createBookContentItem,
+    audio: createAudioContentItem,
   };
 
-  return (
-    <div style={{ padding: '20px' }}>
-      <h2>Content Items for Topic ID: {topicId}</h2>
+  try {
+    await createFunctions[type](contentData);
+    setFormData({
+      word: '',
+      imageUrl: '',
+      bookTitle: '',
+      bookAuthor: '',
+      audioUrl: '',
+      translation: '',
+    });
+    loadContentItems();
+  } catch (err) {
+    console.error(err);
+  }
+};
 
-      <form onSubmit={handleSubmit} style={{ marginBottom: '30px' }}>
-        <label>
-          Type:
-          <select value={type} onChange={(e) => setType(e.target.value)}>
-            <option value="word">Word</option>
-            <option value="image">Image</option>
-            <option value="book">Book</option>
-            <option value="audio">Audio</option>
-          </select>
-        </label>
+return (
+  <div className="m-10">
 
-        {type === 'word' && (
-          <>
-            <input
-              name="word"
-              placeholder="Word"
-              value={formData.word}
-              onChange={handleChange}
-            />
-            <input
-              name="translation"
-              placeholder="Translation"
-              value={formData.translation}
-              onChange={handleChange}
-            />
-          </>
-        )}
+      <h2 className="text-2xl font-semibold mb-4">Content Items for Topic ID: {topicId}</h2>
 
-        {type === 'image' && (
-          <>
-            <input
-              name="imageUrl"
-              placeholder="Image URL"
-              value={formData.imageUrl}
-              onChange={handleChange}
-            />
-            <input
-              name="translation"
-              placeholder="Translation"
-              value={formData.translation}
-              onChange={handleChange}
-            />
-          </>
-        )}
+       {/* Create Content Item */}
+      <div className="relative">
+        <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+          <div className="flex items-center space-x-4">
+            <label className="text-lg">Type:</label>
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              className="border p-2 rounded"
+            >
+              <option value="word">Word</option>
+              <option value="image">Image</option>
+              <option value="book">Book</option>
+              <option value="audio">Audio</option>
+            </select>
+          </div>
 
-        {type === 'book' && (
-          <>
-            <input
-              name="bookTitle"
-              placeholder="Book Title"
-              value={formData.bookTitle}
-              onChange={handleChange}
-            />
-            <input
-              name="bookAuthor"
-              placeholder="Author"
-              value={formData.bookAuthor}
-              onChange={handleChange}
-            />
-          </>
-        )}
+          {type === 'word' && (
+            <>
+              <div>
+                <input
+                  name="word"
+                  placeholder="Word"
+                  value={formData.word}
+                  onChange={handleChange}
+                  className="w-full w-auto p-2 border rounded"
+                />
+              </div>
+              <div>
+                <input
+                  name="translation"
+                  placeholder="Translation"
+                  value={formData.translation}
+                  onChange={handleChange}
+                  className="w-full  w-auto p-2 border rounded"
+                />
+              </div>
+            </>
+          )}
 
-        {type === 'audio' && (
-          <>
-            <input
-              name="audioUrl"
-              placeholder="Audio URL"
-              value={formData.audioUrl}
-              onChange={handleChange}
-            />
-            <input
-              name="translation"
-              placeholder="Translation"
-              value={formData.translation}
-              onChange={handleChange}
-            />
-          </>
-        )}
+          {type === 'image' && (
+            <>
+              <div>
+                <input
+                  name="imageUrl"
+                  placeholder="Image URL"
+                  value={formData.imageUrl}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <div>
+                <input
+                  name="translation"
+                  placeholder="Translation"
+                  value={formData.translation}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+            </>
+          )}
 
-        <button type="submit">Create</button>
-      </form>
+          {type === 'book' && (
+            <>
+              <div>
+                <input
+                  name="bookTitle"
+                  placeholder="Book Title"
+                  value={formData.bookTitle}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <div>
+                <input
+                  name="bookAuthor"
+                  placeholder="Author"
+                  value={formData.bookAuthor}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+            </>
+          )}
 
-      <div style={{ marginBottom: '30px' }}>
-        <h3>Get Content Item by ID</h3>
-        <input
-          type="text"
-          placeholder="Enter ID"
-          value={lookupId}
-          onChange={(e) => setLookupId(e.target.value)}
-        />
-        <button onClick={handleLookup}>Lookup</button>
+          {type === 'audio' && (
+            <>
+              <div>
+                <input
+                  name="audioUrl"
+                  placeholder="Audio URL"
+                  value={formData.audioUrl}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <div>
+                <input
+                  name="translation"
+                  placeholder="Translation"
+                  value={formData.translation}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+            </>
+          )}
 
-        {lookedUpItem && (
-          <pre style={{ backgroundColor: '#f1f1f1', padding: '10px' }}>
-            {JSON.stringify(lookedUpItem, null, 2)}
-          </pre>
-        )}
+          <button type="submit" className="w-auto p-5 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            Create
+          </button>
+        </form>
       </div>
 
-      <h3>All Items</h3>
+      <h3 className="text-xl font-semibold mb-4">All Items</h3>
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <ul>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.map((item) => (
-            <li key={item.id} style={{ marginBottom: '10px' }}>
-              <pre>{JSON.stringify(item, null, 2)}</pre>
-              <button onClick={() => handleDelete(item.id)}>Delete</button>
-            </li>
+            <div
+              key={item.id}
+              className="bg-white p-4 border rounded shadow-md flex flex-col gap-4"
+            >
+              <h4 className="text-lg font-semibold">{item.title || item.fileName}</h4>
+              {item.fileUrl && (
+                <a
+                  href={process.env.REACT_APP_API_URL + item.fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline"
+                >
+                  View File
+                </a>
+              )}
+              <button
+                onClick={() => handleDelete(item.id)}
+                className="self-start bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+              >
+                Delete
+              </button>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
