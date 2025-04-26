@@ -45,7 +45,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="container">
+    <div className="min-h-screen flex items-center justify-center bg-[#b9bedf]">
       <div className="login-card">
         <h2 className="title">Вход в админ-панель</h2>
         <form onSubmit={handleLogin} className="form">

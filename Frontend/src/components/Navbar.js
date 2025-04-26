@@ -1,7 +1,11 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "./AuthContext";
 
 export default function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
 
   const menuItems = [
     { label: "Участники", to: "/users" },
@@ -39,8 +43,13 @@ export default function Navbar() {
     },
   ];
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
-    <nav className="flex justify-center pt-6 mb-8">
+    <nav className="flex justify-center pt-6 mb-8 ">
       <ul className="flex gap-6 px-6 py-2 rounded-full shadow-md border border-yellow-400 bg-yellow-300">
         {menuItems.map(({ label, to, icon }) => {
           const isActive = location.pathname === to;
@@ -61,6 +70,15 @@ export default function Navbar() {
             </li>
           );
         })}
+        {/* Кнопка Выйти */}
+        <li>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1 px-4 py-1 rounded-full text-sm font-medium transition-colors duration-200 text-black hover:bg-yellow-400"
+          >
+            Выйти
+          </button>
+        </li>
       </ul>
     </nav>
   );

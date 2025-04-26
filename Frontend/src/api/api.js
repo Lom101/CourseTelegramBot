@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AuthContext } from './components/AuthContext';
+import { AuthContext } from '../components/AuthContext';
 import { useContext } from 'react';
 
 const useApi = () => {

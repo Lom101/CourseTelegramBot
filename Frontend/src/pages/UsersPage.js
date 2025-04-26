@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import UserList from "../components/UserList";
-import useApi from "../api";
+import useApi from "../api/api";
 
 const UsersPage = () => {
   const api = useApi();

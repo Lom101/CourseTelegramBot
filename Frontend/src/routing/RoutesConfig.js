@@ -15,7 +15,7 @@ const RoutesConfig = () => {
   const isLoginPage = location.pathname === '/login';
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-[#b9bedf]">
       {/* Показываем Navbar, если не на странице login */}
       {!isLoginPage && <Navbar />}
 

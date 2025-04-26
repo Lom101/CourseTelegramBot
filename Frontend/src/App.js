@@ -5,11 +5,9 @@ import RoutesConfig from './routing/RoutesConfig';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <RoutesConfig />
-      </Router>
-    </AuthProvider>
+    <Router>
+      <RoutesConfig />
+    </Router>
   );
 }
 
