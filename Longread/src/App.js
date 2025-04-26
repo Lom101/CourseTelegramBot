@@ -1,12 +1,15 @@
-import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LongreadPage from './components/LongreadPage/LongreadPage';  // Импортируем компонент LongreadPage
+
+
 
 function App() {
   return (
-    <div className="App">
-  
-      <LongreadPage id={2} /> 
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/longread/:topicId" element={<LongreadPage />} />
+      </Routes>
+    </Router>
   );
 }
 
