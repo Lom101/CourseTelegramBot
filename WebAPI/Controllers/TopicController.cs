@@ -1,5 +1,6 @@
-﻿using Backend.Dto.Topic.Request;
+using Backend.Dto.Topic.Request;
 using Backend.Mapper;
+using Core.Entity;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
