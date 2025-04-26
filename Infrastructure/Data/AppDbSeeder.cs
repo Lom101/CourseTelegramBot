@@ -184,13 +184,13 @@ namespace Infrastructure.Data
                                 new ImageContent
                                 {
                                     Title = "картинка к лонгриду 2 (1)",
-                                    ImageUrl = "/uploads/pictures/\"картинка к лонгриду 2 (1).jpg",
+                                    ImageUrl = "/uploads/pictures/картинка к лонгриду 2 (1).png",
                                     AltText = "Временно недоступно"
                                 },
                                 new ImageContent
                                 {
                                     Title = "картинка к лонгриду 2",
-                                    ImageUrl = "/uploads/pictures/картинка к лонгриду 2.jpg",
+                                    ImageUrl = "/uploads/pictures/картинка к лонгриду 2.png",
                                     AltText = "Временно недоступно"
                                 }
                             }
@@ -266,7 +266,7 @@ namespace Infrastructure.Data
                                 new AudioContent
                                 {
                                     Title = "Делегирование",
-                                    AudioUrl = "/uploads/audios/Аудио.m4a"
+                                    AudioUrl = "/uploads/audios/Делегирование.m4a"
                                 }
                             }
                         }
@@ -298,7 +298,7 @@ namespace Infrastructure.Data
                                 new AudioContent
                                 {
                                     Title = "Культура совместной работы. правила тимлида",
-                                    AudioUrl = "" // TODO:
+                                    AudioUrl = "/uploads/audios/Культура совместной работы. правила тимлида.m4a" 
                                 }
                             }
                         },
