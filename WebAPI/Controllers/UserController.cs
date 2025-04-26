@@ -66,11 +66,11 @@ public class UserController(IUserRepository userRepository) : ControllerBase
         if (!ModelState.IsValid)
             throw new ArgumentException("Invalid user data");
 
-        if (request.ChatId.HasValue)
+        if (!string.IsNullOrEmpty(request.PhoneNumber))
         {
-            var existingUser = await userRepository.GetByChatIdAsync(request.ChatId.Value);
+            var existingUser = await userRepository.GetByPhoneNumberAsync(request.PhoneNumber);
             if (existingUser != null)
-                throw new ArgumentException($"User with chat id {request.ChatId} already exists");
+                throw new ArgumentException($"User with chat id {request.PhoneNumber} already exists");
         }
 
         // Преобразуем DTO в сущность User
