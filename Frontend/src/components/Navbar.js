@@ -9,38 +9,7 @@ export default function Navbar() {
 
   const menuItems = [
     { label: "Участники", to: "/users" },
-    {
-      label: "Материалы",
-      to: "/blocks",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="mr-1"
-        >
-          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-          <path d="M6 17.6l-2 -1.1v-2.5" />
-          <path d="M4 10v-2.5l2 -1.1" />
-          <path d="M10 4.1l2 -1.1l2 1.1" />
-          <path d="M18 6.4l2 1.1v2.5" />
-          <path d="M20 14v2.5l-2 1.12" />
-          <path d="M14 19.9l-2 1.1l-2 -1.1" />
-          <path d="M12 12l2 -1.1" />
-          <path d="M18 8.6l2 -1.1" />
-          <path d="M12 12l0 2.5" />
-          <path d="M12 18.5l0 2.5" />
-          <path d="M12 12l-2 -1.12" />
-          <path d="M6 8.6l-2 -1.1" />
-        </svg>
-      ),
-    },
+    { label: "Материалы", to: "/blocks" },
   ];
 
   const handleLogout = () => {
@@ -49,9 +18,10 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="flex justify-center pt-6 mb-8 ">
+    <nav className="relative flex items-center justify-center pt-6 mb-8 px-6">
+      {/* Центр — меню */}
       <ul className="flex gap-6 px-6 py-2 rounded-full shadow-md border border-yellow-400 bg-yellow-300">
-        {menuItems.map(({ label, to, icon }) => {
+        {menuItems.map(({ label, to }) => {
           const isActive = location.pathname === to;
           return (
             <li key={to}>
@@ -64,22 +34,20 @@ export default function Navbar() {
                       : "text-black hover:bg-yellow-400"
                   }`}
               >
-                {icon}
                 {label}
               </Link>
             </li>
           );
         })}
-        {/* Кнопка Выйти */}
-        <li>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-1 px-4 py-1 rounded-full text-sm font-medium transition-colors duration-200 text-black hover:bg-yellow-400"
-          >
-            Выйти
-          </button>
-        </li>
       </ul>
+
+      {/* Справа — кнопка "Выйти" */}
+      <button
+        onClick={handleLogout}
+        className="absolute right-6 top-6 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 text-black bg-yellow-300 border border-yellow-400 shadow-md hover:bg-yellow-400"
+      >
+        Выйти
+      </button>
     </nav>
   );
 }
