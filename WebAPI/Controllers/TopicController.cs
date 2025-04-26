@@ -27,7 +27,7 @@ public class TopicController(ITopicRepository topicRepository) : ControllerBase
     /// <summary>
     /// Получить все темы по идентификатору главы.
     /// </summary>
-    [HttpGet("all-by-block/{id}")]
+    [HttpGet("all-by-block/{blockId}")]
     public async Task<IActionResult> GetTopicsByBlockId(int blockId)
     {
         var topics = await topicRepository.GetByBlockIdAsync(blockId);
