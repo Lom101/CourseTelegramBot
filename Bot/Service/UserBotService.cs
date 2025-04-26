@@ -614,6 +614,13 @@ public class UserBotService : IUserBotService
         var isLastTopic = allTopics.All(t => completedTopics.Contains(t.Id));
         if (isLastTopic)
         {
+            // логика игнора
+            var isTestCompleted = await _userProgressRepository.IsTestCompletedAsync(chatId, topic.BlockId);
+            if (isTestCompleted)
+            {
+                return;
+            }
+            
             var test = await _testRepository.GetByBlockIdAsync(topic.BlockId);
             if (test != null)
             {
