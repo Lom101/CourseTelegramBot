@@ -71,11 +71,11 @@ const TestPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h1 className="text-3xl font-semibold mb-6 text-center">Список тестов</h1>
+    <h1 className="text-3xl font-semibold mb-6 text-center">Список тестов</h1>
 
-      {/* Добавление нового теста */}
-      <div className="mb-8">
-        <h2 className="text-2xl mb-4">Создать новый тест</h2>
+    {/* Добавление нового теста */}
+    <div className="mb-8">
+      <h2 className="text-2xl mb-4">Создать новый тест</h2>
         <input
           type="text"
           value={newTestTitle}
