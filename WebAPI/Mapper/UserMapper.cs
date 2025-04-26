@@ -27,7 +27,6 @@ public static class UserMapper
     {
         return new User
         {
-            ChatId = request.ChatId,
             FullName = request.FullName,
             Email = request.Email,
             PhoneNumber = request.PhoneNumber,

@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { getAllBlocks, createBlock, deleteBlock, updateBlock } from '../api/blockService';
+import { getAllTests } from '../api/testService'; // добавили импорт для тестов
 import { Link } from 'react-router-dom';
 
 const BlockPage = () => {
   const [blocks, setBlocks] = useState([]);
+  const [tests, setTests] = useState([]);
   const [newBlockName, setNewBlockName] = useState('');
+  const [selectedTestId, setSelectedTestId] = useState('');
   const [editingBlockId, setEditingBlockId] = useState(null);
   const [editingBlockName, setEditingBlockName] = useState('');
 
@@ -21,14 +24,32 @@ const BlockPage = () => {
     }
   };
 
+  const fetchTests = async () => {
+    try {
+      const data = await getAllTests();
+      if (Array.isArray(data)) {
+        setTests(data);
+      } else {
+        console.error("Unexpected data format for tests:", data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch tests', error);
+    }
+  };
+
   useEffect(() => {
     fetchBlocks();
+    fetchTests();
   }, []);
 
   const handleCreateBlock = async () => {
     try {
-      await createBlock({ title: newBlockName });
+      await createBlock({
+        title: newBlockName,
+        finalTestId: selectedTestId ? Number(selectedTestId) : null,
+      });
       setNewBlockName('');
+      setSelectedTestId('');
       fetchBlocks();
     } catch (error) {
       console.error('Failed to create block', error);
@@ -65,14 +86,28 @@ const BlockPage = () => {
       <h1 className="text-2xl mb-4">Главы</h1>
 
       {/* Create Block */}
-      <div className="mb-6">
+      <div className="mb-6 flex items-center gap-4">
         <input
           type="text"
           value={newBlockName}
           onChange={(e) => setNewBlockName(e.target.value)}
           placeholder="Введите имя нового блока"
-          className="border p-2 mr-2"
+          className="border p-2 rounded w-auto"
         />
+
+        <select
+          value={selectedTestId}
+          onChange={(e) => setSelectedTestId(e.target.value)}
+          className="border p-2 rounded"
+        >
+          <option value="">Выберите финальный тест</option>
+          {tests.map(test => (
+            <option key={test.id} value={test.id}>
+              {test.title}
+            </option>
+          ))}
+        </select>
+
         <button onClick={handleCreateBlock} className="bg-green-500 text-white p-2 rounded">
           Добавить
         </button>
@@ -102,12 +137,9 @@ const BlockPage = () => {
                 </div>
               ) : (
                 <>
-                  {/* Заголовок слева */}
                   <Link to={`/blocks/${block.id}`} className="text-blue-500 hover:underline">
                     {block.title}
                   </Link>
-
-                  {/* Кнопки справа */}
                   <div className="flex items-center gap-2">
                     <button onClick={() => handleEditBlock(block.id, block.title)} className="bg-yellow-400 px-3 py-1 rounded">
                       Редактировать

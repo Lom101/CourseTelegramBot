@@ -10,6 +10,7 @@ export default function Navbar() {
   const menuItems = [
     { label: "Участники", to: "/users" },
     { label: "Материалы", to: "/blocks" },
+    { label: "Тесты", to: "/tests" },
   ];
 
   const handleLogout = () => {
