@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import UserList from "../components/UserList";
+import UserForm from "../components/UserForm";
 import useApi from "../api/api";
 
 const UsersPage = () => {
@@ -13,6 +14,7 @@ const UsersPage = () => {
     fullName: "",
     chatId: ""
   });
+  const [showForm, setShowForm] = useState(false); // Состояние для показа формы
 
   useEffect(() => {
     checkAccess();
@@ -76,43 +78,51 @@ const UsersPage = () => {
       await api.post("/api/User/add-new-user", payload);
       setNewUser({ phoneNumber: "", email: "", fullName: "", chatId: "" });
       fetchUsers();
+      setShowForm(false); // Скрыть форму после успешного добавления
     } catch (error) {
       console.error("Ошибка при добавлении пользователя:", error);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#b9bedf] px-10 py-8">
-      <div className="mb-6">
-        <h2 className="text-4xl font-extrabold bg-gradient-to-r from-[#ffcc00] via-[#ffb703] to-[#ff9800] text-transparent bg-clip-text drop-shadow-md tracking-tight flex items-center gap-3">
-          <span className="text-5xl">👥</span> Список участников
-        </h2>
-        <div className="h-1 w-24 bg-gradient-to-r from-[#ffcc00] to-[#ff9800] rounded-full mt-2" />
+    <div className="min-h-screen bg-gray-100 px-10 py-8">
+      <div className="mb-8 text-center">
+        <h2 className="text-4xl font-extrabold text-gray-800 mb-2">Список участников</h2>
+        <div className="h-1 w-24 bg-gray-300 rounded-full mx-auto" />
       </div>
+
+      {/* Кнопка показать/скрыть форму */}
+      {isAdmin && (
+        <div className="flex justify-center mb-6">
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="bg-gray-400 hover:bg-gray-500 text-white font-semibold px-6 py-2 rounded-xl transition"
+          >
+            {showForm ? 'Скрыть форму' : 'Добавить пользователя'}
+          </button>
+        </div>
+      )}
 
       {/* Форма добавления пользователя */}
-      <div className="bg-white p-4 rounded-lg shadow-md mb-8 max-w-xl">
-        <h3 className="text-xl font-bold mb-2">➕ Добавить пользователя</h3>
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <input type="text" placeholder="ФИО" value={newUser.fullName} onChange={e => setNewUser({ ...newUser, fullName: e.target.value })} className="p-2 border rounded" />
-          <input type="text" placeholder="Телефон" value={newUser.phoneNumber} onChange={e => setNewUser({ ...newUser, phoneNumber: e.target.value })} className="p-2 border rounded" />
-          <input type="email" placeholder="Email" value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} className="p-2 border rounded" />
-          <input type="text" placeholder="Chat ID" value={newUser.chatId} onChange={e => setNewUser({ ...newUser, chatId: e.target.value })} className="p-2 border rounded" />
+      {showForm && (
+        <div className="flex justify-center mb-10">
+          <div className="w-full max-w-3xl">
+            <UserForm
+              newUser={newUser}
+              setNewUser={setNewUser}
+              handleAddUser={handleAddUser}
+            />
+          </div>
         </div>
-        <button onClick={handleAddUser} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-          Добавить
-        </button>
-      </div>
+      )}
 
-      {/* Список пользователей */}
-      <div className="flex">
-        <div className="w-full max-w-4xl">
-          <UserList
-            users={users}
-            onBlock={handleBlock}
-            onDelete={handleDelete}
-          />
-        </div>
+      {/* Список пользователей на всю ширину */}
+      <div className="w-full">
+        <UserList
+          users={users}
+          onBlock={handleBlock}
+          onDelete={handleDelete}
+        />
       </div>
     </div>
   );

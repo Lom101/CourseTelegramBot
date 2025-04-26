@@ -11,7 +11,6 @@ const LoginPage = () => {
 
   console.log('API URL:', process.env.REACT_APP_API_URL);
 
-
   const handleLogin = async (e) => {
     e.preventDefault();
   
@@ -45,33 +44,40 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#b9bedf]">
-      <div className="login-card">
-        <h2 className="title">Вход в админ-панель</h2>
-        <form onSubmit={handleLogin} className="form">
-          <div className="form-group">
-            <label htmlFor="login" className="label">Логин:</label>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-700">Вход в админ-панель</h2>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label htmlFor="login" className="block text-gray-600 mb-1 font-semibold">
+              Логин:
+            </label>
             <input
               type="text"
               id="login"
               value={login}
               onChange={(e) => setLogin(e.target.value)}
               required
-              className="input"
+              className="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-300"
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="password" className="label">Пароль:</label>
+          <div>
+            <label htmlFor="password" className="block text-gray-600 mb-1 font-semibold">
+              Пароль:
+            </label>
             <input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="input"
+              className="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-300"
             />
           </div>
-          <button type="submit" className="button">
+          <button
+            type="submit"
+            className="w-full bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 rounded-xl transition"
+          >
             Войти
           </button>
         </form>
