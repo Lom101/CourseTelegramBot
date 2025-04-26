@@ -16,7 +16,6 @@ const UsersPage = () => {
 
   useEffect(() => {
     checkAccess();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkAccess = async () => {
@@ -81,14 +80,6 @@ const UsersPage = () => {
       console.error("Ошибка при добавлении пользователя:", error);
     }
   };
-
-  if (!isAdmin) {
-    return (
-      <div className="p-6 text-center text-xl font-semibold text-red-600">
-        ⛔ У вас нет доступа к этой странице
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#b9bedf] px-10 py-8">

@@ -6,19 +6,20 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Проверка токена при монтировании
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
       setToken(storedToken);
       axios.get(`${process.env.REACT_APP_API_URL}/api/Auth/check`, {
-        headers: {
-          Authorization: `Bearer ${storedToken}`,
-        },
+        headers: { Authorization: `Bearer ${storedToken}` },
       })
       .then(() => setIsAuthenticated(true))
-      .catch(() => logout());
+      .catch(() => logout())
+      .finally(() => setIsLoading(false));
+    } else {
+      setIsLoading(false);
     }
   }, []);
 
@@ -34,29 +35,24 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
   };
 
-  // Проверка авторизации по токену
   const checkAuth = useCallback(async (existingToken) => {
     try {
       const tokenToCheck = existingToken || token;
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/Auth/check`, {
-        headers: {
-          Authorization: `Bearer ${tokenToCheck}`,
-        },
+        headers: { Authorization: `Bearer ${tokenToCheck}` },
       });
-
       if (response.status === 200) {
         setIsAuthenticated(true);
         return true;
       }
     } catch (error) {
-      console.warn('Токен недействителен:', error?.response?.status || error.message);
-      logout(); // сбросим, если токен недействителен
+      logout();
     }
     return false;
   }, [token]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, token, login, logout, checkAuth }}>
+    <AuthContext.Provider value={{ isAuthenticated, token, login, logout, checkAuth, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

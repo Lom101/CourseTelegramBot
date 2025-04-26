@@ -1,114 +1,116 @@
 import React, { useEffect, useState } from 'react';
-import { getAllBlocks, createBlock, deleteBlock, updateBlock } from '../api/blockService';
-import { Link } from 'react-router-dom';
+import { getAllTopicsByBlockId, createTopic, deleteTopic, updateTopic } from '../api/topicService';
+import { Link, useParams } from 'react-router-dom';
 
-const BlockPage = () => {
-  const [blocks, setBlocks] = useState([]);
-  const [newBlockName, setNewBlockName] = useState('');
-  const [editingBlockId, setEditingBlockId] = useState(null);
-  const [editingBlockName, setEditingBlockName] = useState('');
+const TopicsPage = () => {
+  const { blockId } = useParams();
 
-  const fetchBlocks = async () => {
+  const [topics, setTopics] = useState([]);
+  const [newTopicName, setNewTopicName] = useState('');
+  const [editingTopicId, setEditingTopicId] = useState(null);
+  const [editingTopicName, setEditingTopicName] = useState('');
+
+  const fetchTopics = async () => {
     try {
-      const data = await getAllBlocks();
-      console.log('Fetched blocks:', data); // Логирование полученных данных
+      const data = await getAllTopicsByBlockId(blockId);
+      console.log('Fetched topics:', data);
       if (Array.isArray(data)) {
-        setBlocks(data); // Если это массив, устанавливаем его в state
+        setTopics(data);
       } else {
         console.error("Unexpected data format:", data);
       }
     } catch (error) {
-      console.error('Failed to fetch blocks', error);
+      console.error('Failed to fetch topics', error);
     }
   };
 
   useEffect(() => {
-    fetchBlocks();
+    fetchTopics();
   }, []);
 
-  const handleCreateBlock = async () => {
+  const handleCreateTopic = async () => {
     try {
-      await createBlock({ title: newBlockName });
-      setNewBlockName('');
-      fetchBlocks();
+      await createTopic({ title: newTopicName });
+      setNewTopicName('');
+      fetchTopics();
     } catch (error) {
-      console.error('Failed to create block', error);
+      console.error('Failed to create topic', error);
     }
   };
 
-  const handleDeleteBlock = async (id) => {
+  const handleDeleteTopic = async (id) => {
     try {
-      await deleteBlock(id);
-      fetchBlocks();
+      await deleteTopic(id);
+      fetchTopics();
     } catch (error) {
-      console.error('Failed to delete block', error);
+      console.error('Failed to delete topic', error);
     }
   };
 
-  const handleEditBlock = (id, name) => {
-    setEditingBlockId(id);
-    setEditingBlockName(name);
+  const handleEditTopic = (id, name) => {
+    setEditingTopicId(id);
+    setEditingTopicName(name);
   };
 
-  const handleUpdateBlock = async () => {
+  const handleUpdateTopic = async () => {
     try {
-      await updateBlock(editingBlockId, { title: editingBlockName });
-      setEditingBlockId(null);
-      setEditingBlockName('');
-      fetchBlocks();
+      await updateTopic(editingTopicId, { title: editingTopicName });
+      setEditingTopicId(null);
+      setEditingTopicName('');
+      fetchTopics();
     } catch (error) {
-      console.error('Failed to update block', error);
+      console.error('Failed to update topic', error);
     }
   };
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl mb-4">Blocks</h1>
+      <h1 className="text-2xl mb-4">Topics</h1>
 
-      {/* Create Block */}
+      {/* Create Topic */}
       <div className="mb-6">
         <input
           type="text"
-          value={newBlockName}
-          onChange={(e) => setNewBlockName(e.target.value)}
-          placeholder="New Block Name"
+          value={newTopicName}
+          onChange={(e) => setNewTopicName(e.target.value)}
+          placeholder="New Topic Name"
           className="border p-2 mr-2"
         />
-        <button onClick={handleCreateBlock} className="bg-green-500 text-white p-2 rounded">
-          Add Block
+        <button onClick={handleCreateTopic} className="bg-green-500 text-white p-2 rounded">
+          Add Topic
         </button>
       </div>
 
-      {/* List Blocks */}
+      {/* List Topics */}
       <div className="space-y-4">
-        {blocks.length > 0 ? (
-          blocks.map((block) => (
-            <div key={block.id} className="border p-4 rounded flex justify-between items-center">
-              {editingBlockId === block.id ? (
+        {topics.length > 0 ? (
+          topics.map((topic) => (
+            <div key={topic.id} className="border p-4 rounded flex justify-between items-center">
+              {editingTopicId === topic.id ? (
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
-                    value={editingBlockName}
-                    onChange={(e) => setEditingBlockName(e.target.value)}
+                    value={editingTopicName}
+                    onChange={(e) => setEditingTopicName(e.target.value)}
                     className="border p-1"
                   />
-                  <button onClick={handleUpdateBlock} className="bg-blue-500 text-white p-1 rounded">
+                  <button onClick={handleUpdateTopic} className="bg-blue-500 text-white p-1 rounded">
                     Save
                   </button>
-                  <button onClick={() => setEditingBlockId(null)} className="bg-gray-300 p-1 rounded">
+                  <button onClick={() => setEditingTopicId(null)} className="bg-gray-300 p-1 rounded">
                     Cancel
                   </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  {/* Link to topics page */}
-                  <Link to={`/materials/block/${block.id}`} className="text-blue-500 hover:underline">
-                    Block {block.title}
+                  {/* Link to topic's content page */}
+                  <Link to={`/topic/${topic.id}`} className="text-blue-500 hover:underline">
+                    {topic.title}
                   </Link>
-                  <button onClick={() => handleEditBlock(block.id, block.title)} className="bg-yellow-400 p-1 rounded">
+                  <button onClick={() => handleEditTopic(topic.id, topic.title)} className="bg-yellow-400 p-1 rounded">
                     Edit
                   </button>
-                  <button onClick={() => handleDeleteBlock(block.id)} className="bg-red-500 text-white p-1 rounded">
+                  <button onClick={() => handleDeleteTopic(topic.id)} className="bg-red-500 text-white p-1 rounded">
                     Delete
                   </button>
                 </div>
@@ -116,11 +118,11 @@ const BlockPage = () => {
             </div>
           ))
         ) : (
-          <p>No blocks available</p>
+          <p>No topics available</p>
         )}
       </div>
     </div>
   );
 };
 
-export default BlockPage;
+export default TopicsPage;
