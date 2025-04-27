@@ -1,7 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LongreadPage from './components/LongreadPage/LongreadPage';  // Импортируем компонент LongreadPage
-
-
+import LongreadPage from './pages/LongreadPage'; 
 
 function App() {
   return (

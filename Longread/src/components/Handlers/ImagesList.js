@@ -1,5 +1,5 @@
 import React from 'react';
-import { BASE_URL } from '../LongreadPage/LongreadPage';
+import { BASE_URL } from '../../pages/LongreadPage';
 
 const ImagesList = ({ images }) => (
   <div className="images">

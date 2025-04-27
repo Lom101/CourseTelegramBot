@@ -3,10 +3,10 @@ import mammoth from 'mammoth';
 import { useParams } from 'react-router-dom';
 import './LongreadPage.css';
 
-import WordContent from '../Handlers/WordContent';
-import BooksList from '../Handlers/BooksList';
-import AudioList from '../Handlers/AudioList';
-import ImagesList from '../Handlers/ImagesList';
+import WordContent from '../components/Handlers/WordContent';
+import BooksList from '../components/Handlers/BooksList';
+import AudioList from '../components/Handlers/AudioList';
+import ImagesList from '../components/Handlers/ImagesList';
 
 export const BASE_URL = 'http://localhost:5000';
 
