@@ -7,6 +7,7 @@ using Core.Interfaces;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot.Service;
@@ -538,9 +539,11 @@ public class UserBotService : IUserBotService
         // Выводим заголовок темы и ссылку на Longread
         await _botClient.SendTextMessageAsync(
             chatId,
-            $"📚 {topic.Title}\n Ссылка на урок - {topic.LongreadUrl ?? "пусто"}",
+            $"📚 {topic.Title}\n<a href=\"{topic.LongreadUrl}\">Перейти к уроку</a>",
+            parseMode: ParseMode.Html,
             replyMarkup: keyboard,
             cancellationToken: cancellationToken);
+
     }
     
     private async Task ShowWelcomeMenuAsync(long chatId, CancellationToken cancellationToken)

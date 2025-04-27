@@ -9,8 +9,8 @@ public class WordFileService : IWordFileService
 
     public WordFileService(IWebHostEnvironment env)
     {
-        _wordFolderPath = Path.Combine(env.WebRootPath, "upload", "docs");
-        _wordUrlBase = "/upload/docs";
+        _wordFolderPath = Path.Combine(env.WebRootPath, "uploads", "docs");
+        _wordUrlBase = "/uploads/docs";
 
         if (!Directory.Exists(_wordFolderPath))
             Directory.CreateDirectory(_wordFolderPath);
