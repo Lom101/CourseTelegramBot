@@ -32,42 +32,30 @@ export const deleteContentItem = async (id) => {
   }
 };
 
-export const createWordContentItem = async (data) => {
-  try {
-    const response = await axios.post(`${API_URL}/word`, data);
-    return response.data;
-  } catch (error) {
-    console.error('Error creating word content item', error);
-    throw error;
-  }
+export const createWordContentItem = async (formData) => {
+  const response = await axios.post(`${API_URL}/word`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
 };
 
-export const createImageContentItem = async (data) => {
-  try {
-    const response = await axios.post(`${API_URL}/image`, data);
-    return response.data;
-  } catch (error) {
-    console.error('Error creating image content item', error);
-    throw error;
-  }
+export const createImageContentItem = async (formData) => {
+  const response = await axios.post(`${API_URL}/image`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
 };
 
-export const createBookContentItem = async (data) => {
-  try {
-    const response = await axios.post(`${API_URL}/book`, data);
-    return response.data;
-  } catch (error) {
-    console.error('Error creating book content item', error);
-    throw error;
-  }
+export const createBookContentItem = async (formData) => {
+  const response = await axios.post(`${API_URL}/book`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
 };
 
-export const createAudioContentItem = async (data) => {
-  try {
-    const response = await axios.post(`${API_URL}/audio`, data);
-    return response.data;
-  } catch (error) {
-    console.error('Error creating audio content item', error);
-    throw error;
-  }
+export const createAudioContentItem = async (formData) => {
+  const response = await axios.post(`${API_URL}/audio`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
 };
