@@ -5,6 +5,7 @@ import LoginPage from "../pages/LoginPage";
 import ContentItemPage from "../pages/ContentItemPage";
 import TopicsPage from "../pages/TopicsPage";
 import TestPage from "../pages/TestPage";
+import TestDetailPage from "../pages/TestDetailPage";
 
 // Защищённые маршруты (для авторизованных пользователей)
 export const authRoutes = [
@@ -12,7 +13,7 @@ export const authRoutes = [
     { path: "/blocks", Component: BlockPage },
     { path: "/blocks/:blockId", Component: TopicsPage },
     { path: "/topic/:topicId", Component: ContentItemPage },
-    { path: "/tests", Component: TestPage },
+    { path: "/tests", Component: TestPage }
 ];
 
 // Публичные маршруты (для всех)

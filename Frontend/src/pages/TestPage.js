@@ -1,13 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from "react-router-dom";
-import { getAllTests, createTest } from '../api/testService'; // Функции для получения и добавления тестов
+import React, { useEffect, useState } from 'react'; 
+import { getAllTests, createTest } from '../api/testService';
+import QuestionModal from '../components/QuestionModal';
+import TestList from '../components/TestList';
+import TestForm from '../components/TestForm';
 
 const TestPage = () => {
   const [tests, setTests] = useState([]);
   const [newTestTitle, setNewTestTitle] = useState('');
-  const [newTestQuestions, setNewTestQuestions] = useState([{ questionText: '', options: [{ optionText: '' }] }]); // Пример структуры для вопросов
+  const [newTestQuestions, setNewTestQuestions] = useState([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(null);
+  const [currentOption, setCurrentOption] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isTestBeingCreated, setIsTestBeingCreated] = useState(false);
 
-  // Функция для получения всех тестов
   useEffect(() => {
     const fetchTests = async () => {
       try {
@@ -21,135 +26,103 @@ const TestPage = () => {
     fetchTests();
   }, []);
 
-  // Функция для создания нового теста
   const handleCreateTest = async () => {
-    const newTest = {
-      title: newTestTitle,
-      questions: newTestQuestions,
-    };
+    if (newTestTitle.trim() === '') return alert('Название теста не может быть пустым!');
+    
+    const isDuplicateTitle = tests.some(test => test.title === newTestTitle);
+    if (isDuplicateTitle) return alert('Тест с таким названием уже существует!');
+
+    for (let question of newTestQuestions) {
+      if (!question.questionText.trim()) return alert('Все вопросы должны быть заполнены!');
+      if (question.options.length < 2 || question.options.some(option => !option.optionText.trim())) {
+        return alert('Каждый вопрос должен иметь минимум 2 варианта ответа!');
+      }
+    }
 
     try {
-      await createTest(newTest);
+      await createTest({ title: newTestTitle, questions: newTestQuestions });
       setNewTestTitle('');
-      setNewTestQuestions([{ questionText: '', options: [{ optionText: '' }] }]);
-      // После создания нового теста обновляем список тестов
+      setNewTestQuestions([]);
+      setIsModalOpen(false);
       const data = await getAllTests();
       setTests(data);
+      setIsTestBeingCreated(false);
     } catch (error) {
       console.error('Ошибка при создании теста:', error);
     }
   };
 
-  // Функция для добавления вопроса
   const handleAddQuestion = () => {
-    setNewTestQuestions([
-      ...newTestQuestions,
-      { questionText: '', options: [{ optionText: '' }] },
-    ]);
+    setCurrentQuestionIndex(newTestQuestions.length); // Устанавливаем индекс последнего вопроса
+    setNewTestQuestions([...newTestQuestions, { questionText: '', options: [] }]);
+    setIsModalOpen(true); // Открытие модального окна
+    setIsTestBeingCreated(true); // Это создание нового вопроса
   };
 
-  // Функция для добавления варианта ответа
-  const handleAddOption = (index) => {
-    const updatedQuestions = [...newTestQuestions];
-    updatedQuestions[index].options.push({ optionText: '' });
-    setNewTestQuestions(updatedQuestions);
+  const handleCloseModal = () => {
+    // Если был добавлен новый вопрос, удалим его из массива
+    if (isTestBeingCreated) {
+      setNewTestQuestions(prevQuestions => prevQuestions.slice(0, -1)); // Удаляем последний вопрос
+    }
+    
+    setIsModalOpen(false); // Закрываем модальное окно
+    setCurrentQuestionIndex(null); // Сбрасываем индекс текущего вопроса
+    setCurrentOption(''); // Сбрасываем текущий вариант ответа
   };
 
-  // Функция для обновления текста вопроса
-  const handleQuestionChange = (index, value) => {
-    const updatedQuestions = [...newTestQuestions];
-    updatedQuestions[index].questionText = value;
-    setNewTestQuestions(updatedQuestions);
-  };
-
-  // Функция для обновления текста варианта ответа
-  const handleOptionChange = (qIndex, oIndex, value) => {
-    const updatedQuestions = [...newTestQuestions];
-    updatedQuestions[qIndex].options[oIndex].optionText = value;
-    setNewTestQuestions(updatedQuestions);
+  const handleEditQuestion = (index) => {
+    setCurrentQuestionIndex(index);  // Устанавливаем индекс редактируемого вопроса
+    setIsModalOpen(true); // Открываем модальное окно для редактирования вопроса
+    setIsTestBeingCreated(false); // Указываем, что это редактирование, а не добавление
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-    <h1 className="text-3xl font-semibold mb-6 text-center">Список тестов</h1>
+    <div className="m-10">
+      <h1 className="text-2xl mb-4">Список тестов</h1>
+      <button 
+        className="bg-green-500 text-white p-2 rounded w-48 h-12 hover:bg-green-600 mt-2" 
+        onClick={handleAddQuestion}>
+        Добавить вопрос
+      </button>
 
-    {/* Добавление нового теста */}
-    <div className="mb-8">
-      <h2 className="text-2xl mb-4">Создать новый тест</h2>
-        <input
-          type="text"
-          value={newTestTitle}
-          onChange={(e) => setNewTestTitle(e.target.value)}
-          placeholder="Введите название теста"
-          className="border p-3 w-full mb-6 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        
-        <div className="mb-6">
-          <h3 className="text-xl mb-4">Вопросы</h3>
-          {newTestQuestions.map((question, qIndex) => (
-            <div key={qIndex} className="mb-6">
-              <input
-                type="text"
-                value={question.questionText}
-                onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
-                placeholder={`Вопрос ${qIndex + 1}`}
-                className="border p-3 w-full mb-4 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <div className="space-y-4">
-                {question.options.map((option, oIndex) => (
-                  <input
-                    key={oIndex}
-                    type="text"
-                    value={option.optionText}
-                    onChange={(e) => handleOptionChange(qIndex, oIndex, e.target.value)}
-                    placeholder={`Вариант ${oIndex + 1}`}
-                    className="border p-3 w-full rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                ))}
-                <button
-                  className="bg-blue-500 text-white p-3 rounded mt-4 w-full hover:bg-blue-600 transition-colors duration-200"
-                  onClick={() => handleAddOption(qIndex)}
-                >
-                  Добавить вариант
-                </button>
-              </div>
-            </div>
-          ))}
-          <button
-            className="bg-green-500 text-white p-3 rounded w-full hover:bg-green-600 transition-colors duration-200"
-            onClick={handleAddQuestion}
-          >
-            Добавить вопрос
-          </button>
+      {/* Раздел добавленных вопросов */}
+      {newTestQuestions.map((question, qIndex) => (
+        <div key={qIndex} className="mb-6 w-full">
+          <h3 className="text-xl text-gray-700">
+            Вопрос {qIndex + 1}:{' '}
+            <span onClick={() => handleEditQuestion(qIndex)} className="text-blue-500 cursor-pointer">
+              {question.questionText}
+            </span>
+          </h3>
+          <ul>
+            {question.options.map((option, oIndex) => (
+              <li key={oIndex} className="mb-2">{`${oIndex + 1}. ${option.optionText}`}</li>
+            ))}
+          </ul>
         </div>
+      ))}
 
-        <button
-          className="bg-green-600 text-white p-4 rounded-lg w-full hover:bg-green-700 transition-colors duration-200"
-          onClick={handleCreateTest}
-        >
-          Создать тест
-        </button>
-      </div>
+      {isTestBeingCreated && (
+        <TestForm 
+          newTestTitle={newTestTitle} 
+          setNewTestTitle={setNewTestTitle} 
+          handleCreateTest={handleCreateTest} 
+        />
+      )}
 
-      {/* Список тестов */}
-      <div>
-        <h2 className="text-2xl mb-4">Список существующих тестов</h2>
-        {tests.length > 0 ? (
-          tests.map((test) => (
-            <div key={test.id} className="border p-4 rounded-lg bg-gray-100 mb-4 flex justify-between items-center">
-              <span className="text-xl text-blue-600 font-semibold">{test.title}</span>
-              <Link
-                to={`/tests/edit/${test.id}`}
-                className="bg-yellow-400 px-4 py-2 rounded text-white hover:bg-yellow-500 transition-colors duration-200"
-              >
-                Редактировать
-              </Link>
-            </div>
-          ))
-        ) : (
-          <p className="text-lg text-gray-600">Нет доступных тестов.</p>
-        )}
-      </div>
+      <QuestionModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        currentQuestionIndex={currentQuestionIndex}
+        newTestQuestions={newTestQuestions}
+        setNewTestQuestions={setNewTestQuestions}
+        currentOption={currentOption}
+        setCurrentOption={setCurrentOption}
+        handleCloseModal={handleCloseModal}
+        isEditing={currentQuestionIndex !== null}
+      />
+
+      <TestList tests={tests} />
     </div>
   );
 };
