@@ -78,7 +78,7 @@ const UsersPage = () => {
       await api.post("/api/User/add-new-user", payload);
       setNewUser({ phoneNumber: "", email: "", fullName: "", chatId: "" });
       fetchUsers();
-      setShowForm(false); // Скрыть форму после успешного добавления
+      setShowForm(false);
     } catch (error) {
       console.error("Ошибка при добавлении пользователя:", error);
     }
