@@ -1,11 +1,14 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AuthContext } from "./AuthContext";
 
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
+
+
+  const [isMenuVisible, setIsMenuVisible] = useState(true);
 
   const menuItems = [
     { label: "Участники", to: "/users" },
@@ -18,37 +21,62 @@ export default function Navbar() {
     navigate('/login');
   };
 
-  return (
-    <nav className="relative flex items-center justify-center pt-6 mb-8 px-6">
-      {/* Центр — меню */}
-      <ul className="flex gap-6 px-6 py-2 rounded-full shadow-md border border-yellow-400 bg-yellow-300">
-        {menuItems.map(({ label, to }) => {
-          const isActive = location.pathname === to;
-          return (
-            <li key={to}>
-              <Link
-                to={to}
-                className={`flex items-center gap-1 px-4 py-1 rounded-full text-sm font-medium transition-colors duration-200
-                  ${
-                    isActive
-                      ? "bg-yellow-400 text-black"
-                      : "text-black hover:bg-yellow-400"
-                  }`}
-              >
-                {label}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+  const toggleMenuVisibility = () => {
+    setIsMenuVisible(!isMenuVisible); 
+  };
 
-      {/* Справа — кнопка "Выйти" */}
+  const handleMenuItemClick = () => {
+    setIsMenuVisible(false); 
+  };
+
+  return (
+    <div>
+      {/* (гамбургер) */}
       <button
-        onClick={handleLogout}
-        className="absolute right-6 top-6 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 text-black bg-yellow-300 border border-yellow-400 shadow-md hover:bg-yellow-400"
+        onClick={toggleMenuVisibility}
+        className="fixed top-4 left-4 text-gray-800 p-4 bg-gray-300 rounded-full shadow-md"
       >
-        Выйти
+        <span className="block w-6 h-0.5 bg-gray-800 mb-1"></span>
+        <span className="block w-6 h-0.5 bg-gray-800 mb-1"></span>
+        <span className="block w-6 h-0.5 bg-gray-800"></span>
       </button>
-    </nav>
+
+      {/* Меню */}
+      <nav
+        className={`fixed top-0 left-0 h-full w-64 bg-gray-800 text-white p-6 shadow-lg transform transition-all duration-300 ${isMenuVisible ? "translate-x-0" : "-translate-x-full"}`}
+      >
+        {/* Заголовок меню */}
+        <h2 className="text-2xl font-bold mb-8 text-gray-200">Меню</h2>
+  
+        {/* Меню */}
+        <ul className="space-y-4">
+          {menuItems.map(({ label, to }) => {
+            const isActive = location.pathname === to;
+            return (
+              <li key={to}>
+                <Link
+                  to={to}
+                  onClick={handleMenuItemClick} // При клике скрываем меню
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200
+                    ${isActive
+                      ? "bg-gray-600 text-gray-300"
+                      : "text-gray-300 hover:bg-gray-700 hover:text-white"}`}
+                >
+                  {label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+  
+        {/* Кнопка "Выйти" */}
+        <button
+          onClick={handleLogout}
+          className="absolute bottom-6 left-6 px-4 py-2 rounded-lg text-sm font-medium text-gray-800 bg-gray-300 border border-gray-400 shadow-md hover:bg-gray-400"
+        >
+          Выйти
+        </button>
+      </nav>
+    </div>
   );
 }

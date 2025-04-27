@@ -86,80 +86,90 @@ const TopicsPage = () => {
   };
 
   return (
-    <div className="m-10">
-      <h1 className="text-2xl mb-4">Темы внутри главы №{blockId}</h1>
+    <div className="min-h-screen bg-gray-50 px-10 py-8">
+  <h1 className="text-3xl mb-6 font-extrabold text-gray-800 mt-12 ">Темы внутри главы №{blockId}</h1>
 
-      {/* Create Topic */}
-      <div className="flex items-center gap-4 mb-8">
-        <input
-          type="text"
-          value={newTopicName}
-          onChange={(e) => setNewTopicName(e.target.value)}
-          placeholder="Введите название темы"
-          className="border p-2 mr-2"
-        />
-        <button onClick={handleCreateTopic} className="bg-green-500 text-white p-2 rounded">
-          Добавить
-        </button>
-      </div>
+  {/* Create Topic */}
+  <div className="flex items-center gap-4 mb-8">
+    <input
+      type="text"
+      value={newTopicName}
+      onChange={(e) => setNewTopicName(e.target.value)}
+      placeholder="Введите название темы"
+      className="border border-gray-300 p-3 rounded-lg w-3/4 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500"
+    />
+    <button
+      onClick={handleCreateTopic}
+      className="bg-gray-500 text-white p-3 rounded-lg hover:bg-gray-600 transition"
+    >
+      Добавить
+    </button>
+  </div>
 
-      {/* List Topics */}
-      <div className="space-y-4">
-        {topics.length > 0 ? (
-          topics.map((topic) => (
-            <div key={topic.id} className="border p-4 rounded flex justify-between items-center bg-white">
-              {editingTopicId === topic.id ? (
-                <div className="flex items-center justify-between gap-4 w-full">
-                <input
-                  type="text"
-                  value={editingTopicName}
-                  onChange={(e) => setEditingTopicName(e.target.value)}
-                  className="border p-2 flex-1 rounded"
-                />
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleUpdateTopic}
-                    className="bg-blue-500 text-white px-3 py-1 rounded"
-                  >
-                    Сохранить
-                  </button>
-                  <button
-                    onClick={() => setEditingTopicId(null)}
-                    className="bg-gray-300 px-3 py-1 rounded"
-                  >
-                    Отмена
-                  </button>
-                </div>
+  {/* List Topics */}
+  <div className="space-y-6">
+    {topics.length > 0 ? (
+      topics.map((topic) => (
+        <div
+          key={topic.id}
+          className="border border-gray-300 p-4 rounded-lg bg-white flex justify-between items-center shadow-sm hover:shadow-md transition"
+        >
+          {editingTopicId === topic.id ? (
+            <div className="flex items-center justify-between gap-4 w-full">
+              <input
+                type="text"
+                value={editingTopicName}
+                onChange={(e) => setEditingTopicName(e.target.value)}
+                className="border border-gray-300 p-3 flex-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+              />
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleUpdateTopic}
+                  className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
+                >
+                  Сохранить
+                </button>
+                <button
+                  onClick={() => setEditingTopicId(null)}
+                  className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+                >
+                  Отмена
+                </button>
               </div>
-            ) : (
-              <>
-                <Link to={`/topic/${topic.id}`} className="text-blue-500 hover:underline">
-                  {topic.title}
-                </Link>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleEditTopic(topic.id, topic.title)}
-                    className="bg-yellow-400 px-3 py-1 rounded"
-                  >
-                    Редактировать
-                  </button>
-                  <button
-                    onClick={() => handleDeleteTopic(topic.id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded"
-                  >
-                    Удалить
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-          ))
-        ) : (
-          <p>Вы еще не добавили ни одну тему..</p>
-        )}
-      </div>
-    </div>
-  );
+            </div>
+          ) : (
+            <>
+              <Link
+                to={`/topic/${topic.id}`}
+                className="text-gray-700 hover:text-gray-900 font-semibold"
+              >
+                {topic.title}
+              </Link>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleEditTopic(topic.id, topic.title)}
+                  className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition"
+                >
+                  Редактировать
+                </button>
+                <button
+                  onClick={() => handleDeleteTopic(topic.id)}
+                  className="bg-red-400 text-white px-4 py-2 rounded-lg hover:bg-red-500 transition"
+                >
+                  Удалить
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      ))
+    ) : (
+      <p className="text-gray-600">Вы еще не добавили ни одну тему..</p>
+    )}
+  </div>
+</div>
+
+);
 };
 
 export default TopicsPage;
