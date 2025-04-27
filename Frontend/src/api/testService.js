@@ -23,3 +23,14 @@ export const createTest = async (testData) => {
     throw error;
   }
 };
+
+// Функция для получения теста по айди
+export const getTestById = async (id) => {
+  try {
+    const response = await axios.get(`${API_URL}/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching test by ID:', error);
+    throw error;
+  }
+};
