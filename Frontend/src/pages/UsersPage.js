@@ -91,30 +91,17 @@ const UsersPage = () => {
         <div className="h-1 w-24 bg-gray-300 rounded-full mx-auto" />
       </div>
 
-      {/* Кнопка показать/скрыть форму */}
       {isAdmin && (
-        <div className="flex justify-center mb-6">
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="bg-gray-400 hover:bg-gray-500 text-white font-semibold px-6 py-2 rounded-xl transition"
-          >
-            {showForm ? 'Скрыть форму' : 'Добавить пользователя'}
-          </button>
-        </div>
-      )}
-
-      {/* Форма добавления пользователя */}
-      {showForm && (
-        <div className="flex justify-center mb-10">
-          <div className="w-full max-w-3xl">
-            <UserForm
-              newUser={newUser}
-              setNewUser={setNewUser}
-              handleAddUser={handleAddUser}
-            />
-          </div>
-        </div>
-      )}
+  <div className="flex justify-start mb-10">
+    <div className="w-full max-w-5xl">
+      <UserForm
+        newUser={newUser}
+        setNewUser={setNewUser}
+        handleAddUser={handleAddUser}
+      />
+    </div>
+  </div>
+)}
 
       {/* Список пользователей на всю ширину */}
       <div className="w-full">

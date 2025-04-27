@@ -77,7 +77,7 @@ const UserList = () => {
 
   return (
     <div className="max-w-7xl mx-auto mt-6 px-4">
-      <h1 className="text-2xl font-bold mb-4 text-gray-700">Пользователи</h1>
+      <h1 className="text-2xl font-bold mb-4 text-gray-700"></h1>
 
       <div className="overflow-x-auto rounded-2xl shadow-lg">
         <table className="min-w-full text-left bg-gray-100 rounded-2xl overflow-hidden">
@@ -95,7 +95,7 @@ const UserList = () => {
             </tr>
           </thead>
           <tbody>
-            {users.map(user => (
+            {sortedUsers.map(user => (
               <tr key={user.id} className="border-t border-gray-300 hover:bg-gray-50 transition-colors">
                 <td className="p-3">{user.fullName}</td>
                 <td className="p-3">{user.phoneNumber}</td>
