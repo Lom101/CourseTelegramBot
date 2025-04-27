@@ -34,15 +34,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include=".env.local">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Include=".env.docker">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
-
-    <ItemGroup>
       <Folder Include="wwwroot\" />
     </ItemGroup>
 

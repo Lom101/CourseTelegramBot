@@ -70,12 +70,12 @@ const TestPage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-    <h1 className="text-3xl font-semibold mb-6 text-center">Список тестов</h1>
-
-    {/* Добавление нового теста */}
-    <div className="mb-8">
-      <h2 className="text-2xl mb-4">Создать новый тест</h2>
+    <div className="m-10">
+      <h1 className="text-2xl mb-4">Список тестов</h1>
+  
+      {/* Добавление нового теста */}
+      <div className="mb-8 p-6 rounded-lg shadow-md bg-white">
+        <h2 className="text-2xl mb-4 text-gray-800">Создать новый тест</h2>
         <input
           type="text"
           value={newTestTitle}
@@ -83,11 +83,11 @@ const TestPage = () => {
           placeholder="Введите название теста"
           className="border p-3 w-full mb-6 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        
-        <div className="mb-6">
-          <h3 className="text-xl mb-4">Вопросы</h3>
+  
+        <div className="mb-6 w-full">
+          <h3 className="text-xl mb-4 text-gray-700">Вопросы</h3>
           {newTestQuestions.map((question, qIndex) => (
-            <div key={qIndex} className="mb-6">
+            <div key={qIndex} className="mb-6 w-full">
               <input
                 type="text"
                 value={question.questionText}
@@ -107,7 +107,7 @@ const TestPage = () => {
                   />
                 ))}
                 <button
-                  className="bg-blue-500 text-white p-3 rounded mt-4 w-full hover:bg-blue-600 transition-colors duration-200"
+                  className="bg-blue-500 text-white p-2 rounded w-48 h-12 hover:bg-blue-600"
                   onClick={() => handleAddOption(qIndex)}
                 >
                   Добавить вариант
@@ -116,28 +116,36 @@ const TestPage = () => {
             </div>
           ))}
           <button
-            className="bg-green-500 text-white p-3 rounded w-full hover:bg-green-600 transition-colors duration-200"
+            className="bg-green-500 text-white p-2 rounded w-48 h-12 hover:bg-green-600 mt-2"
             onClick={handleAddQuestion}
           >
             Добавить вопрос
           </button>
         </div>
-
+  
         <button
-          className="bg-green-600 text-white p-4 rounded-lg w-full hover:bg-green-700 transition-colors duration-200"
+          className="bg-green-600 text-white p-2 rounded w-48 h-12 hover:bg-green-700 mt-3"
           onClick={handleCreateTest}
         >
           Создать тест
         </button>
       </div>
-
+  
       {/* Список тестов */}
-      <div>
-        <h2 className="text-2xl mb-4">Список существующих тестов</h2>
+      <div className="mt-8">
+        <h2 className="text-2xl mb-4 text-gray-800">Список существующих тестов</h2>
         {tests.length > 0 ? (
           tests.map((test) => (
-            <div key={test.id} className="border p-4 rounded-lg bg-gray-100 mb-4 flex justify-between items-center">
-              <span className="text-xl text-blue-600 font-semibold">{test.title}</span>
+            <div
+              key={test.id}
+              className="border p-4 rounded-lg mb-4 flex justify-between items-center shadow-md bg-white"
+            >
+              <Link
+                to={`/test/${test.id}`}
+                className="text-xl text-blue-600 font-semibold hover:underline"
+              >
+                {test.title}
+              </Link>
               <Link
                 to={`/tests/edit/${test.id}`}
                 className="bg-yellow-400 px-4 py-2 rounded text-white hover:bg-yellow-500 transition-colors duration-200"
