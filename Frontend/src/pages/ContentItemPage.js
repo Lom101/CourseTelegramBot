@@ -99,96 +99,101 @@ const ContentItemPage = () => {
   };
 
   return (
-    <div className="m-10">
-      <h2 className="text-2xl font-semibold mb-4">Содержимое темы №{topicId}</h2>
-
-      {/* Create Content Item */}
-      <form onSubmit={handleSubmit} className="space-y-4 mb-6" encType="multipart/form-data">
-        <div className="flex items-center space-x-4">
-          <label className="text-lg">Тип</label>
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            className="border p-2 rounded"
-          >
-            <option value="word">Word файл</option>
-            <option value="image">Картинка</option>
-            <option value="book">Книга</option>
-            <option value="audio">Аудио файл</option>
-          </select>
-        </div>
-
+    <div className="m-10 bg-gray-100 p-8 rounded-lg shadow">
+    <h2 className="text-2xl font-extrabold text-gray-800 mb-6">Содержимое темы №{topicId}</h2>
+  
+    {/* Create Content Item */}
+    <form onSubmit={handleSubmit} className="space-y-6 mb-8" encType="multipart/form-data">
+      <div className="flex items-center space-x-4">
+        <label className="text-lg font-medium text-gray-700">Тип</label>
+        <select
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+          className="border border-gray-300 p-3 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
+        >
+          <option value="word">Word файл</option>
+          <option value="image">Картинка</option>
+          <option value="book">Книга</option>
+          <option value="audio">Аудио файл</option>
+        </select>
+      </div>
+  
+      <div>
+        <input
+          name="title"
+          placeholder="Название"
+          value={formData.title}
+          onChange={handleChange}
+          className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
+        />
+      </div>
+  
+      {type === 'image' && (
         <div>
           <input
-            name="title"
-            placeholder="Title"
-            value={formData.title}
+            name="altText"
+            placeholder="Альтернативный текст (опционально)"
+            value={formData.altText}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
           />
-        </div>
-
-        {(type === 'image') && (
-          <div>
-            <input
-              name="altText"
-              placeholder="Alt Text (optional)"
-              value={formData.altText}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-        )}
-
-        <div>
-          <input
-            type="file"
-            name="file"
-            accept={type === 'audio' ? 'audio/*' : type === 'image' ? 'image/*' : ''}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <button type="submit" className="w-auto p-5 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-          Добавить
-        </button>
-      </form>
-
-      <h3 className="text-xl font-semibold mb-4">Все элементы</h3>
-      {loading ? (
-        <p>Загрузка...</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white p-4 border rounded shadow-md flex flex-col gap-4"
-            >
-              <h4 className="text-lg font-semibold">{item.title || 'Без названия'}</h4>
-
-              {item.fileUrl && (
-                <a
-                  href={process.env.REACT_APP_API_URL + item.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline"
-                >
-                  Посмотреть файл
-                </a>
-              )}
-
-              <button
-                onClick={() => handleDelete(item.id)}
-                className="self-start bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-              >
-                Удалить
-              </button>
-            </div>
-          ))}
         </div>
       )}
-    </div>
+  
+      <div>
+        <input
+          type="file"
+          name="file"
+          accept={type === 'audio' ? 'audio/*' : type === 'image' ? 'image/*' : ''}
+          onChange={handleChange}
+          className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
+        />
+      </div>
+  
+      <button
+        type="submit"
+        className="w-full p-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
+      >
+        Добавить
+      </button>
+    </form>
+  
+    <h3 className="text-xl font-bold text-gray-800 mb-6">Все элементы</h3>
+  
+    {loading ? (
+      <p className="text-gray-600">Загрузка...</p>
+    ) : (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {items.map((item) => (
+          <div
+            key={item.id}
+            className="bg-white p-6 border border-gray-300 rounded-lg shadow-sm flex flex-col gap-4 hover:shadow-md transition"
+          >
+            <h4 className="text-lg font-semibold text-gray-700">{item.title || 'Без названия'}</h4>
+  
+            {item.fileUrl && (
+              <a
+                href={process.env.REACT_APP_API_URL + item.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 hover:text-gray-800 underline"
+              >
+                Посмотреть файл
+              </a>
+            )}
+  
+            <button
+              onClick={() => handleDelete(item.id)}
+              className="self-start bg-red-400 text-white px-4 py-2 rounded-lg hover:bg-red-500 transition"
+            >
+              Удалить
+            </button>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+  
   );
 };
 
