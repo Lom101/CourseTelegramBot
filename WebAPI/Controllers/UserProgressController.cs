@@ -1,4 +1,5 @@
-﻿using Core.Interfaces;
+﻿using Backend.Mapper;
+using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;
@@ -27,6 +28,9 @@ public class UserProgressController : ControllerBase
             return NotFound();
         }
 
-        return Ok(progressDetails);
+        // Маппим сущности в DTO
+        var progressResponse = progressDetails.ToGetUserProgressResponse();
+
+        return Ok(progressResponse);
     }
 }
