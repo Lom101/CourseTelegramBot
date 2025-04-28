@@ -11,7 +11,7 @@ namespace Infrastructure.Data
     {
         public static async Task SeedAsync(AppDbContext context)
         {
-            await context.Database.EnsureDeletedAsync();
+            //await context.Database.EnsureDeletedAsync();
             await context.Database.MigrateAsync();
 
             // Проверяем, если тесты и блоки не созданы
@@ -352,7 +352,7 @@ namespace Infrastructure.Data
                     {
                         PhoneNumber = "+79033883307",
                         Email = "123@mail.ru",
-                        FullName = "Куколка",
+                        FullName = "Сабина Минибаева",
                         RegistrationDate = DateTime.UtcNow,
                         LastActivity = DateTime.UtcNow,
                         IsBlocked = false,
