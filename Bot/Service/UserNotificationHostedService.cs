@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Core.Interfaces;
 using Telegram.Bot;
+using Telegram.Bot.Exceptions;
 
 namespace Bot.Service
 {
@@ -15,28 +16,32 @@ namespace Bot.Service
         private readonly IUserRepository _userRepository;
         private Timer _timer;
 
-        private readonly string[] _reminders = new[]
+        // Настройки, которые можно легко настроить в начале класса
+        private readonly TimeSpan _notificationInterval = TimeSpan.FromMinutes(1); // Частота проверки активности пользователей (каждую минуту)
+        private readonly TimeSpan _inactivityThreshold = TimeSpan.FromMinutes(5); // Время бездействия (5 минут)
+
+        private readonly string[] _reminders = new[] 
         {
             "⏰ Уже забываешь о курсе? Вернись и продолжи учиться, не подведи! 💪",
-    
             "🚨 Ты что, остановился? Время продолжить курс и достичь цели! 🎯",
-    
             "⚡️ Не откладывай на потом! Твой курс ждет, возвращайся к нему прямо сейчас! 📚",
-    
             "👀 Ты не забыл про курс, да? Давай, продолжай, чтобы твои знания становились лучше! 💥"
         };
-
 
         public UserNotificationHostedService(ITelegramBotClient botClient, IUserRepository userRepository)
         {
             _botClient = botClient;
             _userRepository = userRepository;
+
+            // Выводим параметры в консоль при старте сервиса
+            Console.WriteLine($"[UserNotificationService] Напоминания будут отправляться каждые {_notificationInterval.TotalMinutes} минут.");
+            Console.WriteLine($"[UserNotificationService] Напоминание будет отправляться, если пользователь молчит больше чем {_inactivityThreshold.TotalMinutes} минут.");
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            // Запускаем таймер, который будет опрашивать пользователей каждую минуту
-            _timer = new Timer(SendInactivityNotifications, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
+            // Запускаем таймер с указанной частотой
+            _timer = new Timer(SendInactivityNotifications, null, TimeSpan.Zero, _notificationInterval);
             return Task.CompletedTask;
         }
 
@@ -47,16 +52,44 @@ namespace Bot.Service
 
             foreach (var user in users)
             {
-                // Если пользователь не был активен в течение последней минуты
-                if (user.LastActivity.HasValue && now - user.LastActivity.Value > TimeSpan.FromMinutes(1))
+                // Если пользователь заблокирован или нет chatId, пропускаем его
+                if (user.IsBlocked || user.ChatId == null)
+                {
+                    continue;
+                }
+
+                // Если пользователь не был активен в течение заданного времени
+                if (user.LastActivity.HasValue && now - user.LastActivity.Value > _inactivityThreshold)
                 {
                     // Выбираем случайное напоминание из массива
                     var randomReminder = _reminders[new Random().Next(_reminders.Length)];
 
-                    // Отправляем случайное напоминание пользователю
-                    if (user.ChatId.HasValue)
+                    try
                     {
-                        await _botClient.SendTextMessageAsync(user.ChatId.Value, randomReminder);
+                        // Отправляем случайное напоминание пользователю
+                        if (user.ChatId.HasValue)
+                        {
+                            await _botClient.SendTextMessageAsync(user.ChatId.Value, randomReminder);
+                        }
+                    }
+                    catch (ApiRequestException ex)
+                    {
+                        // Проверяем, заблокировал ли пользователь бота
+                        if (ex.ErrorCode == 403)
+                        {
+                            // Логируем, что пользователь заблокировал бота
+                            Console.WriteLine($"Пользователь с chatId {user.ChatId.Value} заблокировал бота.");
+                        }
+                        else
+                        {
+                            // Логируем другие ошибки
+                            Console.WriteLine($"Ошибка при отправке сообщения пользователю с chatId {user.ChatId.Value}: {ex.Message}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Логируем остальные исключения
+                        Console.WriteLine($"Неизвестная ошибка при отправке сообщения пользователю с chatId {user.ChatId.Value}: {ex.Message}");
                     }
                 }
             }
