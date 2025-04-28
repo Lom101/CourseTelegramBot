@@ -46,9 +46,14 @@ public class TopicController(ITopicRepository topicRepository) : ControllerBase
     {
         if (topicDto == null)
             return BadRequest("Invalid topic data");
-        
+
         var topic = TopicMapper.ToEntity(topicDto);
+
         await topicRepository.AddAsync(topic);
+
+        topic.LongreadUrl = $"http://127.0.0.1:3000/longread/{topic.Id}";
+
+        await topicRepository.UpdateAsync(topic);
 
         var dto = TopicMapper.ToDto(topic);
         return CreatedAtAction(nameof(GetTopicById), new { id = topic.Id }, dto);

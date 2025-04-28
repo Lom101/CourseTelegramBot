@@ -66,6 +66,7 @@ namespace Infrastructure.Data
                         new Topic
                         {
                             Title = "Тайм-менеджмент тим лида",
+                            LongreadUrl = "http://127.0.0.1:3000/longread/1",
                             ContentItems = new List<ContentItem>
                             {
                                 new BookContent
@@ -91,6 +92,7 @@ namespace Infrastructure.Data
                         new Topic
                         {
                             Title = "Матрица Эйзенхауэра",
+                            LongreadUrl = "http://127.0.0.1:3000/longread/2",
                             ContentItems = new List<ContentItem>
                             {
                                 new WordFileContent
@@ -115,6 +117,7 @@ namespace Infrastructure.Data
                         new Topic
                         {
                             Title = "ABCDE (АБВГД)",
+                            LongreadUrl = "http://127.0.0.1:3000/longread/3",
                             ContentItems = new List<ContentItem>
                             {
                                 new WordFileContent
@@ -148,6 +151,7 @@ namespace Infrastructure.Data
                         new Topic
                         {
                             Title = "Кто такой лидер",
+                            LongreadUrl = "http://127.0.0.1:3000/longread/4",
                             ContentItems = new List<ContentItem>
                             {
                                 new BookContent
@@ -173,6 +177,7 @@ namespace Infrastructure.Data
                         new Topic
                         {
                             Title = "Стили лидерства",
+                            LongreadUrl = "http://127.0.0.1:3000/longread/5",
                             ContentItems = new List<ContentItem>
                             {
                                 new WordFileContent

@@ -76,9 +76,10 @@ builder.Services.AddSwaggerGen(options => // Генерация Swagger доку
     });
 });
 
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAllOrigins", builder => 
+    options.AddPolicy("AllowAllOrigins", builder =>
     {
         builder.AllowAnyOrigin() // Разрешаем любой источник
             .AllowAnyMethod() // Разрешаем любые HTTP методы (GET, POST, PUT и т.д.)
@@ -118,11 +119,12 @@ builder.Services.AddScoped<IWordFileService, WordFileService>();
 
 var app = builder.Build();
 
+// Применяем CORS
+app.UseCors("AllowAllOrigins");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Применяем CORS
-app.UseCors("AllowAllOrigins");
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 using (var scope = app.Services.CreateScope())

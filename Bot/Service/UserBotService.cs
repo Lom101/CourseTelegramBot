@@ -220,6 +220,7 @@ public class UserBotService : IUserBotService
             
             case var topic when topic.StartsWith("topic_completed_"):
                 var topicId = int.Parse(topic.Split('_')[2]);
+                await _botClient.DeleteMessageAsync(chatId, messageId);
                 await UpdateTopicProgress(chatId, topicId, cancellationToken);
                 break;
 
@@ -536,15 +537,26 @@ public class UserBotService : IUserBotService
         
         var keyboard = new InlineKeyboardMarkup(InlineKeyboardButton.WithCallbackData("✅ Прочитал", $"topic_completed_{topicId}"));
 
-        // Выводим заголовок темы и ссылку на Longread
+        //var title = EscapeMarkdown(topic.Title);
+        
         await _botClient.SendTextMessageAsync(
             chatId,
-            $"📚 {topic.Title}\n<a href=\"{topic.LongreadUrl}\">Перейти к уроку</a>",
+            $"📚 {topic.Title}\n<a href=\"{topic.LongreadUrl}\">Открыть урок</a>",
             parseMode: ParseMode.Html,
-            replyMarkup: keyboard,
             cancellationToken: cancellationToken);
-
+        
     }
+    
+    private static string EscapeMarkdown(string text)
+    {
+        var charsToEscape = new[] { '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!' };
+        foreach (var ch in charsToEscape)
+        {
+            text = text.Replace(ch.ToString(), "\\" + ch);
+        }
+        return text;
+    }
+
     
     private async Task ShowWelcomeMenuAsync(long chatId, CancellationToken cancellationToken)
     {
