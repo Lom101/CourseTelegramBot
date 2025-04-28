@@ -38,9 +38,10 @@ public class UserRepository : IUserRepository
         // {
         //     query = query.Where(u =>
         //         _context.UserProgresses
-        //             .Where(p => p.UserId == u.Id && p.IsCompleted)
+        //             .Where(p => p.UserId == u.Id && p.)
         //             .Count() >= filterRequest.CompletedMaterialCount.Value);
         // }
+
 
         if (filterRequest.RegistrationDateFrom.HasValue)
             query = query.Where(u => u.RegistrationDate >= filterRequest.RegistrationDateFrom.Value);

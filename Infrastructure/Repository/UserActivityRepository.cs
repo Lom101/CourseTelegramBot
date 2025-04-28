@@ -23,6 +23,7 @@ public class UserActivityRepository : IUserActivityRepository
     {
         return await _context.UserActivities
             .Where(ua => ua.UserId == userId)
+            .OrderBy(ua => ua.Id)
             .ToListAsync();
     }
     

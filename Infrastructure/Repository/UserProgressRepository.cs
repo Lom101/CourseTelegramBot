@@ -179,6 +179,7 @@ public class UserProgressRepository : IUserProgressRepository
         // Находим все Topic.Id, которые пользователь завершил в этом блоке
         return await _context.TopicProgresses
             .Where(tp => tp.UserId == userId && tp.IsCompleted && tp.BlockId == blockId)
+            .OrderBy(tp => tp.TopicId) // Сортировка по TopicId
             .Select(tp => tp.TopicId)
             .ToListAsync();
     } 

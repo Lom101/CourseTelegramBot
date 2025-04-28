@@ -21,9 +21,11 @@ public class BlockRepository : IBlockRepository
 
     public async Task<List<Block>> GetAllAsync()
     {
-        return await _context.Blocks.ToListAsync();
+        return await _context.Blocks
+            .OrderBy(b => b.Id)
+            .ToListAsync();
     }
-
+    
     public async Task<Block?> GetByIdWithTopicsAsync(int id)
     {
         return await _context.Blocks

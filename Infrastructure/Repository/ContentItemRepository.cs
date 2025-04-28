@@ -25,9 +25,9 @@ public class ContentItemRepository : IContentItemRepository
     {
         return await _context.ContentItems  
             .Where(c => c.TopicId == topicId)
+            .OrderBy(c => c.Id) 
             .ToListAsync();
     }
-
     public async Task AddAsync(ContentItem contentItem)
     {
         await _context.ContentItems.AddAsync(contentItem);

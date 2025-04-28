@@ -25,6 +25,7 @@ public class TopicRepository : ITopicRepository
     {
         return await _context.Topics
             .Where(t => t.BlockId == blockId)
+            .OrderBy(t => t.Id)
             .ToListAsync();
     }
 

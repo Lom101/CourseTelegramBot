@@ -21,21 +21,36 @@ public class FinalTestRepository : IFinalTestRepository
     
     public async Task<List<FinalTest>> GetAllAsync()
     {
-        return await _context.FinalTests
+        var finalTests = await _context.FinalTests
             .Include(f => f.Questions)
             .ThenInclude(q => q.Options)
             .ToListAsync();
+
+        // Сортируем вопросы каждого теста по Id
+        foreach (var test in finalTests)
+        {
+            test.Questions = test.Questions.OrderBy(q => q.Id).ToList();
+        }
+
+        return finalTests;
     }
     
     public async Task<FinalTest> GetByBlockIdAsync(int blockId)
     {
-        return await _context.Blocks
+        var finalTest = await _context.Blocks
             .Where(b => b.Id == blockId)
             .Include(b => b.FinalTest)  // Загрузка связанного теста через Block
             .ThenInclude(t => t.Questions)  // Включение вопросов теста
             .ThenInclude(q => q.Options)  // Включение вариантов ответов на вопросы
             .Select(b => b.FinalTest)
             .FirstOrDefaultAsync();
+
+        if (finalTest != null)
+        {
+            finalTest.Questions = finalTest.Questions.OrderBy(q => q.Id).ToList(); // Сортировка вопросов по Id
+        }
+
+        return finalTest;
     }
     
     public async Task<FinalTest?> GetByIdAsync(int testId)
@@ -47,7 +62,7 @@ public class FinalTestRepository : IFinalTestRepository
 
         if (test != null)
         {
-            test.Questions = test.Questions.OrderBy(q => q.Id).ToList(); // здесь сортировка
+            test.Questions = test.Questions.OrderBy(q => q.Id).ToList(); // Сортировка вопросов по Id
         }
 
         return test;
