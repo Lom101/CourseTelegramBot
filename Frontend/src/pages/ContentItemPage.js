@@ -99,8 +99,8 @@ const ContentItemPage = () => {
   };
 
   return (
-    <div className="m-10 bg-gray-100 p-8 rounded-lg shadow">
-    <h2 className="text-2xl font-extrabold text-gray-800 mb-6">Содержимое темы №{topicId}</h2>
+    <div className="min-h-screen bg-gray-200 px-10 py-8">
+    <h2 className="text-2xl font-extrabold text-gray-800 mb-6 mt-12 ">Содержимое темы №{topicId}</h2>
   
     {/* Create Content Item */}
     <form onSubmit={handleSubmit} className="space-y-6 mb-8" encType="multipart/form-data">
