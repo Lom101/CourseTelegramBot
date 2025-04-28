@@ -15,7 +15,6 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Block> Blocks { get; set; }
     public DbSet<Topic> Topics { get; set; }
-    public DbSet<UserActivity> UserActivities { get; set; }
     
     public DbSet<ContentItem> ContentItems { get; set; }
     public DbSet<BookContent> BookContents { get; set; }

@@ -41,7 +41,6 @@ builder.Services.AddScoped<IAdminBotService, AdminBotService>(); // админк
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IBlockRepository, BlockRepository>();
 builder.Services.AddScoped<ITopicRepository, TopicRepository>();
-builder.Services.AddScoped<IUserActivityRepository, UserActivityRepository>();
 builder.Services.AddScoped<IUserProgressRepository, UserProgressRepository>();
 builder.Services.AddScoped<IFinalTestRepository, FinalTestRepository>();
 
