@@ -15,6 +15,17 @@ public class UserRepository : IUserRepository
         _context = context;
     }
     
+    public async Task UpdateLastActivityAsync(long chatId)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.ChatId == chatId);
+
+        if (user != null)
+        {
+            user.LastActivity = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+    }
+    
     public async Task<IEnumerable<User>> GetFilteredUsersAsync(UserFilterModel filterRequest)
     {
         IQueryable<User> query = _context.Users;

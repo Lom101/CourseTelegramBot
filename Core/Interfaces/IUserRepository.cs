@@ -5,6 +5,7 @@ namespace Core.Interfaces;
 
 public interface IUserRepository
 {
+    Task UpdateLastActivityAsync(long chatId);
     Task<User?> GetByIdAsync(int id);
     Task<User?> GetByChatIdAsync(long chatId);
     Task<User?> GetByPhoneNumberAsync(string phoneNumber);

@@ -59,6 +59,8 @@ public class UserBotService : IUserBotService
         
         _logger.LogInformation($"Получено сообщение от {chatId}: {messageText}");
         
+        await _userRepository.UpdateLastActivityAsync(chatId);
+        
         // Получаем сессию для пользователя, если он проходит тест
         if (_testSessionService.TryGetSession(chatId, out var session))
         {
