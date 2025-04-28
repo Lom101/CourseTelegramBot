@@ -1,6 +1,7 @@
 ﻿using Core.Entity;
 using Core.Entity.Progress;
 using Core.Interfaces;
+using Core.Model;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,9 +17,11 @@ public class UserProgressRepository : IUserProgressRepository
     }
     
     
-    // Получение прогресса по теме
     public async Task SaveFinalTestResultAsync(long chatId, int finalTestId, int correctAnswersCount)
     {
+        // Получение прогресса по теме //
+        
+        
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.ChatId == chatId);
 
@@ -70,16 +73,9 @@ public class UserProgressRepository : IUserProgressRepository
             .AnyAsync(up => up.UserId == user.Id && up.BlockId == blockId && up.IsPassed);
     }
     
-    
-    
-    public Task MarkBlockAsCompletedIfAllTopicsCompleted(int userId, int blockId)
-    {
-        throw new NotImplementedException();
-    }
-    
-    // Завершен ли блок? Пройдены ли все темы в блоке
     public async Task<BlockCompletionProgress?> GetBlockCompletionProgressAsync(int userId, int blockId)
     {
+        // Завершен ли блок? Пройдены ли все темы в блоке
         return await _context.BlockCompletionProgresses
             .FirstOrDefaultAsync(x => x.UserId == userId && x.BlockId == blockId);
     }
@@ -109,6 +105,7 @@ public class UserProgressRepository : IUserProgressRepository
     
         await _context.SaveChangesAsync();
     }
+    
     public async Task MarkTopicCompletedAsync(int userId, int topicId)
     {
         var progress = await _context.TopicProgresses
@@ -149,30 +146,6 @@ public class UserProgressRepository : IUserProgressRepository
         // Сохраняем изменения
         await _context.SaveChangesAsync();
     }
-
-    // Task MarkBlockAsCompletedIfAllTopicsCompleted(int userId, int blockId){
-    //     // Получаем все темы блока
-    //     var topics = await _topicRepository.GetByBlockIdAsync(blockId);
-    //
-    //     // Проверяем, все ли темы пройдены
-    //     var allTopicsCompleted = true;
-    //     foreach (var topic in topics)
-    //     {
-    //         var topicProgress = await _userProgressRepository.GetTopicProgressAsync(userId, topic.Id);
-    //         if (topicProgress == null || topicProgress.IsCompleted != true)
-    //         {
-    //             allTopicsCompleted = false;
-    //             break;
-    //         }
-    //     }
-    //
-    //     if (allTopicsCompleted)
-    //     {
-    //         // Если все темы пройдены, обновляем блок как завершённый
-    //         await _userProgressRepository.MarkBlockAsCompletedAsync(userId, blockId);
-    //     }
-    // }
-    
     
     public async Task<List<int>> GetCompletedTopicIdsAsync(int userId, int blockId)
     {
@@ -190,11 +163,47 @@ public class UserProgressRepository : IUserProgressRepository
             .FirstOrDefaultAsync(x => x.UserId == userId && x.TopicId == topicId);
     }
 
-    // Получение прогресса по финальному тесту
-    public async Task<FinalTestProgress?> GetFinalTestProgressAsync(int userId, int blockId)
+    public async Task<UserProgressDetails> GetUserProgressDetailsAsync(int userId)
     {
-        return await _context.FinalTestProgresses
-            .FirstOrDefaultAsync(x => x.UserId == userId && x.BlockId == blockId);
+        // Получаем все темы, которые пользователь завершил
+        var completedTopics = await _context.TopicProgresses
+            .Where(tp => tp.UserId == userId && tp.IsCompleted)
+            .ToListAsync();
+    
+        // Получаем все финальные тесты, которые пользователь прошел
+        var finalTestProgresses = await _context.FinalTestProgresses
+            .Where(ft => ft.UserId == userId && ft.IsPassed)
+            .Include(ft => ft.Block)
+            .ToListAsync();
+
+        // Получаем прогресс по завершению блоков
+        var blockCompletionProgresses = await _context.BlockCompletionProgresses
+            .Where(bcp => bcp.UserId == userId)
+            .ToListAsync();
+    
+        // Собираем все данные в сущности
+        var progressDetails = new UserProgressDetails
+        {
+            UserId = userId,
+            CompletedTopics = completedTopics,
+            FinalTestProgresses = finalTestProgresses,
+            BlockCompletionProgresses = blockCompletionProgresses
+        };
+
+        return progressDetails;
     }
 
 }
+
+// public Task MarkBlockAsCompletedIfAllTopicsCompleted(int userId, int blockId)
+// {
+//     throw new NotImplementedException();
+// }
+
+
+// // Получение прогресса по финальному тесту
+// public async Task<FinalTestProgress?> GetFinalTestProgressAsync(int userId, int blockId)
+// {
+//     return await _context.FinalTestProgresses
+//         .FirstOrDefaultAsync(x => x.UserId == userId && x.BlockId == blockId);
+// }
