@@ -217,6 +217,7 @@ public class UserBotService : IUserBotService
 
             case var block when block.StartsWith("block_"):
                 var blockId = int.Parse(block.Split('_')[1]);
+                await _botClient.DeleteMessageAsync(chatId, messageId);
                 await ShowTopicsAsync(chatId, blockId, cancellationToken);
                 break;
             
@@ -228,11 +229,13 @@ public class UserBotService : IUserBotService
 
             case var topic when topic.StartsWith("topic_"):
                  topicId = int.Parse(topic.Split('_')[1]);
+                 await _botClient.DeleteMessageAsync(chatId, messageId);
                 await ShowTopicDetailsAsync(chatId, topicId, cancellationToken);
                 break;
             
             case var test when test.StartsWith("test_"):
                 var blockIdForTest = int.Parse(test.Split('_')[1]);
+                await _botClient.DeleteMessageAsync(chatId, messageId);
                 await HandleTestAsync(chatId, blockIdForTest, cancellationToken); // добавляем обработку теста
                 break;
             
@@ -345,14 +348,13 @@ public class UserBotService : IUserBotService
         }
     }
     
+    // TODO: не отправлять ненужные поля answer_{questionIndex}_{question.Id}_{optionIndex}_{option.Id}
     private InlineKeyboardMarkup GenerateAnswerButtons(TestQuestion question, long chatId)
     {
         // добываем index среди ответов на вопрос - текущего ответа
         _testSessionService.TryGetSession(chatId, out var session);
         var questionIndex = session.Test.Questions.IndexOf(question);
-        
-        // TODO: не отправлять ненужные поля answer_{questionIndex}_{question.Id}_{optionIndex}_{option.Id}
-        
+
         var buttons = question.Options
             .Select((option, optionIndex) => new InlineKeyboardButton
             {
@@ -361,8 +363,10 @@ public class UserBotService : IUserBotService
             })
             .ToArray();
 
-        return new InlineKeyboardMarkup(buttons);
+        // Оборачиваем кнопки в одну колонку для вертикального расположения
+        return new InlineKeyboardMarkup(buttons.Select(button => new[] { button }).ToArray());
     }
+
 
     # endregion test session
     
@@ -545,6 +549,7 @@ public class UserBotService : IUserBotService
             chatId,
             $"📚 {topic.Title}\n<a href=\"{topic.LongreadUrl}\">Открыть урок</a>",
             parseMode: ParseMode.Html,
+            replyMarkup: keyboard,
             cancellationToken: cancellationToken);
         
     }
