@@ -6,6 +6,7 @@ import ContentItemPage from "../pages/ContentItemPage";
 import TopicsPage from "../pages/TopicsPage";
 import TestPage from "../pages/TestPage";
 import NotFoundPage from "../pages/NotFoundPage";
+import UserProgressPage from "../pages/UserProgressPage";
 
 // Защищённые маршруты (для авторизованных пользователей)
 export const authRoutes = [
@@ -14,6 +15,7 @@ export const authRoutes = [
     { path: "/blocks/:blockId", Component: TopicsPage },
     { path: "/topic/:topicId", Component: ContentItemPage },
     { path: "/tests", Component: TestPage },
+    { path: "/userprogress", Component: UserProgressPage }, 
 ];
 
 // Публичные маршруты (для всех)

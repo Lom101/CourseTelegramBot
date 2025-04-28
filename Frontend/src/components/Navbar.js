@@ -17,6 +17,7 @@ export default function Navbar() {
   // Элементы меню
   const menuItems = [
     { label: "Участники", to: "/users" },
+    { label: "Прогресс", to: "/userprogress" },
     { label: "Материалы", to: "/blocks" },
     { label: "Тесты", to: "/tests" },
   ];
