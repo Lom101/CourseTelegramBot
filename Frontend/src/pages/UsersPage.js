@@ -87,32 +87,35 @@ const UsersPage = () => {
   return (
     <div className="min-h-screen bg-gray-100 px-10 py-8">
       <div className="mb-8 text-center">
-        <h2 className="text-4xl font-extrabold text-gray-800 mb-2">Список участников</h2>
+        <h2 className="text-4xl font-extrabold text-gray-800 mb-12">Список участников</h2>
         <div className="h-1 w-24 bg-gray-300 rounded-full mx-auto" />
       </div>
-
+  
+  
+      {/* Форма добавления нового пользователя */}
       {isAdmin && (
-  <div className="flex justify-start mb-10">
-    <div className="w-full max-w-5xl">
-      <UserForm
-        newUser={newUser}
-        setNewUser={setNewUser}
-        handleAddUser={handleAddUser}
-      />
-    </div>
-  </div>
-)}
+        <div className="flex justify-center">
+          <div className="w-full max-w-5xl">
+            <UserForm
+              newUser={newUser}
+              setNewUser={setNewUser}
+              handleAddUser={handleAddUser}
+            />
+          </div>
+        </div>
+      )}
 
-      {/* Список пользователей на всю ширину */}
-      <div className="w-full">
+       {/* Список пользователей */}
+       <div className="w-full mb-12">
         <UserList
           users={users}
           onBlock={handleBlock}
           onDelete={handleDelete}
         />
-      </div>
+      </div> 
     </div>
   );
+  
 };
 
 export default UsersPage;
