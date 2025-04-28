@@ -11,7 +11,7 @@ namespace Infrastructure.Data
     {
         public static async Task SeedAsync(AppDbContext context)
         {
-            //await context.Database.EnsureDeletedAsync();
+            await context.Database.EnsureDeletedAsync();
             await context.Database.MigrateAsync();
 
             // Проверяем, если тесты и блоки не созданы
@@ -375,16 +375,16 @@ namespace Infrastructure.Data
                 await context.SaveChangesAsync();
             }
             
-            if (!context.TopicProgresses.Any())
-            {
-                var topicProgress = new List<TopicProgress>
-                {
-                    new TopicProgress { UserId = 1, BlockId = 1, TopicId = 1, IsCompleted = true },
-                    new TopicProgress { UserId = 1, BlockId = 1 ,TopicId = 2, IsCompleted = true },
-                };
-                context.TopicProgresses.AddRange(topicProgress);
-                context.SaveChanges();
-            }
+            // if (!context.TopicProgresses.Any())
+            // {
+            //     var topicProgress = new List<TopicProgress>
+            //     {
+            //         new TopicProgress { UserId = 1, BlockId = 1, TopicId = 1, IsCompleted = true },
+            //         new TopicProgress { UserId = 1, BlockId = 1 ,TopicId = 2, IsCompleted = true },
+            //     };
+            //     context.TopicProgresses.AddRange(topicProgress);
+            //     context.SaveChanges();
+            // }
 
             // if (!context.FinalTestProgresses.Any())
             // {

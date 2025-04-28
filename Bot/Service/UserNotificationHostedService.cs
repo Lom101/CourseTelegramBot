@@ -17,8 +17,8 @@ namespace Bot.Service
         private Timer _timer;
 
         // Настройки, которые можно легко настроить в начале класса
-        private readonly TimeSpan _notificationInterval = TimeSpan.FromMinutes(1); // Частота проверки активности пользователей (каждую минуту)
-        private readonly TimeSpan _inactivityThreshold = TimeSpan.FromMinutes(5); // Время бездействия (5 минут)
+        private readonly TimeSpan _notificationInterval = TimeSpan.FromMinutes(10); // Частота проверки активности пользователей (10 минут)
+        private readonly TimeSpan _inactivityThreshold = TimeSpan.FromMinutes(50); // Время бездействия (50 минут)
 
         private readonly string[] _reminders = new[] 
         {
