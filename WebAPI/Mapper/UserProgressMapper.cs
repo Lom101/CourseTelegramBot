@@ -1,15 +1,18 @@
 ﻿using Backend.Dto.UserProgress;
+using Core.Entity;
 using Core.Model;
 
 namespace Backend.Mapper;
 
 public static class UserProgressMapper
 {
-    public static GetUserProgressResponse ToGetUserProgressResponse(this UserProgressDetails progressDetails)
+    public static GetUserProgressResponse ToGetUserProgressResponse(this UserProgressDetails progressDetails, User user)
     {
         return new GetUserProgressResponse
         {
             UserId = progressDetails.UserId,
+            FullName = user.FullName,    // Имя пользователя
+            Email = user.Email,          // Email пользователя
             BlockProgresses = progressDetails.BlockCompletionProgresses.Select(bcp => new GetBlockProgressResponse
             {
                 BlockId = bcp.BlockId,

@@ -5,6 +5,8 @@ namespace Core.Model;
 public class UserProgressDetails
 {
     public int UserId { get; set; }
+    public string FullName { get; set; }  // Имя пользователя
+    public string Email { get; set; }     // Email пользователя
 
     // Прогресс по темам
     public List<TopicProgress> CompletedTopics { get; set; } = new List<TopicProgress>();

@@ -34,6 +34,7 @@ builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken
 
 builder.Services.AddSingleton<IBackgroundExceptionHandler, BackgroundExceptionHandler>(); // сервис для логирования и отправки админу всех ошибок
 builder.Services.AddHostedService<BotHostedService>(); // фоновый сервис для запуска бота
+builder.Services.AddHostedService<UserNotificationHostedService>();
 
 builder.Services.AddScoped<IUserBotService, UserBotService>(); // хэндлеры для обычных пользователей
 builder.Services.AddScoped<IAdminBotService, AdminBotService>(); // админка
