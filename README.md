@@ -1,8 +1,9 @@
-# CourseTelegramBot
+# BarsCourseTelegramBot
 
 ## Описание
 
-Telegram бот для доступа к курсам 
+Проект, реализованный в рамках Хакатона от Bars Group. 
+Телеграм бот для доступа к обучающему курсу, админ панель, лонгрид сайт с материалами для обучения
 
 ## Как развернуть? 
 
@@ -42,3 +43,5 @@ ConnectionStrings__DefaultConnection="Host=...;Database=...;Username=...;Passwor
 
 Готово!
 
+P.s. фронт в папках frontend и longread, но писать о том как его поднять я не буду
+и в докер композ его тож нету :(
